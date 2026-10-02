@@ -1,4 +1,4 @@
-const { createDonation } = require('../services/donationService');
+const { createDonation, getAvailableDonations } = require('../services/donationService');
 
 /**
  * POST /api/donations
@@ -18,4 +18,21 @@ const createDonationHandler = async (req, res, next) => {
   }
 };
 
-module.exports = { createDonationHandler };
+/**
+ * GET /api/donations
+ * Returns all available donations.
+ */
+const getDonationsHandler = async (req, res, next) => {
+  try {
+    const donations = await getAvailableDonations();
+
+    res.status(200).json({
+      success: true,
+      data: donations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createDonationHandler, getDonationsHandler };

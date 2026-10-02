@@ -80,4 +80,21 @@ const createDonation = async (donationData) => {
   return donation;
 };
 
-module.exports = { createDonation };
+/**
+ * Returns all donations with status AVAILABLE and whose availableUntil
+ * has not yet passed, sorted by newest first.
+ * Excludes donorId from the public response.
+ * @returns {Array} Array of available donation documents.
+ */
+const getAvailableDonations = async () => {
+  const donations = await Donation.find({
+    status: 'AVAILABLE',
+    availableUntil: { $gt: new Date() },
+  })
+    .select('-donorId')
+    .sort({ createdAt: -1 });
+
+  return donations;
+};
+
+module.exports = { createDonation, getAvailableDonations };
