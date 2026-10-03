@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Button from './ui/Button';
+import { createDonation } from '../services/api';
 
 const initialFormState = {
   foodName: '',
@@ -26,12 +27,15 @@ export default function DonationForm() {
   const [form, setForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
     if (successMessage) setSuccessMessage('');
+    if (errorMessage) setErrorMessage('');
   };
 
   const validate = () => {
@@ -49,22 +53,49 @@ export default function DonationForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMessage('');
+    setErrorMessage('');
+    
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+    
     setErrors({});
-    setSuccessMessage('Donation form is ready to submit.');
+    setIsSubmitting(true);
+    
+    try {
+      const donationData = {
+        donorId: import.meta.env.VITE_DEV_DONOR_ID,
+        foodName: form.foodName,
+        category: form.category,
+        quantity: Number(form.quantity),
+        unit: form.unit,
+        description: form.description || undefined,
+        pickupAddress: form.pickupAddress,
+        pincode: form.pincode || undefined,
+        availableUntil: form.availableUntil,
+      };
+      
+      await createDonation(donationData);
+      
+      setForm(initialFormState);
+      setSuccessMessage('Donation posted successfully.');
+    } catch (error) {
+      setErrorMessage(error.message || 'Failed to post donation. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setForm(initialFormState);
     setErrors({});
     setSuccessMessage('');
+    setErrorMessage('');
   };
 
   const inputClass = (error) => `
@@ -83,6 +114,13 @@ export default function DonationForm() {
         <div className="mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-sm font-medium flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
           {successMessage}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm font-medium flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+          {errorMessage}
         </div>
       )}
 
@@ -206,11 +244,11 @@ export default function DonationForm() {
 
         {/* Action Bar */}
         <div className="pt-6 mt-10 border-t border-gray-200 flex justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={handleReset}>
+          <Button type="button" variant="ghost" onClick={handleReset} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit">
-            Post Donation
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Posting donation...' : 'Post Donation'}
           </Button>
         </div>
       </form>

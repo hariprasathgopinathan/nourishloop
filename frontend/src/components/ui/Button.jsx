@@ -16,7 +16,7 @@ export default function Button({ children, variant = 'primary', size = 'md', cla
 
   return (
     <button 
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       {...props}
     >
       {children}
