@@ -4,16 +4,60 @@ import Button from '../ui/Button';
 import UrgencyBadge from '../ui/UrgencyBadge';
 import StatusBadge from '../ui/StatusBadge';
 
-export default function DonationDetail({ donation, onBack }) {
+import { claimDonation } from '../../services/api';
+
+// Temporary dev identifier (will be replaced by Firebase Auth user ID)
+const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+
+export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [claimState, setClaimState] = useState('idle'); // idle | loading | success | error
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
+    if (!donation || !donation._id) {
+      setClaimState('error');
+      setErrorMessage('Invalid donation selection.');
+      return;
+    }
+
+    if (!DEV_NGO_ID) {
+      setClaimState('error');
+      setErrorMessage('NGO development account is not configured.');
+      return;
+    }
+
+    if (donation.status !== 'AVAILABLE') {
+      setClaimState('error');
+      setErrorMessage('This donation is no longer available.');
+      return;
+    }
+
     setClaimState('loading');
-    // Simulate claim operation (will be replaced by real API later)
-    setTimeout(() => {
+    setErrorMessage('');
+    
+    try {
+      const response = await claimDonation(donation._id, DEV_NGO_ID);
       setClaimState('success');
-    }, 1500);
+      
+      if (onClaimSuccess) {
+        // Keep the donor display fields intact, since the API response strips them
+        const updatedDonation = {
+          ...donation,
+          ...response.data.donation
+        };
+        onClaimSuccess(updatedDonation);
+      }
+    } catch (err) {
+      setClaimState('error');
+      if (err.status === 409) {
+        setErrorMessage('This donation is no longer available.');
+      } else if (err.status === 403) {
+        setErrorMessage('Only authorized NGO accounts can claim donations.');
+      } else {
+        setErrorMessage(err.message || 'Unable to connect to the server. Please try again.');
+      }
+    }
   };
 
   if (!donation) return null;
@@ -46,7 +90,7 @@ export default function DonationDetail({ donation, onBack }) {
           <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={22} />
           <div>
             <h4 className="text-red-900 font-bold text-base mb-1">Failed to claim donation</h4>
-            <p className="text-red-700 text-sm">This donation may have already been claimed. Please try again or browse other available food.</p>
+            <p className="text-red-700 text-sm">{errorMessage}</p>
           </div>
         </div>
       )}

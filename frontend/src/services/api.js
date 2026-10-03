@@ -64,3 +64,28 @@ export async function getAvailableDonations() {
     throw error;
   }
 }
+
+export async function claimDonation(donationId, ngoId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/claim`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ngoId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Pass the status code along with the message so components can handle 409 vs 404
+      const error = new Error(data.error || data.message || 'Failed to claim donation');
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}

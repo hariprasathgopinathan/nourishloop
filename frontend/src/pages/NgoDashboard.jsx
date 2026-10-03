@@ -85,12 +85,18 @@ export default function NgoDashboard({ onLogout }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleClaimSuccess = (updatedDonation) => {
+    setSelectedDonation(updatedDonation);
+    setAvailableDonations(prev => prev.filter(d => d._id !== updatedDonation._id));
+  };
+
   const renderContent = () => {
     if (activeView === 'detail' && selectedDonation) {
       return (
         <DonationDetail 
           donation={selectedDonation} 
           onBack={() => handleNavigate('find')} 
+          onClaimSuccess={handleClaimSuccess}
         />
       );
     }
