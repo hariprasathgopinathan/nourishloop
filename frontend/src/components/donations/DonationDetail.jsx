@@ -85,20 +85,24 @@ export default function DonationDetail({ donation, onBack }) {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-0.5">Available until</p>
-                  <p className="text-sm font-semibold text-gray-900">{new Date(donation.availableUntil).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {isNaN(new Date(donation.availableUntil).getTime()) 
+                      ? 'Unknown date' 
+                      : new Date(donation.availableUntil).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {donation.description && (
-              <div className="pt-6 border-t border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <Utensils size={14} className="text-gray-400" />
-                  Description
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{donation.description}</p>
-              </div>
-            )}
+            <div className="pt-6 border-t border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Utensils size={14} className="text-gray-400" />
+                Description
+              </h3>
+              <p className={`text-sm leading-relaxed ${donation.description ? 'text-gray-600' : 'text-gray-400 italic'}`}>
+                {donation.description || 'No additional description provided.'}
+              </p>
+            </div>
           </div>
 
           {/* Pickup Location Card */}
@@ -125,15 +129,15 @@ export default function DonationDetail({ donation, onBack }) {
                 <p className="text-sm font-medium text-gray-900">{donation.pickupAddress}</p>
               </div>
               <div className="flex gap-6">
-                {donation.pincode && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Pincode</p>
-                    <p className="text-sm font-medium text-gray-900">{donation.pincode}</p>
-                  </div>
-                )}
+                <div>
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Pincode</p>
+                  <p className="text-sm font-medium text-gray-900">{donation.pincode || 'N/A'}</p>
+                </div>
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Distance</p>
-                  <p className="text-sm font-semibold text-emerald-600">{donation.distance} km away</p>
+                  <p className="text-sm font-semibold text-emerald-600">
+                    {donation.distance === 'N/A' ? 'N/A' : `${donation.distance} km away`}
+                  </p>
                 </div>
               </div>
             </div>
