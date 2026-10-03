@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AppSidebar from '../components/layout/AppSidebar';
 import AppNavbar from '../components/layout/AppNavbar';
 import NgoOverview from '../components/dashboard/NgoOverview';
@@ -9,7 +9,8 @@ import PickupTracking from '../components/pickup/PickupTracking';
 import NgoImpact from '../components/impact/NgoImpact';
 import EmptyState from '../components/ui/EmptyState';
 import { LayoutDashboard, Search, HandHeart, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
-import { mockAvailableDonations, mockClaims, mockNgoStats, mockNgoProfile } from '../data/ngoMockData';
+import { mockClaims, mockNgoStats, mockNgoProfile } from '../data/ngoMockData';
+import { getAvailableDonations } from '../services/api';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -43,13 +44,38 @@ export default function NgoDashboard({ onLogout }) {
   const [activeView, setActiveView] = useState('overview');
   const [selectedDonation, setSelectedDonation] = useState(null);
   
-  // For pickup tracking, we would normally select a specific claim.
-  // For the design prototype, we'll just show the first active claim if available.
+  const [availableDonations, setAvailableDonations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchAvailableDonations = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getAvailableDonations();
+      // Map explicit donor names
+      const mappedDonations = res.data.map(d => ({
+        ...d,
+        donorName: d.donorOrganizationName || d.donorName || 'Anonymous Donor',
+        distance: 'N/A', // Distance calculation not implemented yet
+      }));
+      setAvailableDonations(mappedDonations);
+    } catch (err) {
+      setError(err.message || 'Unable to load available donations.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailableDonations();
+  }, []);
+
   const activePickupClaim = mockClaims.find(c => c.status === 'CLAIMED' || c.status === 'READY_FOR_PICKUP') || mockClaims[0];
 
   const handleNavigate = (view) => {
     setActiveView(view);
-    setSelectedDonation(null); // Reset detail view state
+    setSelectedDonation(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -69,9 +95,32 @@ export default function NgoDashboard({ onLogout }) {
       );
     }
 
+    if (activeView === 'find' || activeView === 'overview') {
+      if (loading) {
+        return (
+          <div className="flex flex-col items-center justify-center py-32 text-gray-400">
+            <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
+            <p className="text-gray-500 font-medium">Loading available donations...</p>
+          </div>
+        );
+      }
+      if (error) {
+        return (
+          <div className="pt-12">
+            <EmptyState 
+              title="Unable to load donations" 
+              description={error} 
+              actionLabel="Try Again" 
+              onAction={fetchAvailableDonations}
+            />
+          </div>
+        );
+      }
+    }
+
     switch (activeView) {
       case 'find':
-        return <FindDonations donations={mockAvailableDonations} onSelectDonation={handleSelectDonation} />;
+        return <FindDonations donations={availableDonations} onSelectDonation={handleSelectDonation} />;
       case 'claims':
         return <MyClaims claims={mockClaims} />;
       case 'tracking':
@@ -92,7 +141,7 @@ export default function NgoDashboard({ onLogout }) {
         return (
           <NgoOverview 
             stats={mockNgoStats} 
-            recentAvailable={mockAvailableDonations} 
+            recentAvailable={availableDonations} 
             activeClaims={activeClaims}
             onFindDonations={() => handleNavigate('find')}
             onViewClaims={() => handleNavigate('claims')}

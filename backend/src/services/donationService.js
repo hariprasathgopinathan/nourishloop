@@ -91,10 +91,18 @@ const getAvailableDonations = async () => {
     status: 'AVAILABLE',
     availableUntil: { $gt: new Date() },
   })
-    .select('-donorId')
-    .sort({ createdAt: -1 });
+    .populate('donorId', 'name organizationName -_id')
+    .sort({ createdAt: -1 })
+    .lean();
 
-  return donations;
+  return donations.map(donation => {
+    const { donorId, ...rest } = donation;
+    return {
+      ...rest,
+      donorName: donorId?.name || null,
+      donorOrganizationName: donorId?.organizationName || null,
+    };
+  });
 };
 
 const mongoose = require('mongoose');

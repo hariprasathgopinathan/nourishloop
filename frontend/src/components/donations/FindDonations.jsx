@@ -32,7 +32,9 @@ export default function FindDonations({ donations, onSelectDonation }) {
       case 'expiring':
         return new Date(a.availableUntil) - new Date(b.availableUntil);
       case 'nearest':
-        return a.distance - b.distance;
+        const distA = isNaN(parseFloat(a.distance)) ? Infinity : parseFloat(a.distance);
+        const distB = isNaN(parseFloat(b.distance)) ? Infinity : parseFloat(b.distance);
+        return distA - distB;
       case 'largest':
         return b.quantity - a.quantity;
       case 'newest':

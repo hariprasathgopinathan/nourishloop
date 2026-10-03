@@ -43,3 +43,24 @@ export async function getMyDonations(donorId) {
     throw error;
   }
 }
+
+export async function getAvailableDonations() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/donations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Failed to fetch available donations');
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
