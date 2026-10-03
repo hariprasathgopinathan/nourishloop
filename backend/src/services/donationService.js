@@ -228,4 +228,50 @@ const claimDonation = async (donationId, ngoId) => {
   return claimedDonation;
 };
 
-module.exports = { createDonation, getAvailableDonations, getMyDonations, claimDonation };
+/**
+ * Returns all donations claimed by a specific NGO.
+ * @param {string} ngoId - The MongoDB ObjectId of the NGO.
+ * @returns {Array} Array of claimed donation documents.
+ */
+const getMyClaims = async (ngoId) => {
+  if (!ngoId) {
+    const error = new Error('ngoId is required');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(ngoId)) {
+    const error = new Error('Invalid ngoId format');
+    error.status = 400;
+    throw error;
+  }
+
+  const ngo = await User.findById(ngoId);
+  if (!ngo) {
+    const error = new Error('User not found');
+    error.status = 404;
+    throw error;
+  }
+
+  if (ngo.role !== 'NGO') {
+    const error = new Error('User is not an NGO');
+    error.status = 403;
+    throw error;
+  }
+
+  const claims = await Donation.find({ claimedBy: ngoId })
+    .populate('donorId', 'name organizationName -_id')
+    .sort({ claimedAt: -1 })
+    .lean();
+
+  return claims.map(claim => {
+    const { donorId, claimedBy, ...rest } = claim;
+    return {
+      ...rest,
+      donorName: donorId?.name || null,
+      donorOrganizationName: donorId?.organizationName || null,
+    };
+  });
+};
+
+module.exports = { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims };

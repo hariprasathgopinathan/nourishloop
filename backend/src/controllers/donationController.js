@@ -1,4 +1,4 @@
-const { createDonation, getAvailableDonations, getMyDonations, claimDonation } = require('../services/donationService');
+const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims } = require('../services/donationService');
 
 /**
  * POST /api/donations
@@ -76,4 +76,25 @@ const claimDonationHandler = async (req, res, next) => {
   }
 };
 
-module.exports = { createDonationHandler, getDonationsHandler, getMyDonationsHandler, claimDonationHandler };
+/**
+ * GET /api/donations/my-claims
+ * Returns all donations claimed by the current NGO.
+ */
+const getMyClaimsHandler = async (req, res, next) => {
+  try {
+    const { ngoId } = req.query;
+    
+    // Note: ngoId is a temporary development mechanism and will be replaced by
+    // an authenticated user ID when Firebase Authentication is implemented.
+    const result = await getMyClaims(ngoId);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createDonationHandler, getDonationsHandler, getMyDonationsHandler, claimDonationHandler, getMyClaimsHandler };

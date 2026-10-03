@@ -1,0 +1,21 @@
+const express = require('express');
+const router = require('./donationRoutes');
+
+describe('Donation Routes Regression', () => {
+  test('TEST 14 - Route order and existence', () => {
+    // router.stack contains the registered routes
+    const routes = router.stack.map(layer => ({
+      path: layer.route.path,
+      method: Object.keys(layer.route.methods)[0].toUpperCase(),
+    }));
+
+    // Expected order
+    expect(routes).toEqual([
+      { path: '/', method: 'POST' },
+      { path: '/mine', method: 'GET' },
+      { path: '/my-claims', method: 'GET' }, // Static route before dynamic
+      { path: '/', method: 'GET' },
+      { path: '/:donationId/claim', method: 'POST' },
+    ]);
+  });
+});
