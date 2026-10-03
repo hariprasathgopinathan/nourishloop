@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Search, Filter, MoreHorizontal, Clock, MapPin, Building2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, MoreHorizontal, Clock, MapPin, Building2, Loader2, HandHeart } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
 import EmptyState from '../ui/EmptyState';
-import { HandHeart } from 'lucide-react';
+import { getMyClaims } from '../../services/api';
+
+const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
 
 const statusFilters = ['All', 'CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP', 'EXPIRED', 'CANCELLED'];
 const statusLabels = {
@@ -14,25 +16,78 @@ const statusLabels = {
   CANCELLED: 'Cancelled',
 };
 
-export default function MyClaims({ claims }) {
+export default function MyClaims({ onSelectClaim }) {
+  const [claims, setClaims] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const fetchClaims = async () => {
+    if (!DEV_NGO_ID) {
+      setError('NGO development account is not configured.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getMyClaims(DEV_NGO_ID);
+      setClaims(res.data || []);
+    } catch (err) {
+      setError(err.message || 'Unable to load your claims.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClaims();
+  }, []);
+
   const filtered = claims.filter(c => {
     const matchesSearch = !searchQuery || 
-      c.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.donorName.toLowerCase().includes(searchQuery.toLowerCase());
+      c.foodName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.donorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.donorOrganizationName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.pickupAddress?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  if (!claims || claims.length === 0) {
+  if (loading) {
     return (
-      <EmptyState 
-        icon={HandHeart} 
-        title="No claims yet" 
-        description="Browse available donations and claim food for your organization." 
-      />
+      <div className="flex flex-col items-center justify-center py-32 text-gray-400">
+        <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
+        <p className="text-gray-500 font-medium">Loading your claims...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pt-12">
+        <EmptyState 
+          title="Configuration Error" 
+          description={error} 
+          actionLabel={DEV_NGO_ID ? "Try Again" : undefined}
+          onAction={DEV_NGO_ID ? fetchClaims : undefined}
+        />
+      </div>
+    );
+  }
+
+  if (claims.length === 0) {
+    return (
+      <div className="pt-12">
+        <EmptyState 
+          icon={HandHeart} 
+          title="No claims yet" 
+          description="Browse available donations and claim food for your organization. Claimed donations will appear here." 
+        />
+      </div>
     );
   }
 
@@ -53,7 +108,7 @@ export default function MyClaims({ claims }) {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by food or donor..."
+              placeholder="Search by food, category, donor, or address..."
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
@@ -91,11 +146,11 @@ export default function MyClaims({ claims }) {
                     <span className="font-medium text-gray-700">{claim.quantity} {claim.unit}</span>
                     <span className="flex items-center gap-1">
                       <Building2 size={13} className="text-gray-400" />
-                      {claim.donorName}
+                      {claim.donorOrganizationName || claim.donorName || "Anonymous Donor"}
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin size={13} className="text-gray-400" />
-                      {claim.pickupAddress.split(',')[0]}
+                      {claim.pickupAddress?.split(',')[0]}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock size={13} className="text-gray-400" />
@@ -104,11 +159,12 @@ export default function MyClaims({ claims }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  {(claim.status === 'CLAIMED' || claim.status === 'READY_FOR_PICKUP') && (
-                    <button className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-md transition-colors">
-                      {claim.status === 'READY_FOR_PICKUP' ? 'Track pickup' : 'View details'}
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => onSelectClaim?.(claim)}
+                    className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
+                  >
+                    View details
+                  </button>
                   <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
                     <MoreHorizontal size={18} />
                   </button>

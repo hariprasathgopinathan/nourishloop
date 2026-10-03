@@ -128,7 +128,7 @@ export default function NgoDashboard({ onLogout }) {
       case 'find':
         return <FindDonations donations={availableDonations} onSelectDonation={handleSelectDonation} />;
       case 'claims':
-        return <MyClaims claims={mockClaims} />;
+        return <MyClaims onSelectClaim={handleSelectDonation} />;
       case 'tracking':
         return <PickupTracking claim={activePickupClaim} onBack={() => handleNavigate('claims')} />;
       case 'impact':
