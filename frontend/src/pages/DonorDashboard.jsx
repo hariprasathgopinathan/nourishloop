@@ -1,14 +1,29 @@
 import { useState, useEffect } from 'react';
-import Sidebar from '../components/layout/Sidebar';
-import Navbar from '../components/layout/Navbar';
+import AppSidebar from '../components/layout/AppSidebar';
+import AppNavbar from '../components/layout/AppNavbar';
 import DonationForm from '../components/donations/DonationForm';
 import Overview from '../components/dashboard/Overview';
 import DonationsList from '../components/donations/DonationsList';
 import EmptyState from '../components/ui/EmptyState';
-import { Navigation, BarChart, Settings, Bell, User as UserIcon, Loader2 } from 'lucide-react';
+import { LayoutDashboard, List, PlusCircle, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { getMyDonations } from '../services/api';
 
-export default function DonorDashboard() {
+const mainNav = [
+  { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
+  { label: 'Donations', icon: List, id: 'donations' },
+  { label: 'Create Donation', icon: PlusCircle, id: 'create' },
+  { label: 'Pickup Tracking', icon: MapPin, id: 'tracking' },
+  { label: 'Impact', icon: BarChart2, id: 'impact' },
+];
+
+const accountNav = [
+  { label: 'Notifications', icon: Bell, id: 'notifications', badge: 2 },
+  { label: 'Profile', icon: User, id: 'profile' },
+  { label: 'Settings', icon: Settings, id: 'settings' },
+  { label: 'Help & Support', icon: HelpCircle, id: 'support' },
+];
+
+export default function DonorDashboard({ onLogout }) {
   const [activeView, setActiveView] = useState('overview');
   const [data, setData] = useState({ stats: null, donations: [] });
   const [loading, setLoading] = useState(true);
@@ -69,15 +84,17 @@ export default function DonorDashboard() {
       case 'donations':
         return <DonationsList donations={donations} />;
       case 'tracking':
-        return <div className="pt-12"><EmptyState icon={Navigation} title="Pickup Tracking" description="Track the real-time status of food pickups." actionLabel="View Active Pickups" /></div>;
+        return <div className="pt-12"><EmptyState icon={MapPin} title="Pickup Tracking" description="Track the real-time status of food pickups." actionLabel="View Active Pickups" /></div>;
       case 'impact':
-        return <div className="pt-12"><EmptyState icon={BarChart} title="Your Impact" description="See the difference you've made in your community." /></div>;
+        return <div className="pt-12"><EmptyState icon={BarChart2} title="Your Impact" description="See the difference you've made in your community." /></div>;
       case 'notifications':
         return <div className="pt-12"><EmptyState icon={Bell} title="Notifications" description="You have no new notifications." /></div>;
       case 'profile':
-        return <div className="pt-12"><EmptyState icon={UserIcon} title="Profile" description="Manage your account settings and preferences." /></div>;
+        return <div className="pt-12"><EmptyState icon={User} title="Profile" description="Manage your account settings and preferences." /></div>;
       case 'settings':
         return <div className="pt-12"><EmptyState icon={Settings} title="Settings" description="Application settings will appear here." /></div>;
+      case 'support':
+        return <div className="pt-12"><EmptyState icon={HelpCircle} title="Help & Support" description="Get assistance." /></div>;
       case 'overview':
       default:
         return <Overview 
@@ -97,15 +114,27 @@ export default function DonorDashboard() {
     impact: 'Impact',
     notifications: 'Notifications',
     profile: 'Profile',
-    settings: 'Settings'
+    settings: 'Settings',
+    support: 'Help & Support'
   };
 
   return (
     <div className="flex h-screen bg-[#FDFDFC] font-sans text-gray-900 overflow-hidden selection:bg-emerald-100 selection:text-emerald-900">
-      <Sidebar activeItem={activeView} onItemClick={setActiveView} />
+      <AppSidebar 
+        activeItem={activeView} 
+        onItemClick={setActiveView} 
+        mainNav={mainNav}
+        accountNav={accountNav}
+        onLogout={onLogout}
+      />
 
       <div className="flex-1 flex flex-col min-w-0 bg-[#FBFBFA] relative">
-        <Navbar title={titles[activeView]} />
+        <AppNavbar 
+          title={titles[activeView]} 
+          userName="Arun Kumar"
+          userRole="Donor"
+          userInitials="AK"
+        />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">
           {renderContent()}

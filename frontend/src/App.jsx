@@ -1,15 +1,26 @@
 import { useState } from 'react';
 import DonorDashboard from './pages/DonorDashboard';
+import NgoDashboard from './pages/NgoDashboard';
 import LandingPage from './pages/LandingPage';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // 'none' | 'donor' | 'ngo'
+  const [activeRole, setActiveRole] = useState('none');
 
-  if (!isAuthenticated) {
-    return <LandingPage onLogin={() => setIsAuthenticated(true)} />;
+  if (activeRole === 'donor') {
+    return <DonorDashboard onLogout={() => setActiveRole('none')} />;
   }
 
-  return <DonorDashboard />;
+  if (activeRole === 'ngo') {
+    return <NgoDashboard onLogout={() => setActiveRole('none')} />;
+  }
+
+  return (
+    <LandingPage 
+      onLoginDonor={() => setActiveRole('donor')} 
+      onLoginNgo={() => setActiveRole('ngo')} 
+    />
+  );
 }
 
 export default App;

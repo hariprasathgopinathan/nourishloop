@@ -3,7 +3,7 @@ import { ArrowRight, Heart, Leaf, Share2, Shield, Users } from 'lucide-react';
 import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
 
-export default function LandingPage({ onLogin }) {
+export default function LandingPage({ onLoginDonor, onLoginNgo }) {
   const steps = [
     {
       title: "List Surplus Food",
@@ -42,9 +42,9 @@ export default function LandingPage({ onLogin }) {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="hidden sm:inline-flex font-semibold">For NGOs</Button>
-            <Button onClick={onLogin} className="shadow-emerald-500/20 shadow-lg px-6">
-              Go to Dashboard
+            <Button variant="ghost" onClick={onLoginNgo} className="hidden sm:inline-flex font-semibold text-gray-600 hover:text-emerald-700">For NGOs</Button>
+            <Button onClick={onLoginDonor} className="shadow-emerald-500/20 shadow-lg px-6">
+              Donor Login
             </Button>
           </div>
         </div>
@@ -74,12 +74,12 @@ export default function LandingPage({ onLogin }) {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
-              <Button onClick={onLogin} size="lg" className="w-full sm:w-auto text-base px-8 h-14 shadow-emerald-500/20 shadow-xl group">
+              <Button onClick={onLoginDonor} size="lg" className="w-full sm:w-auto text-base px-8 h-14 shadow-emerald-500/20 shadow-xl group">
                 Join as a Donor
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto text-base px-8 h-14 bg-white">
-                Register NGO
+              <Button variant="secondary" onClick={onLoginNgo} size="lg" className="w-full sm:w-auto text-base px-8 h-14 bg-white">
+                NGO Portal
               </Button>
             </div>
           </div>
