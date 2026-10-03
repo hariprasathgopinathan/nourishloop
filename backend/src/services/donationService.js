@@ -97,4 +97,57 @@ const getAvailableDonations = async () => {
   return donations;
 };
 
-module.exports = { createDonation, getAvailableDonations };
+const mongoose = require('mongoose');
+
+/**
+ * Returns donations and statistics for a specific donor.
+ * @param {string} donorId - The MongoDB ObjectId of the donor.
+ * @returns {Object} Object containing stats and array of donations.
+ */
+const getMyDonations = async (donorId) => {
+  if (!donorId) {
+    const error = new Error('donorId is required');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(donorId)) {
+    const error = new Error('Invalid donorId format');
+    error.status = 400;
+    throw error;
+  }
+
+  const donor = await User.findById(donorId);
+  if (!donor) {
+    const error = new Error('Donor not found');
+    error.status = 404;
+    throw error;
+  }
+
+  if (donor.role !== 'DONOR') {
+    const error = new Error('User is not a DONOR');
+    error.status = 403;
+    throw error;
+  }
+
+  const donations = await Donation.find({ donorId })
+    .select('-donorId')
+    .sort({ createdAt: -1 });
+
+  const stats = {
+    total: donations.length,
+    available: 0,
+    claimed: 0,
+    pickedUp: 0,
+  };
+
+  for (const donation of donations) {
+    if (donation.status === 'AVAILABLE') stats.available += 1;
+    if (donation.status === 'CLAIMED') stats.claimed += 1;
+    if (donation.status === 'PICKED_UP') stats.pickedUp += 1;
+  }
+
+  return { stats, donations };
+};
+
+module.exports = { createDonation, getAvailableDonations, getMyDonations };

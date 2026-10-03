@@ -22,3 +22,24 @@ export async function createDonation(donationData) {
     throw error;
   }
 }
+
+export async function getMyDonations(donorId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/donations/mine?donorId=${donorId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Failed to fetch donations');
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
