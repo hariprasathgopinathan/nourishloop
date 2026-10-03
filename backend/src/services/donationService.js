@@ -158,4 +158,74 @@ const getMyDonations = async (donorId) => {
   return { stats, donations };
 };
 
-module.exports = { createDonation, getAvailableDonations, getMyDonations };
+/**
+ * Claims a donation for an NGO atomicaly.
+ * @param {string} donationId - The MongoDB ObjectId of the donation.
+ * @param {string} ngoId - The MongoDB ObjectId of the NGO user claiming the donation.
+ * @returns {Object} The updated donation document.
+ */
+const claimDonation = async (donationId, ngoId) => {
+  if (!donationId) {
+    const error = new Error('donationId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!ngoId) {
+    const error = new Error('ngoId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!mongoose.Types.ObjectId.isValid(donationId) || !mongoose.Types.ObjectId.isValid(ngoId)) {
+    const error = new Error('Invalid ID format');
+    error.status = 400;
+    throw error;
+  }
+
+  const ngo = await User.findById(ngoId);
+  if (!ngo) {
+    const error = new Error('User not found');
+    error.status = 404;
+    throw error;
+  }
+  if (ngo.role !== 'NGO') {
+    const error = new Error('User is not an NGO');
+    error.status = 403;
+    throw error;
+  }
+
+  const now = new Date();
+
+  // Atomic update to ensure no double claims
+  const claimedDonation = await Donation.findOneAndUpdate(
+    {
+      _id: donationId,
+      status: 'AVAILABLE',
+      availableUntil: { $gt: now },
+    },
+    {
+      $set: {
+        status: 'CLAIMED',
+        claimedBy: ngoId,
+        claimedAt: now,
+      },
+    },
+    { new: true }
+  ).select('-donorId');
+
+  if (!claimedDonation) {
+    // Identify failure reason
+    const existing = await Donation.findById(donationId);
+    if (!existing) {
+      const error = new Error('Donation not found');
+      error.status = 404;
+      throw error;
+    }
+    const error = new Error('Donation is no longer available for claiming');
+    error.status = 409;
+    throw error;
+  }
+
+  return claimedDonation;
+};
+
+module.exports = { createDonation, getAvailableDonations, getMyDonations, claimDonation };
