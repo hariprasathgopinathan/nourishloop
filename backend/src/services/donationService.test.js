@@ -184,3 +184,191 @@ describe('Donation Service - getMyClaims', () => {
     expect(claim.longitude).toBeUndefined();
   });
 });
+
+describe('Donation Service - markReadyForPickup and markPickedUp', () => {
+  const validDonationId = new mongoose.Types.ObjectId().toString();
+  const validDonorId = new mongoose.Types.ObjectId().toString();
+  const validNgoId = new mongoose.Types.ObjectId().toString();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Helper: mock findOneAndUpdate returning null (atomic update rejected)
+  // and findById returning a donation with the given status and correct ownership.
+  const mockFailedAtomicUpdate = (existingDonation) => {
+    const mockLean = jest.fn().mockResolvedValue(null);
+    const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
+    Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
+    Donation.findById.mockResolvedValue(existingDonation);
+  };
+
+  describe('markReadyForPickup', () => {
+    const { markReadyForPickup } = require('./donationService');
+
+    test('TEST 1 - Valid READY-FOR-PICKUP', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      
+      const mockUpdated = {
+        _id: validDonationId,
+        donorId: { name: 'Donor 1' },
+        claimedBy: validNgoId,
+        status: 'READY_FOR_PICKUP'
+      };
+      
+      const mockLean = jest.fn().mockResolvedValue(mockUpdated);
+      const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
+      Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
+
+      const result = await markReadyForPickup(validDonationId, validDonorId);
+
+      expect(Donation.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: validDonationId, donorId: validDonorId, status: 'CLAIMED' },
+        { $set: { status: 'READY_FOR_PICKUP' } },
+        { new: true }
+      );
+      expect(result.status).toBe('READY_FOR_PICKUP');
+      expect(result.donorName).toBe('Donor 1');
+    });
+
+    test('TEST 3 - WRONG DONOR (403)', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      const mockLean = jest.fn().mockResolvedValue(null); // update failed
+      const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
+      Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
+      
+      // Fallback check
+      Donation.findById.mockResolvedValue({ _id: validDonationId, donorId: new mongoose.Types.ObjectId() });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Forbidden: You do not own this donation');
+    });
+
+    test('TEST 6 - NGO ATTEMPTS READY (403)', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      await expect(markReadyForPickup(validDonationId, validNgoId)).rejects.toThrow('Only DONOR can mark ready for pickup');
+    });
+
+    // --- Explicit invalid transition tests for markReadyForPickup ---
+
+    test('AVAILABLE → READY_FOR_PICKUP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      mockFailedAtomicUpdate({ _id: validDonationId, donorId: validDonorId, status: 'AVAILABLE' });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Invalid status transition');
+      try { await markReadyForPickup(validDonationId, validDonorId); } catch (e) { expect(e.status).toBe(409); }
+    });
+
+    test('READY_FOR_PICKUP → READY_FOR_PICKUP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      mockFailedAtomicUpdate({ _id: validDonationId, donorId: validDonorId, status: 'READY_FOR_PICKUP' });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('PICKED_UP → READY_FOR_PICKUP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      mockFailedAtomicUpdate({ _id: validDonationId, donorId: validDonorId, status: 'PICKED_UP' });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('CANCELLED → READY_FOR_PICKUP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      mockFailedAtomicUpdate({ _id: validDonationId, donorId: validDonorId, status: 'CANCELLED' });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('EXPIRED → READY_FOR_PICKUP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      mockFailedAtomicUpdate({ _id: validDonationId, donorId: validDonorId, status: 'EXPIRED' });
+
+      await expect(markReadyForPickup(validDonationId, validDonorId)).rejects.toThrow('Invalid status transition');
+    });
+  });
+
+  describe('markPickedUp', () => {
+    const { markPickedUp } = require('./donationService');
+
+    test('TEST 2 - Valid PICKUP', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      
+      const mockUpdated = {
+        _id: validDonationId,
+        donorId: { name: 'Donor 1' },
+        claimedBy: validNgoId,
+        status: 'PICKED_UP',
+        pickedUpAt: new Date()
+      };
+      
+      const mockLean = jest.fn().mockResolvedValue(mockUpdated);
+      const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
+      Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
+
+      const result = await markPickedUp(validDonationId, validNgoId);
+
+      expect(Donation.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: validDonationId, claimedBy: validNgoId, status: 'READY_FOR_PICKUP' },
+        { $set: { status: 'PICKED_UP', pickedUpAt: expect.any(Date) } },
+        { new: true }
+      );
+      expect(result.status).toBe('PICKED_UP');
+      expect(result.pickedUpAt).toBeDefined();
+    });
+
+    test('TEST 4 - WRONG NGO (403)', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      const mockLean = jest.fn().mockResolvedValue(null);
+      const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
+      Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
+      
+      // Fallback check
+      Donation.findById.mockResolvedValue({ _id: validDonationId, claimedBy: new mongoose.Types.ObjectId() });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Forbidden: You did not claim this donation');
+    });
+
+    test('TEST 5 - DONOR ATTEMPTS PICKUP (403)', async () => {
+      User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+      await expect(markPickedUp(validDonationId, validDonorId)).rejects.toThrow('Only NGO can mark as picked up');
+    });
+
+    // --- Explicit invalid transition tests for markPickedUp ---
+
+    test('AVAILABLE → PICKED_UP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      mockFailedAtomicUpdate({ _id: validDonationId, claimedBy: validNgoId, status: 'AVAILABLE' });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('CLAIMED → PICKED_UP rejects 409 (skip state)', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      mockFailedAtomicUpdate({ _id: validDonationId, claimedBy: validNgoId, status: 'CLAIMED' });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('PICKED_UP → PICKED_UP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      mockFailedAtomicUpdate({ _id: validDonationId, claimedBy: validNgoId, status: 'PICKED_UP' });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('CANCELLED → PICKED_UP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      mockFailedAtomicUpdate({ _id: validDonationId, claimedBy: validNgoId, status: 'CANCELLED' });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Invalid status transition');
+    });
+
+    test('EXPIRED → PICKED_UP rejects 409', async () => {
+      User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+      mockFailedAtomicUpdate({ _id: validDonationId, claimedBy: validNgoId, status: 'EXPIRED' });
+
+      await expect(markPickedUp(validDonationId, validNgoId)).rejects.toThrow('Invalid status transition');
+    });
+  });
+});
+

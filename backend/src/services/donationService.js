@@ -274,4 +274,166 @@ const getMyClaims = async (ngoId) => {
   });
 };
 
-module.exports = { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims };
+/**
+ * Marks a donation as ready for pickup by the donor.
+ * @param {string} donationId - The MongoDB ObjectId of the donation.
+ * @param {string} donorId - The MongoDB ObjectId of the donor marking it ready.
+ * @returns {Object} The updated donation document.
+ */
+const markReadyForPickup = async (donationId, donorId) => {
+  if (!donationId) {
+    const error = new Error('donationId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!donorId) {
+    const error = new Error('donorId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!mongoose.Types.ObjectId.isValid(donationId) || !mongoose.Types.ObjectId.isValid(donorId)) {
+    const error = new Error('Invalid ID format');
+    error.status = 400;
+    throw error;
+  }
+
+  const donor = await User.findById(donorId);
+  if (!donor) {
+    const error = new Error('User not found');
+    error.status = 404;
+    throw error;
+  }
+  if (donor.role !== 'DONOR') {
+    const error = new Error('Only DONOR can mark ready for pickup');
+    error.status = 403;
+    throw error;
+  }
+
+  const updatedDonation = await Donation.findOneAndUpdate(
+    {
+      _id: donationId,
+      donorId: donorId,
+      status: 'CLAIMED',
+    },
+    {
+      $set: {
+        status: 'READY_FOR_PICKUP',
+      },
+    },
+    { new: true }
+  )
+    .populate('donorId', 'name organizationName -_id')
+    .lean();
+
+  if (!updatedDonation) {
+    const existing = await Donation.findById(donationId);
+    if (!existing) {
+      const error = new Error('Donation not found');
+      error.status = 404;
+      throw error;
+    }
+    if (existing.donorId.toString() !== donorId) {
+      const error = new Error('Forbidden: You do not own this donation');
+      error.status = 403;
+      throw error;
+    }
+    const error = new Error('Invalid status transition. Donation must be CLAIMED.');
+    error.status = 409;
+    throw error;
+  }
+
+  const { donorId: populatedDonor, claimedBy, ...rest } = updatedDonation;
+  return {
+    ...rest,
+    donorName: populatedDonor?.name || null,
+    donorOrganizationName: populatedDonor?.organizationName || null,
+  };
+};
+
+/**
+ * Marks a donation as picked up by the NGO.
+ * @param {string} donationId - The MongoDB ObjectId of the donation.
+ * @param {string} ngoId - The MongoDB ObjectId of the NGO marking it picked up.
+ * @returns {Object} The updated donation document.
+ */
+const markPickedUp = async (donationId, ngoId) => {
+  if (!donationId) {
+    const error = new Error('donationId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!ngoId) {
+    const error = new Error('ngoId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!mongoose.Types.ObjectId.isValid(donationId) || !mongoose.Types.ObjectId.isValid(ngoId)) {
+    const error = new Error('Invalid ID format');
+    error.status = 400;
+    throw error;
+  }
+
+  const ngo = await User.findById(ngoId);
+  if (!ngo) {
+    const error = new Error('User not found');
+    error.status = 404;
+    throw error;
+  }
+  if (ngo.role !== 'NGO') {
+    const error = new Error('Only NGO can mark as picked up');
+    error.status = 403;
+    throw error;
+  }
+
+  const now = new Date();
+  const updatedDonation = await Donation.findOneAndUpdate(
+    {
+      _id: donationId,
+      claimedBy: ngoId,
+      status: 'READY_FOR_PICKUP',
+    },
+    {
+      $set: {
+        status: 'PICKED_UP',
+        pickedUpAt: now,
+      },
+    },
+    { new: true }
+  )
+    .populate('donorId', 'name organizationName -_id')
+    .lean();
+
+  if (!updatedDonation) {
+    const existing = await Donation.findById(donationId);
+    if (!existing) {
+      const error = new Error('Donation not found');
+      error.status = 404;
+      throw error;
+    }
+    if (existing.claimedBy?.toString() !== ngoId) {
+      const error = new Error('Forbidden: You did not claim this donation');
+      error.status = 403;
+      throw error;
+    }
+    const error = new Error('Invalid status transition. Donation must be READY_FOR_PICKUP.');
+    error.status = 409;
+    throw error;
+  }
+
+  const { donorId: populatedDonor, claimedBy, ...rest } = updatedDonation;
+  return {
+    ...rest,
+    donorName: populatedDonor?.name || null,
+    donorOrganizationName: populatedDonor?.organizationName || null,
+  };
+};
+
+module.exports = { 
+  createDonation, 
+  getAvailableDonations, 
+  getMyDonations, 
+  claimDonation, 
+  getMyClaims, 
+  markReadyForPickup, 
+  markPickedUp 
+};

@@ -1,4 +1,4 @@
-const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims } = require('../services/donationService');
+const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims, markReadyForPickup, markPickedUp } = require('../services/donationService');
 
 /**
  * POST /api/donations
@@ -97,4 +97,58 @@ const getMyClaimsHandler = async (req, res, next) => {
   }
 };
 
-module.exports = { createDonationHandler, getDonationsHandler, getMyDonationsHandler, claimDonationHandler, getMyClaimsHandler };
+/**
+ * PATCH /api/donations/:donationId/ready-for-pickup
+ * Marks a donation as ready for pickup.
+ */
+const markReadyForPickupHandler = async (req, res, next) => {
+  try {
+    const { donationId } = req.params;
+    const { donorId } = req.body;
+
+    // Note: donorId is a temporary development mechanism and will be replaced by
+    // an authenticated user ID when Firebase Authentication is implemented.
+    const result = await markReadyForPickup(donationId, donorId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Donation marked as ready for pickup',
+      data: { donation: result },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * PATCH /api/donations/:donationId/picked-up
+ * Marks a donation as picked up.
+ */
+const markPickedUpHandler = async (req, res, next) => {
+  try {
+    const { donationId } = req.params;
+    const { ngoId } = req.body;
+
+    // Note: ngoId is a temporary development mechanism and will be replaced by
+    // an authenticated user ID when Firebase Authentication is implemented.
+    const result = await markPickedUp(donationId, ngoId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Donation marked as picked up',
+      data: { donation: result },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { 
+  createDonationHandler, 
+  getDonationsHandler, 
+  getMyDonationsHandler, 
+  claimDonationHandler, 
+  getMyClaimsHandler,
+  markReadyForPickupHandler,
+  markPickedUpHandler
+};

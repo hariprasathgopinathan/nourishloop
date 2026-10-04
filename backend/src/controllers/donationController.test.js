@@ -77,3 +77,79 @@ describe('Donation Controller - getMyClaimsHandler', () => {
     expect(next).toHaveBeenCalledWith(error);
   });
 });
+
+describe('Donation Controller - markReadyForPickupHandler', () => {
+  let req, res, next;
+  const { markReadyForPickupHandler } = require('./donationController');
+
+  beforeEach(() => {
+    req = { params: {}, body: {} };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  test('Valid markReadyForPickup returns 200', async () => {
+    req.params.donationId = 'donation-1';
+    req.body.donorId = 'donor-1';
+    
+    const mockResult = { _id: 'donation-1', status: 'READY_FOR_PICKUP' };
+    donationService.markReadyForPickup.mockResolvedValue(mockResult);
+
+    await markReadyForPickupHandler(req, res, next);
+
+    expect(donationService.markReadyForPickup).toHaveBeenCalledWith('donation-1', 'donor-1');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: 'Donation marked as ready for pickup',
+      data: { donation: mockResult }
+    });
+  });
+
+  test('Error cascades to next', async () => {
+    const error = new Error('Test error');
+    donationService.markReadyForPickup.mockRejectedValue(error);
+
+    await markReadyForPickupHandler(req, res, next);
+    expect(next).toHaveBeenCalledWith(error);
+  });
+});
+
+describe('Donation Controller - markPickedUpHandler', () => {
+  let req, res, next;
+  const { markPickedUpHandler } = require('./donationController');
+
+  beforeEach(() => {
+    req = { params: {}, body: {} };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  test('Valid markPickedUp returns 200', async () => {
+    req.params.donationId = 'donation-1';
+    req.body.ngoId = 'ngo-1';
+    
+    const mockResult = { _id: 'donation-1', status: 'PICKED_UP' };
+    donationService.markPickedUp.mockResolvedValue(mockResult);
+
+    await markPickedUpHandler(req, res, next);
+
+    expect(donationService.markPickedUp).toHaveBeenCalledWith('donation-1', 'ngo-1');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: 'Donation marked as picked up',
+      data: { donation: mockResult }
+    });
+  });
+
+  test('Error cascades to next', async () => {
+    const error = new Error('Test error');
+    donationService.markPickedUp.mockRejectedValue(error);
+
+    await markPickedUpHandler(req, res, next);
+    expect(next).toHaveBeenCalledWith(error);
+  });
+});

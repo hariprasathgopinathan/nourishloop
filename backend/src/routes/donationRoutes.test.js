@@ -16,6 +16,8 @@ describe('Donation Routes Regression', () => {
       { path: '/my-claims', method: 'GET' }, // Static route before dynamic
       { path: '/', method: 'GET' },
       { path: '/:donationId/claim', method: 'POST' },
+      { path: '/:donationId/ready-for-pickup', method: 'PATCH' },
+      { path: '/:donationId/picked-up', method: 'PATCH' },
     ]);
   });
 });
