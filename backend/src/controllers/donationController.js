@@ -6,7 +6,8 @@ const { createDonation, getAvailableDonations, getMyDonations, claimDonation, ge
  */
 const createDonationHandler = async (req, res, next) => {
   try {
-    const donation = await createDonation(req.body);
+    const donationData = { ...req.body, donorId: req.appUser._id };
+    const donation = await createDonation(donationData);
 
     res.status(201).json({
       success: true,
@@ -41,7 +42,7 @@ const getDonationsHandler = async (req, res, next) => {
  */
 const getMyDonationsHandler = async (req, res, next) => {
   try {
-    const { donorId } = req.query;
+    const donorId = req.appUser._id;
     const result = await getMyDonations(donorId);
 
     res.status(200).json({
@@ -60,10 +61,7 @@ const getMyDonationsHandler = async (req, res, next) => {
 const claimDonationHandler = async (req, res, next) => {
   try {
     const { donationId } = req.params;
-    const { ngoId } = req.body;
-    
-    // Note: ngoId is a temporary development mechanism and will be replaced by
-    // an authenticated user ID when Firebase Authentication is implemented.
+    const ngoId = req.appUser._id;
     const result = await claimDonation(donationId, ngoId);
 
     res.status(200).json({
@@ -82,10 +80,7 @@ const claimDonationHandler = async (req, res, next) => {
  */
 const getMyClaimsHandler = async (req, res, next) => {
   try {
-    const { ngoId } = req.query;
-    
-    // Note: ngoId is a temporary development mechanism and will be replaced by
-    // an authenticated user ID when Firebase Authentication is implemented.
+    const ngoId = req.appUser._id;
     const result = await getMyClaims(ngoId);
 
     res.status(200).json({
@@ -104,10 +99,7 @@ const getMyClaimsHandler = async (req, res, next) => {
 const markReadyForPickupHandler = async (req, res, next) => {
   try {
     const { donationId } = req.params;
-    const { donorId } = req.body;
-
-    // Note: donorId is a temporary development mechanism and will be replaced by
-    // an authenticated user ID when Firebase Authentication is implemented.
+    const donorId = req.appUser._id;
     const result = await markReadyForPickup(donationId, donorId);
 
     res.status(200).json({
@@ -127,10 +119,7 @@ const markReadyForPickupHandler = async (req, res, next) => {
 const markPickedUpHandler = async (req, res, next) => {
   try {
     const { donationId } = req.params;
-    const { ngoId } = req.body;
-
-    // Note: ngoId is a temporary development mechanism and will be replaced by
-    // an authenticated user ID when Firebase Authentication is implemented.
+    const ngoId = req.appUser._id;
     const result = await markPickedUp(donationId, ngoId);
 
     res.status(200).json({

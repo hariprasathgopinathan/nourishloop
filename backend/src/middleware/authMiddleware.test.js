@@ -1,4 +1,4 @@
-const { requireAuth } = require('./authMiddleware');
+const { requireAuth, requireAppUser, requireRole } = require('./authMiddleware');
 const { getAuth } = require('../config/firebaseAdmin');
 
 jest.mock('../config/firebaseAdmin', () => ({
@@ -77,5 +77,79 @@ describe('authMiddleware', () => {
     await requireAuth(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Invalid or expired authentication token' });
+  });
+});
+
+const authService = require('../services/authService');
+jest.mock('../services/authService');
+
+describe('requireAppUser middleware', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = { user: { uid: 'firebase123' } };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  it('Missing req.user -> 401', async () => {
+    req.user = null;
+    await requireAppUser(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
+
+  it('Valid Firebase UID maps to User -> req.appUser populated', async () => {
+    authService.findUserByFirebaseUid.mockResolvedValue({
+      _id: 'mongo123',
+      firebaseUid: 'firebase123',
+      name: 'Test User',
+      email: 'test@example.com',
+      role: 'DONOR'
+    });
+    await requireAppUser(req, res, next);
+    expect(req.appUser).toBeDefined();
+    expect(req.appUser._id).toBe('mongo123');
+    expect(req.appUser.role).toBe('DONOR');
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('Firebase UID not mapped -> 404', async () => {
+    authService.findUserByFirebaseUid.mockResolvedValue(null);
+    await requireAppUser(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe('requireRole middleware', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = { appUser: { role: 'DONOR' } };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  it('Role matches -> next called', () => {
+    requireRole('DONOR')(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('Role does not match -> 403', () => {
+    requireRole('NGO')(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it('No appUser -> 401', () => {
+    req.appUser = null;
+    requireRole('DONOR')(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 });

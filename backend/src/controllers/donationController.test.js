@@ -17,7 +17,7 @@ describe('Donation Controller - getMyClaimsHandler', () => {
   });
 
   test('TEST 13 - valid NGO returns 200', async () => {
-    req.query.ngoId = 'valid-ngo-id';
+    req.appUser = { _id: 'valid-ngo-id', role: 'NGO' };
     const mockClaims = [{ _id: 'claim1' }];
     donationService.getMyClaims.mockResolvedValue(mockClaims);
 
@@ -33,6 +33,7 @@ describe('Donation Controller - getMyClaimsHandler', () => {
   });
 
   test('TEST 13 - missing ngoId handles error (throws 400 from service)', async () => {
+    req.appUser = { _id: 'ngo-1', role: 'NGO' };
     // Controller just passes to service, service throws
     const error = new Error('ngoId is required');
     error.status = 400;
@@ -45,7 +46,7 @@ describe('Donation Controller - getMyClaimsHandler', () => {
   });
 
   test('TEST 13 - invalid ngoId handles error (throws 400 from service)', async () => {
-    req.query.ngoId = 'invalid';
+    req.appUser = { _id: 'invalid', role: 'NGO' };
     const error = new Error('Invalid ngoId format');
     error.status = 400;
     donationService.getMyClaims.mockRejectedValue(error);
@@ -56,7 +57,7 @@ describe('Donation Controller - getMyClaimsHandler', () => {
   });
 
   test('TEST 13 - valid DONOR handles error (throws 403 from service)', async () => {
-    req.query.ngoId = 'donor-id';
+    req.appUser = { _id: 'donor-id', role: 'NGO' };
     const error = new Error('User is not an NGO');
     error.status = 403;
     donationService.getMyClaims.mockRejectedValue(error);
@@ -67,7 +68,7 @@ describe('Donation Controller - getMyClaimsHandler', () => {
   });
 
   test('TEST 13 - nonexistent user handles error (throws 404 from service)', async () => {
-    req.query.ngoId = 'nonexistent-id';
+    req.appUser = { _id: 'nonexistent-id', role: 'NGO' };
     const error = new Error('User not found');
     error.status = 404;
     donationService.getMyClaims.mockRejectedValue(error);
@@ -91,7 +92,7 @@ describe('Donation Controller - markReadyForPickupHandler', () => {
 
   test('Valid markReadyForPickup returns 200', async () => {
     req.params.donationId = 'donation-1';
-    req.body.donorId = 'donor-1';
+    req.appUser = { _id: 'donor-1', role: 'DONOR' };
     
     const mockResult = { _id: 'donation-1', status: 'READY_FOR_PICKUP' };
     donationService.markReadyForPickup.mockResolvedValue(mockResult);
@@ -108,6 +109,7 @@ describe('Donation Controller - markReadyForPickupHandler', () => {
   });
 
   test('Error cascades to next', async () => {
+    req.appUser = { _id: 'donor-1', role: 'DONOR' };
     const error = new Error('Test error');
     donationService.markReadyForPickup.mockRejectedValue(error);
 
@@ -129,7 +131,7 @@ describe('Donation Controller - markPickedUpHandler', () => {
 
   test('Valid markPickedUp returns 200', async () => {
     req.params.donationId = 'donation-1';
-    req.body.ngoId = 'ngo-1';
+    req.appUser = { _id: 'ngo-1', role: 'NGO' };
     
     const mockResult = { _id: 'donation-1', status: 'PICKED_UP' };
     donationService.markPickedUp.mockResolvedValue(mockResult);
@@ -146,6 +148,7 @@ describe('Donation Controller - markPickedUpHandler', () => {
   });
 
   test('Error cascades to next', async () => {
+    req.appUser = { _id: 'ngo-1', role: 'NGO' };
     const error = new Error('Test error');
     donationService.markPickedUp.mockRejectedValue(error);
 
@@ -153,3 +156,54 @@ describe('Donation Controller - markPickedUpHandler', () => {
     expect(next).toHaveBeenCalledWith(error);
   });
 });
+
+describe('Spoofing Protection Tests', () => {
+  let req, res, next;
+  const { 
+    createDonationHandler, 
+    getMyDonationsHandler, 
+    claimDonationHandler 
+  } = require('./donationController');
+
+  beforeEach(() => {
+    req = { params: {}, body: {}, query: {} };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  test('createDonationHandler ignores body.donorId and uses req.appUser._id', async () => {
+    req.appUser = { _id: 'DONOR_A', role: 'DONOR' };
+    req.body = { donorId: 'DONOR_B', foodName: 'Test Food' };
+    donationService.createDonation.mockResolvedValue({});
+
+    await createDonationHandler(req, res, next);
+
+    expect(donationService.createDonation).toHaveBeenCalledWith({
+      foodName: 'Test Food',
+      donorId: 'DONOR_A'
+    });
+  });
+
+  test('getMyDonationsHandler ignores query.donorId and uses req.appUser._id', async () => {
+    req.appUser = { _id: 'DONOR_A', role: 'DONOR' };
+    req.query = { donorId: 'DONOR_B' };
+    donationService.getMyDonations.mockResolvedValue([]);
+
+    await getMyDonationsHandler(req, res, next);
+
+    expect(donationService.getMyDonations).toHaveBeenCalledWith('DONOR_A');
+  });
+
+  test('claimDonationHandler ignores body.ngoId and uses req.appUser._id', async () => {
+    req.appUser = { _id: 'NGO_A', role: 'NGO' };
+    req.params = { donationId: 'donation-1' };
+    req.body = { ngoId: 'NGO_B' };
+    donationService.claimDonation.mockResolvedValue({});
+
+    await claimDonationHandler(req, res, next);
+
+    expect(donationService.claimDonation).toHaveBeenCalledWith('donation-1', 'NGO_A');
+  });
+});
+

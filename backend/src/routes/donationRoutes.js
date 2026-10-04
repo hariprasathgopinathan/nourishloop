@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth, requireAppUser, requireRole } = require('../middleware/authMiddleware');
 const router = express.Router();
 const { 
   createDonationHandler, 
@@ -11,24 +12,24 @@ const {
 } = require('../controllers/donationController');
 
 // POST /api/donations
-router.post('/', createDonationHandler);
+router.post('/', requireAuth, requireAppUser, requireRole('DONOR'), createDonationHandler);
 
 // GET /api/donations/mine
-router.get('/mine', getMyDonationsHandler);
+router.get('/mine', requireAuth, requireAppUser, requireRole('DONOR'), getMyDonationsHandler);
 
 // GET /api/donations/my-claims
-router.get('/my-claims', getMyClaimsHandler);
+router.get('/my-claims', requireAuth, requireAppUser, requireRole('NGO'), getMyClaimsHandler);
 
 // GET /api/donations
-router.get('/', getDonationsHandler);
+router.get('/', requireAuth, requireAppUser, requireRole('NGO'), getDonationsHandler);
 
 // POST /api/donations/:donationId/claim
-router.post('/:donationId/claim', claimDonationHandler);
+router.post('/:donationId/claim', requireAuth, requireAppUser, requireRole('NGO'), claimDonationHandler);
 
 // PATCH /api/donations/:donationId/ready-for-pickup
-router.patch('/:donationId/ready-for-pickup', markReadyForPickupHandler);
+router.patch('/:donationId/ready-for-pickup', requireAuth, requireAppUser, requireRole('DONOR'), markReadyForPickupHandler);
 
 // PATCH /api/donations/:donationId/picked-up
-router.patch('/:donationId/picked-up', markPickedUpHandler);
+router.patch('/:donationId/picked-up', requireAuth, requireAppUser, requireRole('NGO'), markPickedUpHandler);
 
 module.exports = router;

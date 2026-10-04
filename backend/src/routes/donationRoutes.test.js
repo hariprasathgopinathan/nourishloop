@@ -1,4 +1,9 @@
 const express = require('express');
+
+jest.mock('../config/firebaseAdmin', () => ({
+  getAuth: jest.fn()
+}));
+
 const router = require('./donationRoutes');
 
 describe('Donation Routes Regression', () => {
