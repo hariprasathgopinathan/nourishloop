@@ -16,12 +16,19 @@ export default function MapView({
   zoom = DEFAULT_ZOOM,
   marker = null, // { lng: number, lat: number }
   className = '',
-  height = '400px'
+  height = '400px',
+  onClick = null,
+  interactive = true
 }) {
   const mapContainer = useRef(null);
   const mapInstance = useRef(null);
   const markerInstance = useRef(null);
+  const onClickRef = useRef(onClick);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    onClickRef.current = onClick;
+  }, [onClick]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -52,10 +59,17 @@ export default function MapView({
         },
         center: center,
         zoom: zoom,
-        attributionControl: true
+        attributionControl: true,
+        interactive: interactive
       });
 
       map.addControl(new NavigationControl(), 'top-right');
+
+      map.on('click', (e) => {
+        if (onClickRef.current) {
+          onClickRef.current({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+        }
+      });
 
       mapInstance.current = map;
     } catch (err) {

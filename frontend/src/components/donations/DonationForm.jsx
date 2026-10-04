@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { createDonation } from '../../services/api';
+import LocationPicker from '../map/LocationPicker';
 import { CheckCircle2, AlertCircle, Utensils, MapPin, Clock } from 'lucide-react';
 
 const initialFormState = {
@@ -11,6 +12,7 @@ const initialFormState = {
   description: '',
   pickupAddress: '',
   pincode: '',
+  location: null, // { latitude, longitude }
   availableUntil: '',
 };
 
@@ -53,6 +55,16 @@ export default function DonationForm() {
     }
     if (!form.unit.trim()) newErrors.unit = 'Required';
     if (!form.pickupAddress.trim()) newErrors.pickupAddress = 'Required';
+    if (!form.location) {
+      newErrors.location = 'Please select a pickup location on the map';
+    } else if (
+      !Number.isFinite(form.location.latitude) ||
+      !Number.isFinite(form.location.longitude) ||
+      form.location.latitude < -90 || form.location.latitude > 90 ||
+      form.location.longitude < -180 || form.location.longitude > 180
+    ) {
+      newErrors.location = 'Invalid location coordinates selected';
+    }
     if (!form.availableUntil) newErrors.availableUntil = 'Required';
     return newErrors;
   };
@@ -82,6 +94,8 @@ export default function DonationForm() {
         description: form.description || undefined,
         pickupAddress: form.pickupAddress,
         pincode: form.pincode || undefined,
+        latitude: form.location ? form.location.latitude : undefined,
+        longitude: form.location ? form.location.longitude : undefined,
         availableUntil: form.availableUntil,
       };
       
@@ -267,6 +281,22 @@ export default function DonationForm() {
                 className={inputClass(errors.pincode)}
               />
             </InputWrapper>
+          </div>
+
+          <div className="pt-2">
+            <LocationPicker
+              value={form.location}
+              onChange={(loc) => {
+                setForm(prev => ({ ...prev, location: loc }));
+                if (errors.location) setErrors(prev => ({ ...prev, location: undefined }));
+              }}
+              disabled={isSubmitting}
+            />
+            {errors.location && (
+              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle size={14} /> {errors.location}
+              </p>
+            )}
           </div>
         </section>
 
