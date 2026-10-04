@@ -34,8 +34,7 @@ export default function DonorDashboard({ onLogout }) {
     setLoading(true);
     setError(null);
     try {
-      const donorId = import.meta.env.VITE_DEV_DONOR_ID;
-      const res = await getMyDonations(donorId);
+      const res = await getMyDonations();
       setData(res.data);
     } catch (err) {
       setError(err.message || 'Unable to load your donations.');

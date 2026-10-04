@@ -1,160 +1,85 @@
+import { auth } from '../config/firebase';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export async function createDonation(donationData) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(donationData),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Failed to create donation');
-    }
-
-    return data;
-  } catch (error) {
-    // Re-throw the error so the component can handle it
+async function authFetch(url, options = {}) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    const error = new Error("Authentication required.");
+    error.status = 401;
     throw error;
   }
+
+  const token = await currentUser.getIdToken();
+  
+  const headers = {
+    ...options.headers,
+    'Authorization': `Bearer ${token}`
+  };
+
+  const response = await fetch(url, { ...options, headers });
+  
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const error = new Error((data && (data.error || data.message)) || `HTTP error ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
 }
 
-export async function getMyDonations(donorId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations/mine?donorId=${donorId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+export async function getMe() {
+  return await authFetch(`${API_BASE_URL}/auth/me`);
+}
 
-    const data = await response.json();
+export async function createDonation(donationData) {
+  return await authFetch(`${API_BASE_URL}/donations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(donationData),
+  });
+}
 
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Failed to fetch donations');
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export async function getMyDonations() {
+  return await authFetch(`${API_BASE_URL}/donations/mine`);
 }
 
 export async function getAvailableDonations() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Failed to fetch available donations');
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  return await authFetch(`${API_BASE_URL}/donations`);
 }
 
-export async function claimDonation(donationId, ngoId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/claim`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ngoId }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      // Pass the status code along with the message so components can handle 409 vs 404
-      const error = new Error(data.error || data.message || 'Failed to claim donation');
-      error.status = response.status;
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export async function claimDonation(donationId) {
+  return await authFetch(`${API_BASE_URL}/donations/${donationId}/claim`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 }
 
-export async function getMyClaims(ngoId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations/my-claims?ngoId=${ngoId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Failed to fetch my claims');
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export async function getMyClaims() {
+  return await authFetch(`${API_BASE_URL}/donations/my-claims`);
 }
 
-export async function markReadyForPickup(donationId, donorId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/ready-for-pickup`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ donorId }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(data.error || data.message || 'Failed to mark ready for pickup');
-      error.status = response.status;
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export async function markReadyForPickup(donationId) {
+  return await authFetch(`${API_BASE_URL}/donations/${donationId}/ready-for-pickup`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 }
 
-export async function markPickedUp(donationId, ngoId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/picked-up`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ngoId }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(data.error || data.message || 'Failed to mark picked up');
-      error.status = response.status;
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export async function markPickedUp(donationId) {
+  return await authFetch(`${API_BASE_URL}/donations/${donationId}/picked-up`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 }
+

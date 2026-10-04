@@ -7,7 +7,7 @@ import StatusBadge from '../ui/StatusBadge';
 import { claimDonation } from '../../services/api';
 
 // Temporary dev identifier (will be replaced by Firebase Auth user ID)
-const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
 
 export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -21,11 +21,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
       return;
     }
 
-    if (!DEV_NGO_ID) {
-      setClaimState('error');
-      setErrorMessage('NGO development account is not configured.');
-      return;
-    }
+
 
     if (donation.status !== 'AVAILABLE') {
       setClaimState('error');
@@ -37,7 +33,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
     setErrorMessage('');
     
     try {
-      const response = await claimDonation(donation._id, DEV_NGO_ID);
+      const response = await claimDonation(donation._id);
       setClaimState('success');
       
       if (onClaimSuccess) {

@@ -4,7 +4,7 @@ import StatusBadge from '../ui/StatusBadge';
 import EmptyState from '../ui/EmptyState';
 import { getMyClaims } from '../../services/api';
 
-const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
 
 const statusFilters = ['All', 'CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP', 'EXPIRED', 'CANCELLED'];
 const statusLabels = {
@@ -24,16 +24,10 @@ export default function MyClaims({ onSelectClaim }) {
   const [statusFilter, setStatusFilter] = useState('All');
 
   const fetchClaims = async () => {
-    if (!DEV_NGO_ID) {
-      setError('NGO development account is not configured.');
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setError(null);
     try {
-      const res = await getMyClaims(DEV_NGO_ID);
+      const res = await getMyClaims();
       setClaims(res.data || []);
     } catch (err) {
       setError(err.message || 'Unable to load your claims.');
@@ -72,8 +66,8 @@ export default function MyClaims({ onSelectClaim }) {
         <EmptyState 
           title="Configuration Error" 
           description={error} 
-          actionLabel={DEV_NGO_ID ? "Try Again" : undefined}
-          onAction={DEV_NGO_ID ? fetchClaims : undefined}
+          actionLabel="Try Again"
+          onAction={fetchClaims}
         />
       </div>
     );

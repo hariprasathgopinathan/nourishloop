@@ -75,7 +75,6 @@ export default function DonationForm() {
     
     try {
       const donationData = {
-        donorId: import.meta.env.VITE_DEV_DONOR_ID,
         foodName: form.foodName,
         category: form.category,
         quantity: Number(form.quantity),

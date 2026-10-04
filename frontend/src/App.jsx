@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function AppContent() {
-  const { user, logout } = useAuth();
+  const { user, profileError, logout } = useAuth();
   
   // 'none' | 'donor' | 'ngo'
   const [activeRole, setActiveRole] = useState('none');
@@ -22,6 +22,23 @@ function AppContent() {
       setActiveRole('none');
     }
   };
+
+  if (profileError && user && activeRole !== 'none') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-red-100 p-8 text-center">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Profile Link Required</h2>
+          <p className="text-gray-600 mb-8">{profileError}</p>
+          <button 
+            onClick={handleLogout}
+            className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-medium"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Temporarily, we just use activeRole to decide the view.
   // In the future, activeRole will be derived from MongoDB.

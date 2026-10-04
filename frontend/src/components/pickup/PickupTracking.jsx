@@ -5,8 +5,8 @@ import StatusBadge from '../ui/StatusBadge';
 import Button from '../ui/Button';
 import { markReadyForPickup, markPickedUp, getMyClaims } from '../../services/api';
 
-const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
-const DEV_DONOR_ID = import.meta.env.VITE_DEV_DONOR_ID;
+// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+// const DEV_DONOR_ID = import.meta.env.VITE_DEV_DONOR_ID;
 
 const timelineSteps = [
   { key: 'claimed', label: 'Donation claimed', description: 'The food is reserved for pickup.' },
@@ -44,14 +44,10 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
   }, [role, initialDonations]);
 
   const fetchNgoClaims = async () => {
-    if (!DEV_NGO_ID) {
-      setError('NGO development account is not configured.');
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
-      const res = await getMyClaims(DEV_NGO_ID);
+      const res = await getMyClaims();
       setClaimsList((res.data || []).filter(d => ['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(d.status)));
     } catch (err) {
       setError(err.message || 'Unable to load pickups.');
@@ -67,12 +63,10 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     
     try {
       if (role === 'DONOR' && selectedClaim.status === 'CLAIMED') {
-        if (!DEV_DONOR_ID) throw new Error('Donor development account is not configured.');
-        const res = await markReadyForPickup(selectedClaim._id, DEV_DONOR_ID);
+        const res = await markReadyForPickup(selectedClaim._id);
         handleActionSuccess(res.data || res);
       } else if (role === 'NGO' && selectedClaim.status === 'READY_FOR_PICKUP') {
-        if (!DEV_NGO_ID) throw new Error('NGO development account is not configured.');
-        const res = await markPickedUp(selectedClaim._id, DEV_NGO_ID);
+        const res = await markPickedUp(selectedClaim._id);
         handleActionSuccess(res.data || res);
       }
     } catch (err) {
