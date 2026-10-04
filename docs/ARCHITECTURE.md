@@ -70,7 +70,7 @@ TanStack Query updates the UI cache
 | Server state management     | TanStack Query for fetching, caching, and syncing API data.|
 | Client state management     | Zustand for local UI state only when truly needed.         |
 | Realtime event handling     | Socket.IO client listens for server-pushed events.         |
-| Map rendering               | Google Maps for displaying donation locations.             |
+| Map rendering               | MapLibre GL JS for displaying donation locations using OpenStreetMap data. |
 
 ### Backend (Node.js + Express.js + JavaScript)
 
@@ -113,13 +113,30 @@ TanStack Query updates the UI cache
 | Room-based targeting        | Users join rooms based on role or location for scoped notifications. |
 | Connection management       | Handle connect, disconnect, and reconnection gracefully.   |
 
-### Location Services (Google Maps Platform)
+### Location Services (Open-Source OSM Architecture)
 
 | Responsibility              | Details                                                    |
 | --------------------------- | ---------------------------------------------------------- |
-| Map display                 | Show donation locations on an interactive map.             |
-| Geocoding                   | Convert addresses to latitude/longitude coordinates.       |
+| Map display                 | **MapLibre GL JS** showing **OpenStreetMap (OSM)** data.   |
+| Geocoding                   | **Nominatim** (initially) for address-to-coordinate conversion. |
+| Routing                     | **OSRM** (initially) for routing and distance calculation. |
 | Distance filtering          | Enable NGOs to find nearby donations.                      |
+
+**Provider Abstraction & Future-Proofing:**
+Business logic will eventually depend on an internal `LocationService` abstraction (e.g., `geocode()`, `reverseGeocode()`, `calculateDistance()`, `route()`). This ensures the application is not tightly coupled to public Nominatim or OSRM instances, allowing seamless migration to self-hosted providers (like Pelias or self-hosted OSRM) if usage limits are exceeded.
+
+**Location Privacy & Security Principles:**
+- Latitude/longitude are the canonical machine-readable location values; address/pincode remain human-readable operational information.
+- Do not unnecessarily expose exact private addresses publicly.
+- Before an NGO claims a donation, show only the location precision required by the product.
+- After an authorized claim, exact pickup information can be revealed to the appropriate parties.
+- Never send unnecessary personal/confidential information to public mapping services.
+- Do not implement public Nominatim autocomplete.
+- Respect provider usage policies and rate limits. Do not assume public OSM/Nominatim infrastructure provides unlimited free production usage.
+- Keep provider URLs configurable instead of hardcoding them throughout application code.
+- Ensure proper attribution requirements (e.g., "© OpenStreetMap contributors") are visibly met on all map interfaces.
+- Do not expose private provider credentials in frontend code. Use HTTPS in production.
+- *Note:* The open-source stack is not automatically "100% secure". Application security comes from existing Firebase authentication, backend authorization, validation, rate limiting, HTTPS, controlled data exposure, and provider usage controls.
 
 ---
 

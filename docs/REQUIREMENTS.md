@@ -114,7 +114,7 @@ Notifications will be delivered via Socket.IO for real-time, in-app updates.
 
 - Donors must provide their pickup address, pincode, latitude, and longitude when creating a donation.
 - NGOs should be able to see donations on a map and filter by distance or pincode.
-- Google Maps Platform will be used for geocoding and map display.
+- An open-source OSM-based mapping architecture (MapLibre GL JS, OpenStreetMap, Nominatim) will be used for geocoding and map display.
 
 ---
 
