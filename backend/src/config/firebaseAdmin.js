@@ -1,4 +1,5 @@
-const admin = require('firebase-admin');
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
 
 const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -10,9 +11,9 @@ if (!projectId || !clientEmail || !privateKey) {
   console.warn("WARNING: Firebase Admin configuration is missing from environment variables. Authentication requests will fail.");
 } else {
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert({
           projectId,
           clientEmail,
           privateKey,
@@ -24,4 +25,6 @@ if (!projectId || !clientEmail || !privateKey) {
   }
 }
 
-module.exports = admin;
+module.exports = {
+  getAuth
+};

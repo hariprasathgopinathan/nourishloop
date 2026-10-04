@@ -1,4 +1,4 @@
-const admin = require('../config/firebaseAdmin');
+const { getAuth } = require('../config/firebaseAdmin');
 
 const requireAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -20,7 +20,7 @@ const requireAuth = async (req, res, next) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await getAuth().verifyIdToken(token);
     
     // Attach safe authenticated-user object
     req.user = {

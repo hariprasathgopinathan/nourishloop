@@ -1,8 +1,8 @@
 const { requireAuth } = require('./authMiddleware');
-const admin = require('../config/firebaseAdmin');
+const { getAuth } = require('../config/firebaseAdmin');
 
 jest.mock('../config/firebaseAdmin', () => ({
-  auth: jest.fn()
+  getAuth: jest.fn()
 }));
 
 describe('authMiddleware', () => {
@@ -33,7 +33,7 @@ describe('authMiddleware', () => {
   it('TEST 3: Bearer token with invalid verification -> 401', async () => {
     req.headers.authorization = 'Bearer invalid-token';
     const verifyIdToken = jest.fn().mockRejectedValue(new Error('Invalid token'));
-    admin.auth.mockReturnValue({ verifyIdToken });
+    getAuth.mockReturnValue({ verifyIdToken });
     
     await requireAuth(req, res, next);
     expect(verifyIdToken).toHaveBeenCalledWith('invalid-token');
@@ -44,7 +44,7 @@ describe('authMiddleware', () => {
   it('TEST 4: Valid token -> req.user contains verified uid', async () => {
     req.headers.authorization = 'Bearer valid-token';
     const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'firebase123', email: 'test@test.com' });
-    admin.auth.mockReturnValue({ verifyIdToken });
+    getAuth.mockReturnValue({ verifyIdToken });
     
     await requireAuth(req, res, next);
     expect(next).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('authMiddleware', () => {
       email: 'test@test.com',
       privateKey: 'secret' 
     });
-    admin.auth.mockReturnValue({ verifyIdToken });
+    getAuth.mockReturnValue({ verifyIdToken });
     
     await requireAuth(req, res, next);
     expect(next).toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe('authMiddleware', () => {
   it('TEST 6: Firebase verification throws unexpected error -> safe 401/internal auth error', async () => {
     req.headers.authorization = 'Bearer some-token';
     const verifyIdToken = jest.fn().mockRejectedValue(new Error('Firebase internal crash'));
-    admin.auth.mockReturnValue({ verifyIdToken });
+    getAuth.mockReturnValue({ verifyIdToken });
     
     await requireAuth(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);

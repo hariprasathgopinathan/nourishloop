@@ -4,5 +4,6 @@ const authController = require('../controllers/authController');
 const { requireAuth } = require('../middleware/authMiddleware');
 
 router.get('/me', requireAuth, authController.getCurrentUser);
+router.post('/profile', requireAuth, authController.createProfileHandler);
 
 module.exports = router;
