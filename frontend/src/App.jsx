@@ -6,6 +6,7 @@ import AuthPage from './pages/AuthPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import OnboardingPage from './pages/OnboardingPage';
+import MapDemoPage from './pages/MapDemoPage';
 
 function AppContent() {
   const { user, profileError, logout, appProfile } = useAuth();
@@ -19,6 +20,10 @@ function AppContent() {
       console.error("Logout failed:", err);
     }
   };
+
+  if (window.location.pathname === '/map-demo') {
+    return <MapDemoPage />;
+  }
 
   if (profileError && user) {
     return <OnboardingPage onLogout={handleLogout} onSuccess={(role) => {

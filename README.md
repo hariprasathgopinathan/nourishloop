@@ -22,7 +22,7 @@ Every day, enormous quantities of perfectly edible food go to waste at restauran
 | **Database**       | MongoDB, Mongoose, MongoDB Atlas                |
 | **Authentication** | Firebase Authentication, Firebase Admin SDK      |
 | **Realtime**       | Socket.IO                                       |
-| **Location**       | Google Maps Platform                            |
+| **Location**       | Open-Source OSM Stack (MapLibre GL JS)          |
 | **Deployment**     | Vercel (frontend), Render (backend), Atlas (DB) |
 | **Version Control**| Git, GitHub                                     |
 
@@ -48,7 +48,7 @@ The project is currently in the planning and documentation phase. No application
 | 6    | Frontend setup (React, Vite, Tailwind)          | ⬜ Planned  |
 | 7    | Frontend pages — Auth, Dashboard, Donations     | ⬜ Planned  |
 | 8    | Realtime notifications (Socket.IO)              | ⬜ Planned  |
-| 9    | Location & maps (Google Maps Platform)          | ⬜ Planned  |
+| 9    | Location & maps (MapLibre OSM)                | ⬜ Planned  |
 | 10   | Testing, polish & deployment                    | ⬜ Planned  |
 
 ---
