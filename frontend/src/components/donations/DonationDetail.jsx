@@ -7,7 +7,7 @@ import StatusBadge from '../ui/StatusBadge';
 import { claimDonation } from '../../services/api';
 
 // Temporary dev identifier (will be replaced by Firebase Auth user ID)
-// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+
 
 export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   const [showConfirm, setShowConfirm] = useState(false);

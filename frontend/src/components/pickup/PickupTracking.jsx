@@ -5,8 +5,7 @@ import StatusBadge from '../ui/StatusBadge';
 import Button from '../ui/Button';
 import { markReadyForPickup, markPickedUp, getMyClaims } from '../../services/api';
 
-// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
-// const DEV_DONOR_ID = import.meta.env.VITE_DEV_DONOR_ID;
+
 
 const timelineSteps = [
   { key: 'claimed', label: 'Donation claimed', description: 'The food is reserved for pickup.' },

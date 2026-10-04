@@ -4,7 +4,7 @@ import StatusBadge from '../ui/StatusBadge';
 import EmptyState from '../ui/EmptyState';
 import { getMyClaims } from '../../services/api';
 
-// const DEV_NGO_ID = import.meta.env.VITE_DEV_NGO_ID;
+
 
 const statusFilters = ['All', 'CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP', 'EXPIRED', 'CANCELLED'];
 const statusLabels = {
