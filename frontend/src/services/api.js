@@ -34,6 +34,16 @@ export async function getMe() {
   return await authFetch(`${API_BASE_URL}/auth/me`);
 }
 
+export async function createProfile(profileData) {
+  return await authFetch(`${API_BASE_URL}/auth/profile`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(profileData),
+  });
+}
+
 export async function createDonation(donationData) {
   return await authFetch(`${API_BASE_URL}/donations`, {
     method: 'POST',

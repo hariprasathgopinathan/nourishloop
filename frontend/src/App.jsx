@@ -5,12 +5,11 @@ import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import OnboardingPage from './pages/OnboardingPage';
 
 function AppContent() {
-  const { user, profileError, logout } = useAuth();
+  const { user, profileError, logout, appProfile } = useAuth();
   
-  // 'none' | 'donor' | 'ngo'
-  const [activeRole, setActiveRole] = useState('none');
   const [authIntent, setAuthIntent] = useState(null);
 
   const handleLogout = async () => {
@@ -18,44 +17,34 @@ function AppContent() {
       await logout();
     } catch (err) {
       console.error("Logout failed:", err);
-    } finally {
-      setActiveRole('none');
     }
   };
 
-  if (profileError && user && activeRole !== 'none') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-red-100 p-8 text-center">
-          <h2 className="text-xl font-bold text-red-600 mb-4">Profile Link Required</h2>
-          <p className="text-gray-600 mb-8">{profileError}</p>
-          <button 
-            onClick={handleLogout}
-            className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-medium"
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
-    );
+  if (profileError && user) {
+    return <OnboardingPage onLogout={handleLogout} onSuccess={(role) => {
+      // The profile is refreshed in OnboardingPage so appProfile will be populated shortly.
+      // We don't need to do anything here because AuthContext updates.
+    }} />;
   }
 
-  // Temporarily, we just use activeRole to decide the view.
-  // In the future, activeRole will be derived from MongoDB.
-  if (activeRole === 'donor') {
-    return (
-      <ProtectedRoute fallbackAction={() => setActiveRole('none')}>
-        <DonorDashboard onLogout={handleLogout} />
-      </ProtectedRoute>
-    );
-  }
-
-  if (activeRole === 'ngo') {
-    return (
-      <ProtectedRoute fallbackAction={() => setActiveRole('none')}>
-        <NgoDashboard onLogout={handleLogout} />
-      </ProtectedRoute>
-    );
+  // If user is authenticated and has a profile, show the correct dashboard
+  if (user && appProfile) {
+    const role = appProfile.role.toLowerCase();
+    if (role === 'donor') {
+      return (
+        <ProtectedRoute fallbackAction={handleLogout}>
+          <DonorDashboard onLogout={handleLogout} />
+        </ProtectedRoute>
+      );
+    }
+    
+    if (role === 'ngo') {
+      return (
+        <ProtectedRoute fallbackAction={handleLogout}>
+          <NgoDashboard onLogout={handleLogout} />
+        </ProtectedRoute>
+      );
+    }
   }
 
   if (authIntent) {
@@ -65,7 +54,7 @@ function AppContent() {
         onBack={() => setAuthIntent(null)} 
         onSuccess={(role) => {
           setAuthIntent(null);
-          setActiveRole(role);
+          // Wait for AuthContext to resolve the profile via subscribeToAuthState
         }} 
       />
     );

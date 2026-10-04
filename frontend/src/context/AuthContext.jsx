@@ -16,21 +16,31 @@ export const AuthProvider = ({ children }) => {
   const [appProfile, setAppProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
 
+  const fetchProfile = async () => {
+    try {
+      const res = await getMe();
+      setAppProfile(res.data.user);
+      setProfileError(null);
+      return res.data.user;
+    } catch (err) {
+      if (err.status === 404) {
+        setProfileError("Firebase authentication succeeds, but the application profile is not linked.");
+      } else {
+        setProfileError(err.message || "Failed to load application profile.");
+      }
+      setAppProfile(null);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {
-          const res = await getMe();
-          setAppProfile(res.data.user);
-          setProfileError(null);
+          await fetchProfile();
         } catch (err) {
-          if (err.status === 404) {
-            setProfileError("Firebase authentication succeeds, but the application profile is not linked.");
-          } else {
-            setProfileError(err.message || "Failed to load application profile.");
-          }
-          setAppProfile(null);
+          // Error state is handled in fetchProfile
         }
       } else {
         setAppProfile(null);
@@ -61,7 +71,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
-    logout
+    logout,
+    fetchProfile
   };
 
   // Prevent flicker during initial auth state resolution
