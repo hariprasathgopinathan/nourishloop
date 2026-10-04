@@ -110,3 +110,51 @@ export async function getMyClaims(ngoId) {
     throw error;
   }
 }
+
+export async function markReadyForPickup(donationId, donorId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/ready-for-pickup`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ donorId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const error = new Error(data.error || data.message || 'Failed to mark ready for pickup');
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function markPickedUp(donationId, ngoId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/donations/${donationId}/picked-up`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ngoId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const error = new Error(data.error || data.message || 'Failed to mark picked up');
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}

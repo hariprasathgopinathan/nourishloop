@@ -71,7 +71,7 @@ export default function NgoDashboard({ onLogout }) {
     fetchAvailableDonations();
   }, []);
 
-  const activePickupClaim = mockClaims.find(c => c.status === 'CLAIMED' || c.status === 'READY_FOR_PICKUP') || mockClaims[0];
+
 
   const handleNavigate = (view) => {
     setActiveView(view);
@@ -130,7 +130,7 @@ export default function NgoDashboard({ onLogout }) {
       case 'claims':
         return <MyClaims onSelectClaim={handleSelectDonation} />;
       case 'tracking':
-        return <PickupTracking claim={activePickupClaim} onBack={() => handleNavigate('claims')} />;
+        return <PickupTracking role="NGO" />;
       case 'impact':
         return <NgoImpact />;
       case 'notifications':

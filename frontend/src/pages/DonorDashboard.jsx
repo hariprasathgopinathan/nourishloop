@@ -7,6 +7,7 @@ import DonationsList from '../components/donations/DonationsList';
 import EmptyState from '../components/ui/EmptyState';
 import { LayoutDashboard, List, PlusCircle, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { getMyDonations } from '../services/api';
+import PickupTracking from '../components/pickup/PickupTracking';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -84,7 +85,7 @@ export default function DonorDashboard({ onLogout }) {
       case 'donations':
         return <DonationsList donations={donations} />;
       case 'tracking':
-        return <div className="pt-12"><EmptyState icon={MapPin} title="Pickup Tracking" description="Track the real-time status of food pickups." actionLabel="View Active Pickups" /></div>;
+        return <PickupTracking role="DONOR" initialDonations={donations} onUpdate={fetchDashboardData} />;
       case 'impact':
         return <div className="pt-12"><EmptyState icon={BarChart2} title="Your Impact" description="See the difference you've made in your community." /></div>;
       case 'notifications':
