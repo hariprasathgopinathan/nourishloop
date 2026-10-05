@@ -1,4 +1,4 @@
-const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims, markReadyForPickup, markPickedUp, getNearbyDonations } = require('../services/donationService');
+const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims, markReadyForPickup, markPickedUp, getNearbyDonations, getDonationRoute } = require('../services/donationService');
 
 /**
  * POST /api/donations
@@ -167,6 +167,24 @@ const getNearbyDonationsHandler = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/donations/:donationId/route
+ * Returns the authorized pickup route for a claimed donation.
+ */
+const getDonationRouteHandler = async (req, res, next) => {
+  try {
+    const { donationId } = req.params;
+    const routeData = await getDonationRoute(donationId, req.appUser);
+
+    res.status(200).json({
+      success: true,
+      data: routeData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = { 
   createDonationHandler, 
   getDonationsHandler, 
@@ -175,5 +193,6 @@ module.exports = {
   getMyClaimsHandler,
   markReadyForPickupHandler,
   markPickedUpHandler,
-  getNearbyDonationsHandler
+  getNearbyDonationsHandler,
+  getDonationRouteHandler
 };

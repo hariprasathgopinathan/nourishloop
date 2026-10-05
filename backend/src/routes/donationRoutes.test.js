@@ -24,6 +24,7 @@ describe('Donation Routes Regression', () => {
       { path: '/:donationId/claim', method: 'POST' },
       { path: '/:donationId/ready-for-pickup', method: 'PATCH' },
       { path: '/:donationId/picked-up', method: 'PATCH' },
+      { path: '/:donationId/route', method: 'GET' },
     ]);
   });
 });

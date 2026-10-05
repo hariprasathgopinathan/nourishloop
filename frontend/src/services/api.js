@@ -108,3 +108,7 @@ export async function getNearbyDonations(radiusKm) {
   return await authFetch(`${API_BASE_URL}/donations/nearby${query}`);
 }
 
+export async function getDonationRoute(donationId) {
+  return await authFetch(`${API_BASE_URL}/donations/${donationId}/route`);
+}
+

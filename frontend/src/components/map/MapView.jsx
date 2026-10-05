@@ -16,11 +16,13 @@ export default function MapView({
   zoom = DEFAULT_ZOOM,
   marker = null, // { lng: number, lat: number }
   markers = [], // Array of { lng, lat, id, color }
+  route = null, // GeoJSON LineString
   className = '',
   height = '400px',
   onClick = null,
   onMarkerClick = null,
-  interactive = true
+  interactive = true,
+  fitBounds = null // [[minLng, minLat], [maxLng, maxLat]]
 }) {
   const mapContainer = useRef(null);
   const mapInstance = useRef(null);
@@ -171,6 +173,55 @@ export default function MapView({
     
     markersInstances.current = newInstances;
   }, [markers]);
+
+  // Handle route rendering
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+
+    const renderRoute = () => {
+      if (route) {
+        if (map.getSource('route')) {
+          map.getSource('route').setData(route);
+        } else {
+          map.addSource('route', {
+            type: 'geojson',
+            data: route
+          });
+          map.addLayer({
+            id: 'route-layer',
+            type: 'line',
+            source: 'route',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            paint: {
+              'line-color': '#10b981', // emerald-500
+              'line-width': 4
+            }
+          });
+        }
+      } else {
+        if (map.getLayer('route-layer')) map.removeLayer('route-layer');
+        if (map.getSource('route')) map.removeSource('route');
+      }
+    };
+
+    if (map.isStyleLoaded()) {
+      renderRoute();
+    } else {
+      map.once('styledata', renderRoute);
+    }
+  }, [route]);
+
+  // Handle fitBounds
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (map && fitBounds) {
+      map.fitBounds(fitBounds, { padding: 50, maxZoom: 16 });
+    }
+  }, [fitBounds]);
 
   if (error) {
     return (

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, ArrowLeft, Clock, Building2, CheckCircle, Circle, Package, AlertCircle, Loader2, ChevronRight } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
 import Button from '../ui/Button';
-import { markReadyForPickup, markPickedUp, getMyClaims } from '../../services/api';
+import { markReadyForPickup, markPickedUp, getMyClaims, getDonationRoute } from '../../services/api';
+import MapView from '../map/MapView';
 
 
 
@@ -34,6 +35,39 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
   const [actionError, setActionError] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Route state
+  const [routeData, setRouteData] = useState(null);
+  const [routeLoading, setRouteLoading] = useState(false);
+  const [routeError, setRouteError] = useState(null);
+
+  useEffect(() => {
+    if (selectedClaim && role === 'NGO') {
+      const fetchRoute = async () => {
+        setRouteLoading(true);
+        setRouteError(null);
+        setRouteData(null);
+        try {
+          const res = await getDonationRoute(selectedClaim._id);
+          setRouteData(res.data);
+        } catch (err) {
+          const msg = err.message || '';
+          if (msg.includes('NGO location is not set')) {
+            setRouteError('Set your organization location to calculate a route.');
+          } else if (msg.includes('Donation location is unavailable')) {
+            setRouteError('Pickup location is unavailable.');
+          } else if (msg.includes('No route') || err.status === 404) {
+            setRouteError('No drivable route could be found.');
+          } else {
+            setRouteError('Route service is temporarily unavailable.');
+          }
+        } finally {
+          setRouteLoading(false);
+        }
+      };
+      fetchRoute();
+    }
+  }, [selectedClaim, role]);
+
   useEffect(() => {
     if (role === 'DONOR' && initialDonations) {
       setClaimsList(initialDonations.filter(d => ['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(d.status)));
@@ -59,7 +93,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     if (!selectedClaim) return;
     setActionState('loading');
     setActionError('');
-    
+
     try {
       if (role === 'DONOR' && selectedClaim.status === 'CLAIMED') {
         const res = await markReadyForPickup(selectedClaim._id);
@@ -77,11 +111,11 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
   const handleActionSuccess = (updatedData) => {
     setActionState('success');
     setShowConfirm(false);
-    
+
     // Merge the updated data with existing donor fields
     const updatedClaim = { ...selectedClaim, ...updatedData };
     setSelectedClaim(updatedClaim);
-    
+
     // Update local list
     setClaimsList(prev => prev.map(c => c._id === updatedClaim._id ? updatedClaim : c));
 
@@ -148,8 +182,8 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
         )}
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Pickups</h2>
         {claimsList.map(c => (
-          <div 
-            key={c._id} 
+          <div
+            key={c._id}
             onClick={() => setSelectedClaim(c)}
             className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:border-emerald-200 hover:shadow-md transition-all flex items-center justify-between"
           >
@@ -262,14 +296,80 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
               <MapPin size={18} className="text-emerald-600" />
               Pickup location
             </h3>
-            <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">
-                  <MapPin size={22} />
+
+            {role === 'DONOR' && (
+              <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden mb-4">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">
+                    <MapPin size={22} />
+                  </div>
+                  <p className="text-xs text-gray-500 font-medium">Map preview available after integration</p>
                 </div>
-                <p className="text-xs text-gray-500 font-medium">Map preview available after integration</p>
               </div>
-            </div>
+            )}
+
+            {role === 'NGO' && (
+              <div className="w-full h-64 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden mb-4">
+                {routeLoading && (
+                  <div className="flex flex-col items-center text-center">
+                    <Loader2 className="animate-spin h-8 w-8 text-emerald-500 mb-2" />
+                    <p className="text-sm text-gray-500 font-medium">Calculating pickup route...</p>
+                  </div>
+                )}
+                {routeError && !routeLoading && (
+                  <div className="flex flex-col items-center text-center p-4">
+                    <AlertCircle className="h-8 w-8 text-red-400 mb-2" />
+                    <p className="text-sm text-gray-600 font-medium">{routeError}</p>
+                  </div>
+                )}
+                {routeData && !routeLoading && (
+                  <MapView
+                    height="100%"
+                    interactive={true}
+                    route={routeData.geometry}
+                    fitBounds={(() => {
+                      if (!routeData.geometry?.coordinates) return null;
+                      let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+                      routeData.geometry.coordinates.forEach(([lng, lat]) => {
+                        if (lng < minLng) minLng = lng;
+                        if (lng > maxLng) maxLng = lng;
+                        if (lat < minLat) minLat = lat;
+                        if (lat > maxLat) maxLat = lat;
+                      });
+                      return [[minLng, minLat], [maxLng, maxLat]];
+                    })()}
+                    markers={[
+                      {
+                        lng: routeData.geometry.coordinates[0][0],
+                        lat: routeData.geometry.coordinates[0][1],
+                        id: 'ngo-origin',
+                        color: '#3b82f6' // blue for NGO
+                      },
+                      {
+                        lng: routeData.geometry.coordinates[routeData.geometry.coordinates.length - 1][0],
+                        lat: routeData.geometry.coordinates[routeData.geometry.coordinates.length - 1][1],
+                        id: 'donation-dest',
+                        color: '#10b981' // emerald for pickup
+                      }
+                    ]}
+                  />
+                )}
+              </div>
+            )}
+
+            {role === 'NGO' && routeData && (
+              <div className="flex gap-6 mb-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                <div>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Distance</p>
+                  <p className="text-lg font-bold text-emerald-900">{routeData.distanceKm} km</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Est. Travel Time</p>
+                  <p className="text-lg font-bold text-emerald-900">{routeData.durationMinutes} min</p>
+                </div>
+              </div>
+            )}
+
             <div className="mt-4">
               <p className="text-sm font-medium text-gray-900">{selectedClaim.pickupAddress}</p>
             </div>

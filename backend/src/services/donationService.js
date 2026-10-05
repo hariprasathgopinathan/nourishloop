@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Donation = require('../models/Donation');
 const { calculateDistanceKm, obscureCoordinate } = require('../utils/geo');
+const { getRoute } = require('./locationService');
 
 /**
  * Creates a new donation after validating the donor.
@@ -483,6 +484,76 @@ const getNearbyDonations = async (ngoLat, ngoLng, radiusKm) => {
   return nearbyDonations.sort((a, b) => a.distanceKm - b.distanceKm);
 };
 
+/**
+ * Retrieves the authorized route for a claimed donation.
+ * @param {string} donationId - The MongoDB ObjectId of the donation.
+ * @param {Object} appUser - The authenticated user profile (must be NGO).
+ * @returns {Object} Route information
+ */
+const getDonationRoute = async (donationId, appUser) => {
+  if (!donationId) {
+    const error = new Error('donationId is required');
+    error.status = 400;
+    throw error;
+  }
+  if (!mongoose.Types.ObjectId.isValid(donationId)) {
+    const error = new Error('Invalid donationId format');
+    error.status = 400;
+    throw error;
+  }
+
+  if (appUser.role !== 'NGO') {
+    const error = new Error('Only NGOs can request routes');
+    error.status = 403;
+    throw error;
+  }
+
+  if (!appUser.latitude || !appUser.longitude) {
+    const error = new Error('NGO location is not set in your profile');
+    error.status = 400;
+    throw error;
+  }
+
+  const donation = await Donation.findById(donationId);
+  if (!donation) {
+    const error = new Error('Donation not found');
+    error.status = 404;
+    throw error;
+  }
+
+  if (donation.claimedBy?.toString() !== appUser._id.toString()) {
+    const error = new Error('Forbidden: You did not claim this donation');
+    error.status = 403;
+    throw error;
+  }
+
+  if (!['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(donation.status)) {
+    const error = new Error('Route is not available for this donation status');
+    error.status = 409;
+    throw error;
+  }
+
+  if (!donation.latitude || !donation.longitude) {
+    const error = new Error('Donation location is unavailable');
+    error.status = 400;
+    throw error;
+  }
+
+  const routeData = await getRoute(
+    appUser.latitude,
+    appUser.longitude,
+    donation.latitude,
+    donation.longitude
+  );
+
+  return {
+    donationId: donation._id,
+    distanceKm: Math.round((routeData.distanceMeters / 1000) * 10) / 10,
+    durationMinutes: Math.round(routeData.durationSeconds / 60),
+    geometry: routeData.geometry
+  };
+};
+
 module.exports = { 
   createDonation, 
   getAvailableDonations, 
@@ -491,5 +562,6 @@ module.exports = {
   getMyClaims, 
   markReadyForPickup, 
   markPickedUp,
-  getNearbyDonations
+  getNearbyDonations,
+  getDonationRoute
 };

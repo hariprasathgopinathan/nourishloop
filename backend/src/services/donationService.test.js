@@ -6,6 +6,7 @@ const Donation = require('../models/Donation');
 // Mock the models
 jest.mock('../models/User');
 jest.mock('../models/Donation');
+jest.mock('./locationService');
 
 describe('Donation Service - getMyClaims', () => {
   const validNgoId = new mongoose.Types.ObjectId().toString();
@@ -41,7 +42,7 @@ describe('Donation Service - getMyClaims', () => {
     expect(Donation.find).toHaveBeenCalledWith({ claimedBy: validNgoId });
     expect(mockPopulate).toHaveBeenCalledWith('donorId', 'name organizationName -_id');
     expect(mockSort).toHaveBeenCalledWith({ claimedAt: -1 });
-    
+
     expect(result).toHaveLength(1);
     expect(result[0]._id).toBe('claim1');
     expect(result[0].donorName).toBe('Donor 1');
@@ -169,7 +170,7 @@ describe('Donation Service - getMyClaims', () => {
     // Assert
     expect(result).toHaveLength(1);
     const claim = result[0];
-    
+
     // Explicitly expected fields
     expect(claim.donorName).toBe('The Donor');
     expect(claim.donorOrganizationName).toBe('The Org');
@@ -208,14 +209,14 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
 
     test('TEST 1 - Valid READY-FOR-PICKUP', async () => {
       User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
-      
+
       const mockUpdated = {
         _id: validDonationId,
         donorId: { name: 'Donor 1' },
         claimedBy: validNgoId,
         status: 'READY_FOR_PICKUP'
       };
-      
+
       const mockLean = jest.fn().mockResolvedValue(mockUpdated);
       const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
       Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
@@ -236,7 +237,7 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
       const mockLean = jest.fn().mockResolvedValue(null); // update failed
       const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
       Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
-      
+
       // Fallback check
       Donation.findById.mockResolvedValue({ _id: validDonationId, donorId: new mongoose.Types.ObjectId() });
 
@@ -292,7 +293,7 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
 
     test('TEST 2 - Valid PICKUP', async () => {
       User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
-      
+
       const mockUpdated = {
         _id: validDonationId,
         donorId: { name: 'Donor 1' },
@@ -300,7 +301,7 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
         status: 'PICKED_UP',
         pickedUpAt: new Date()
       };
-      
+
       const mockLean = jest.fn().mockResolvedValue(mockUpdated);
       const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
       Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
@@ -321,7 +322,7 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
       const mockLean = jest.fn().mockResolvedValue(null);
       const mockPopulate = jest.fn().mockReturnValue({ lean: mockLean });
       Donation.findOneAndUpdate.mockReturnValue({ populate: mockPopulate });
-      
+
       // Fallback check
       Donation.findById.mockResolvedValue({ _id: validDonationId, claimedBy: new mongoose.Types.ObjectId() });
 
@@ -416,7 +417,7 @@ describe('Donation Service - getNearbyDonations', () => {
 
     // Distance should be calculated
     expect(result[0].distanceKm).toBeDefined();
-    
+
     // Privacy assertions (Exact pickup coordinates and address are not returned)
     expect(result[0].pickupAddress).toBeUndefined();
     expect(result[0].latitude).toBeUndefined();
@@ -425,4 +426,67 @@ describe('Donation Service - getNearbyDonations', () => {
     expect(result[0].approximateLocation.longitude).toBeDefined();
   });
 });
+describe('Donation Service - getDonationRoute', () => {
+  const { getDonationRoute } = require('./donationService');
+  const { getRoute } = require('./locationService');
 
+  const validDonationId = new mongoose.Types.ObjectId().toString();
+  const validNgoId = new mongoose.Types.ObjectId().toString();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('Rejects if not NGO', async () => {
+    const appUser = { _id: validNgoId, role: 'DONOR', latitude: 10, longitude: 20 };
+    await expect(getDonationRoute(validDonationId, appUser)).rejects.toThrow('Only NGOs can request routes');
+  });
+
+  test('Rejects if NGO has no location', async () => {
+    const appUser = { _id: validNgoId, role: 'NGO' };
+    await expect(getDonationRoute(validDonationId, appUser)).rejects.toThrow('NGO location is not set in your profile');
+  });
+
+  test('Rejects if donation not claimed by this NGO', async () => {
+    const appUser = { _id: validNgoId, role: 'NGO', latitude: 10, longitude: 20 };
+    Donation.findById.mockResolvedValue({ _id: validDonationId, claimedBy: new mongoose.Types.ObjectId() });
+    await expect(getDonationRoute(validDonationId, appUser)).rejects.toThrow('Forbidden: You did not claim this donation');
+  });
+
+  test('Rejects if donation status is invalid', async () => {
+    const appUser = { _id: validNgoId, role: 'NGO', latitude: 10, longitude: 20 };
+    Donation.findById.mockResolvedValue({ _id: validDonationId, claimedBy: validNgoId, status: 'AVAILABLE' });
+    await expect(getDonationRoute(validDonationId, appUser)).rejects.toThrow('Route is not available for this donation status');
+  });
+
+  test('Rejects if donation has no location', async () => {
+    const appUser = { _id: validNgoId, role: 'NGO', latitude: 10, longitude: 20 };
+    Donation.findById.mockResolvedValue({ _id: validDonationId, claimedBy: validNgoId, status: 'CLAIMED' });
+    await expect(getDonationRoute(validDonationId, appUser)).rejects.toThrow('Donation location is unavailable');
+  });
+
+  test('Returns route data for valid request', async () => {
+    const appUser = { _id: validNgoId, role: 'NGO', latitude: 10, longitude: 20 };
+    Donation.findById.mockResolvedValue({
+      _id: validDonationId,
+      claimedBy: validNgoId,
+      status: 'CLAIMED',
+      latitude: 11,
+      longitude: 21
+    });
+
+    getRoute.mockResolvedValue({
+      distanceMeters: 15500, // 15.5 km
+      durationSeconds: 1800, // 30 mins
+      geometry: { type: 'LineString', coordinates: [] }
+    });
+
+    const route = await getDonationRoute(validDonationId, appUser);
+
+    expect(getRoute).toHaveBeenCalledWith(10, 20, 11, 21);
+    expect(route.distanceKm).toBe(15.5);
+    expect(route.durationMinutes).toBe(30);
+    expect(route.geometry.type).toBe('LineString');
+    expect(route.donationId).toBe(validDonationId);
+  });
+});

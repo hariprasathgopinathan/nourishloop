@@ -9,7 +9,8 @@ const {
   getMyClaimsHandler,
   markReadyForPickupHandler,
   markPickedUpHandler,
-  getNearbyDonationsHandler
+  getNearbyDonationsHandler,
+  getDonationRouteHandler
 } = require('../controllers/donationController');
 
 // POST /api/donations
@@ -35,5 +36,8 @@ router.patch('/:donationId/ready-for-pickup', requireAuth, requireAppUser, requi
 
 // PATCH /api/donations/:donationId/picked-up
 router.patch('/:donationId/picked-up', requireAuth, requireAppUser, requireRole('NGO'), markPickedUpHandler);
+
+// GET /api/donations/:donationId/route
+router.get('/:donationId/route', requireAuth, requireAppUser, requireRole('NGO'), getDonationRouteHandler);
 
 module.exports = router;
