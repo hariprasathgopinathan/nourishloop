@@ -286,3 +286,70 @@ describe('POST /api/auth/profile', () => {
     expect(savedUser.organizationName).toBeUndefined();
   });
 });
+
+describe('PATCH /api/auth/profile/location', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('Valid update changes the authenticated users own profile', async () => {
+    const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'firebase123', email: 'test@test.com' });
+    getAuth.mockReturnValue({ verifyIdToken });
+    
+    // Auth middleware finding user
+    User.findOne.mockResolvedValue({
+      _id: 'mongo123',
+      firebaseUid: 'firebase123',
+      role: 'NGO'
+    });
+
+    const mockUser = {
+      _id: 'mongo123',
+      firebaseUid: 'firebase123',
+      name: 'NGO Name',
+      role: 'NGO',
+      latitude: 10,
+      longitude: 20,
+      save: jest.fn().mockResolvedValue({
+        _id: 'mongo123',
+        firebaseUid: 'firebase123',
+        name: 'NGO Name',
+        role: 'NGO',
+        latitude: 12.34,
+        longitude: 56.78
+      })
+    };
+
+    User.findById.mockResolvedValue(mockUser);
+
+    const response = await request(app)
+      .patch('/api/auth/profile/location')
+      .set('Authorization', 'Bearer valid-token')
+      .send({ latitude: 12.34, longitude: 56.78 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.user.latitude).toBe(12.34);
+    expect(response.body.data.user.longitude).toBe(56.78);
+    expect(User.findById).toHaveBeenCalledWith('mongo123');
+    expect(mockUser.save).toHaveBeenCalled();
+  });
+
+  it('Invalid latitude/longitude values are rejected', async () => {
+    const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'firebase123', email: 'test@test.com' });
+    getAuth.mockReturnValue({ verifyIdToken });
+    
+    User.findOne.mockResolvedValue({
+      _id: 'mongo123',
+      firebaseUid: 'firebase123',
+      role: 'NGO'
+    });
+
+    const response = await request(app)
+      .patch('/api/auth/profile/location')
+      .set('Authorization', 'Bearer valid-token')
+      .send({ latitude: 91, longitude: 56.78 }); // 91 is invalid
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Invalid latitude or longitude values');
+  });
+});

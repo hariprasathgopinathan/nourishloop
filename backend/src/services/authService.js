@@ -50,7 +50,21 @@ const createApplicationProfile = async (firebaseUid, email, profileData) => {
   return await user.save();
 };
 
+const updateUserLocation = async (userId, latitude, longitude) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.status = 404;
+    throw error;
+  }
+  
+  user.latitude = latitude;
+  user.longitude = longitude;
+  return await user.save();
+};
+
 module.exports = {
   findUserByFirebaseUid,
-  createApplicationProfile
+  createApplicationProfile,
+  updateUserLocation
 };

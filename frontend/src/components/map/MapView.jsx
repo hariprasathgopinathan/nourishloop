@@ -15,20 +15,28 @@ export default function MapView({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
   marker = null, // { lng: number, lat: number }
+  markers = [], // Array of { lng, lat, id, color }
   className = '',
   height = '400px',
   onClick = null,
+  onMarkerClick = null,
   interactive = true
 }) {
   const mapContainer = useRef(null);
   const mapInstance = useRef(null);
   const markerInstance = useRef(null);
+  const markersInstances = useRef({}); // Store multiple markers
   const onClickRef = useRef(onClick);
+  const onMarkerClickRef = useRef(onMarkerClick);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     onClickRef.current = onClick;
   }, [onClick]);
+
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -82,6 +90,9 @@ export default function MapView({
         markerInstance.current.remove();
         markerInstance.current = null;
       }
+      Object.values(markersInstances.current).forEach(m => m.remove());
+      markersInstances.current = {};
+      
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
@@ -117,6 +128,49 @@ export default function MapView({
       }
     }
   }, [marker]);
+
+  // Handle multiple markers
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    
+    const currentInstances = markersInstances.current;
+    const newInstances = {};
+
+    markers.forEach(m => {
+      if (typeof m.lng === 'number' && typeof m.lat === 'number' && m.id) {
+        // Reuse existing marker if it hasn't moved (optimization)
+        if (currentInstances[m.id]) {
+          newInstances[m.id] = currentInstances[m.id];
+          newInstances[m.id].setLngLat([m.lng, m.lat]);
+          // We can also update color by recreating if necessary, but keep simple for now
+          delete currentInstances[m.id];
+        } else {
+          // Create new marker
+          const newMarker = new Marker({ color: m.color || '#f59e0b' }) // amber-500
+            .setLngLat([m.lng, m.lat])
+            .addTo(mapInstance.current);
+
+          const el = newMarker.getElement();
+          if (el) {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (onMarkerClickRef.current) {
+                onMarkerClickRef.current(m.id);
+              }
+            });
+          }
+
+          newInstances[m.id] = newMarker;
+        }
+      }
+    });
+
+    // Remove any markers that are no longer in the list
+    Object.values(currentInstances).forEach(markerObj => markerObj.remove());
+    
+    markersInstances.current = newInstances;
+  }, [markers]);
 
   if (error) {
     return (

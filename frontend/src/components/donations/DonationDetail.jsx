@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin, Clock, Package, Utensils, Building2, AlertCircle, Ch
 import Button from '../ui/Button';
 import UrgencyBadge from '../ui/UrgencyBadge';
 import StatusBadge from '../ui/StatusBadge';
+import MapView from '../map/MapView';
 
 import { claimDonation } from '../../services/api';
 
@@ -57,6 +58,10 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   };
 
   if (!donation) return null;
+
+  const lat = donation.latitude || donation.approximateLocation?.latitude;
+  const lng = donation.longitude || donation.approximateLocation?.longitude;
+  const isAddressHidden = !donation.pickupAddress;
 
   return (
     <div className="max-w-4xl mx-auto pb-12">
@@ -152,21 +157,35 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
               Pickup location
             </h3>
 
-            {/* Map Placeholder */}
-            <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-6 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iI2Y5ZmFmYiIvPgo8cGF0aCBkPSJNMzAgMzBMMzAgMTBNMzAgMzBMNTAgMzBNMzAgMzBMMzAgNTBNMzAgMzBMMTAgMzAiIHN0cm9rZT0iI2UwZTBlMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] opacity-60"></div>
-              <div className="flex flex-col items-center text-center relative z-10">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm">
-                  <MapPin size={22} />
-                </div>
-                <p className="text-xs text-gray-500 font-medium">Map preview available after integration</p>
+            {/* Map */}
+            {lat && lng ? (
+              <div className="mb-6">
+                <MapView 
+                  height="200px" 
+                  center={[lng, lat]} 
+                  zoom={13} 
+                  marker={{ lng, lat }} 
+                  interactive={false} 
+                />
               </div>
-            </div>
+            ) : (
+              <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-6 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iI2Y5ZmFmYiIvPgo8cGF0aCBkPSJNMzAgMzBMMzAgMTBNMzAgMzBMNTAgMzBNMzAgMzBMMzAgNTBNMzAgMzBMMTAgMzAiIHN0cm9rZT0iI2UwZTBlMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] opacity-60"></div>
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm">
+                    <MapPin size={22} />
+                  </div>
+                  <p className="text-xs text-gray-500 font-medium">Map unavailable</p>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Address</p>
-                <p className="text-sm font-medium text-gray-900">{donation.pickupAddress}</p>
+                <p className={`text-sm font-medium ${isAddressHidden ? 'text-gray-500 italic' : 'text-gray-900'}`}>
+                  {isAddressHidden ? 'Exact address revealed after claiming' : donation.pickupAddress}
+                </p>
               </div>
               <div className="flex gap-6">
                 <div>
@@ -243,7 +262,9 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Pickup</span>
-                    <span className="font-medium text-gray-900 text-right max-w-[150px] truncate">{donation.pickupAddress.split(',')[0]}</span>
+                    <span className="font-medium text-gray-900 text-right max-w-[150px] truncate">
+                      {isAddressHidden ? 'Revealed after claim' : donation.pickupAddress.split(',')[0]}
+                    </span>
                   </div>
                 </div>
 

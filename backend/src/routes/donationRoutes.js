@@ -8,7 +8,8 @@ const {
   claimDonationHandler, 
   getMyClaimsHandler,
   markReadyForPickupHandler,
-  markPickedUpHandler
+  markPickedUpHandler,
+  getNearbyDonationsHandler
 } = require('../controllers/donationController');
 
 // POST /api/donations
@@ -19,6 +20,9 @@ router.get('/mine', requireAuth, requireAppUser, requireRole('DONOR'), getMyDona
 
 // GET /api/donations/my-claims
 router.get('/my-claims', requireAuth, requireAppUser, requireRole('NGO'), getMyClaimsHandler);
+
+// GET /api/donations/nearby
+router.get('/nearby', requireAuth, requireAppUser, requireRole('NGO'), getNearbyDonationsHandler);
 
 // GET /api/donations
 router.get('/', requireAuth, requireAppUser, requireRole('NGO'), getDonationsHandler);

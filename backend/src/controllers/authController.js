@@ -21,7 +21,9 @@ const getCurrentUser = async (req, res) => {
           firebaseUid: user.firebaseUid,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          latitude: user.latitude,
+          longitude: user.longitude
         }
       }
     });
@@ -84,7 +86,9 @@ const createProfileHandler = async (req, res) => {
           role: user.role,
           organizationName: user.organizationName,
           address: user.address,
-          pincode: user.pincode
+          pincode: user.pincode,
+          latitude: user.latitude,
+          longitude: user.longitude
         }
       }
     });
@@ -124,7 +128,50 @@ const createProfileHandler = async (req, res) => {
   }
 };
 
+const updateLocationHandler = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (
+      !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+      latitude < -90 || latitude > 90 ||
+      longitude < -180 || longitude > 180
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid latitude or longitude values'
+      });
+    }
+
+    const updatedUser = await authService.updateUserLocation(req.appUser._id, latitude, longitude);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Location updated successfully',
+      data: {
+        user: {
+          id: updatedUser._id,
+          firebaseUid: updatedUser.firebaseUid,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          latitude: updatedUser.latitude,
+          longitude: updatedUser.longitude
+        }
+      }
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update location',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCurrentUser,
-  createProfileHandler
+  createProfileHandler,
+  updateLocationHandler
 };

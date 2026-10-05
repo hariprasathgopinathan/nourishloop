@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Donation = require('../models/Donation');
+const { calculateDistanceKm, obscureCoordinate } = require('../utils/geo');
 
 /**
  * Creates a new donation after validating the donor.
@@ -428,6 +429,60 @@ const markPickedUp = async (donationId, ngoId) => {
   };
 };
 
+/**
+ * Retrieves nearby available donations within a specific radius.
+ * Obscures the exact coordinates and pickup address for privacy.
+ * 
+ * @param {number} ngoLat - NGO latitude
+ * @param {number} ngoLng - NGO longitude
+ * @param {number} radiusKm - Search radius in kilometers
+ * @returns {Array} Array of nearby donations with obscured locations
+ */
+const getNearbyDonations = async (ngoLat, ngoLng, radiusKm) => {
+  const donations = await Donation.find({
+    status: 'AVAILABLE',
+    availableUntil: { $gt: new Date() },
+    latitude: { $exists: true, $ne: null },
+    longitude: { $exists: true, $ne: null }
+  }).lean();
+
+  const nearbyDonations = [];
+
+  for (const donation of donations) {
+    if (!Number.isFinite(donation.latitude) || !Number.isFinite(donation.longitude)) continue;
+
+    const distanceKm = calculateDistanceKm(ngoLat, ngoLng, donation.latitude, donation.longitude);
+    
+    if (distanceKm <= radiusKm) {
+      // Obscure data for privacy
+      const {
+        donorId,
+        claimedBy,
+        pickupAddress, // Hide exact address
+        pincode,
+        latitude,
+        longitude,
+        createdAt,
+        updatedAt,
+        __v,
+        ...safeData
+      } = donation;
+
+      nearbyDonations.push({
+        ...safeData,
+        distanceKm: Math.round(distanceKm * 10) / 10, // Round to 1 decimal place
+        approximateLocation: {
+          latitude: obscureCoordinate(latitude),
+          longitude: obscureCoordinate(longitude)
+        }
+      });
+    }
+  }
+
+  // Sort nearest first
+  return nearbyDonations.sort((a, b) => a.distanceKm - b.distanceKm);
+};
+
 module.exports = { 
   createDonation, 
   getAvailableDonations, 
@@ -435,5 +490,6 @@ module.exports = {
   claimDonation, 
   getMyClaims, 
   markReadyForPickup, 
-  markPickedUp 
+  markPickedUp,
+  getNearbyDonations
 };

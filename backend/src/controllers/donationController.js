@@ -1,4 +1,4 @@
-const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims, markReadyForPickup, markPickedUp } = require('../services/donationService');
+const { createDonation, getAvailableDonations, getMyDonations, claimDonation, getMyClaims, markReadyForPickup, markPickedUp, getNearbyDonations } = require('../services/donationService');
 
 /**
  * POST /api/donations
@@ -132,6 +132,41 @@ const markPickedUpHandler = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/donations/nearby
+ * Returns nearby donations for an NGO.
+ */
+const getNearbyDonationsHandler = async (req, res, next) => {
+  try {
+    const radiusKm = req.query.radiusKm ? Number(req.query.radiusKm) : 10;
+    
+    if (isNaN(radiusKm) || radiusKm <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid radiusKm parameter'
+      });
+    }
+
+    const { latitude, longitude } = req.appUser;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: 'Organization location is not set in your profile'
+      });
+    }
+
+    const donations = await getNearbyDonations(latitude, longitude, radiusKm);
+
+    res.status(200).json({
+      success: true,
+      data: donations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = { 
   createDonationHandler, 
   getDonationsHandler, 
@@ -139,5 +174,6 @@ module.exports = {
   claimDonationHandler, 
   getMyClaimsHandler,
   markReadyForPickupHandler,
-  markPickedUpHandler
+  markPickedUpHandler,
+  getNearbyDonationsHandler
 };

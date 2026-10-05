@@ -372,3 +372,57 @@ describe('Donation Service - markReadyForPickup and markPickedUp', () => {
   });
 });
 
+describe('Donation Service - getNearbyDonations', () => {
+  const { getNearbyDonations } = require('./donationService');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('Returns only active, available donations within radius, properly sorted and obscured', async () => {
+    // Current time
+    const now = new Date();
+    const future = new Date(now.getTime() + 100000);
+    const past = new Date(now.getTime() - 100000);
+
+    const mockDonations = [
+      { // Inside radius (distance ~5km)
+        _id: 'd1', status: 'AVAILABLE', availableUntil: future,
+        latitude: 10.045, longitude: 20, pickupAddress: 'Secret Address 1'
+      },
+      { // Inside radius, closer (distance ~2km)
+        _id: 'd2', status: 'AVAILABLE', availableUntil: future,
+        latitude: 10.018, longitude: 20, pickupAddress: 'Secret Address 2'
+      },
+      { // Outside radius (distance ~111km)
+        _id: 'd3', status: 'AVAILABLE', availableUntil: future,
+        latitude: 11, longitude: 20, pickupAddress: 'Secret Address 3'
+      },
+      { // Missing coordinates (should be excluded)
+        _id: 'd6', status: 'AVAILABLE', availableUntil: future,
+        pickupAddress: 'Secret Address 6'
+      }
+    ];
+
+    const mockLean = jest.fn().mockResolvedValue(mockDonations);
+    Donation.find.mockReturnValue({ lean: mockLean });
+
+    const result = await getNearbyDonations(10, 20, 10); // ngoLat, ngoLng, radiusKm=10
+
+    // Only d2 and d1 should be returned, sorted nearest first
+    expect(result).toHaveLength(2);
+    expect(result[0]._id).toBe('d2');
+    expect(result[1]._id).toBe('d1');
+
+    // Distance should be calculated
+    expect(result[0].distanceKm).toBeDefined();
+    
+    // Privacy assertions (Exact pickup coordinates and address are not returned)
+    expect(result[0].pickupAddress).toBeUndefined();
+    expect(result[0].latitude).toBeUndefined();
+    expect(result[0].longitude).toBeUndefined();
+    expect(result[0].approximateLocation.latitude).toBeDefined();
+    expect(result[0].approximateLocation.longitude).toBeDefined();
+  });
+});
+

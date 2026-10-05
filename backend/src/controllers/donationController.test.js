@@ -207,3 +207,51 @@ describe('Spoofing Protection Tests', () => {
   });
 });
 
+describe('Donation Controller - getNearbyDonationsHandler', () => {
+  let req, res, next;
+  const { getNearbyDonationsHandler } = require('./donationController');
+
+  beforeEach(() => {
+    req = { query: {}, appUser: {} };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    next = jest.fn();
+    jest.clearAllMocks();
+  });
+
+  test('Valid NGO with coordinates returns nearby donations', async () => {
+    req.appUser = { _id: 'ngo-1', role: 'NGO', latitude: 10, longitude: 20 };
+    req.query.radiusKm = '15';
+    const mockDonations = [{ _id: 'donation-1' }];
+    donationService.getNearbyDonations.mockResolvedValue(mockDonations);
+
+    await getNearbyDonationsHandler(req, res, next);
+
+    expect(donationService.getNearbyDonations).toHaveBeenCalledWith(10, 20, 15);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: mockDonations });
+  });
+
+  test('NGO without coordinates returns 400', async () => {
+    req.appUser = { _id: 'ngo-1', role: 'NGO' };
+    
+    await getNearbyDonationsHandler(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Organization location is not set in your profile'
+    }));
+  });
+
+  test('Invalid radius parameter returns 400', async () => {
+    req.appUser = { _id: 'ngo-1', role: 'NGO', latitude: 10, longitude: 20 };
+    req.query.radiusKm = '-5';
+    
+    await getNearbyDonationsHandler(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Invalid radiusKm parameter'
+    }));
+  });
+});
+

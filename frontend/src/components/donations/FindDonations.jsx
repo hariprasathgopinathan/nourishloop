@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, MapPin, ArrowRight, X } from 'lucide-react';
 import UrgencyBadge from '../ui/UrgencyBadge';
+import MapView from '../map/MapView';
 
 const categories = ['All', 'Prepared Meals', 'Bakery', 'Produce', 'Dairy', 'Packaged Food', 'Beverages', 'Other'];
 const sortOptions = [
@@ -10,7 +11,7 @@ const sortOptions = [
   { label: 'Largest quantity', value: 'largest' },
 ];
 
-export default function FindDonations({ donations, onSelectDonation }) {
+export default function FindDonations({ donations, onSelectDonation, radiusKm, onRadiusChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -43,6 +44,13 @@ export default function FindDonations({ donations, onSelectDonation }) {
     }
   });
 
+  const mapMarkers = filtered.map(d => ({
+    id: d._id,
+    lat: d.approximateLocation?.latitude,
+    lng: d.approximateLocation?.longitude,
+    color: '#f59e0b'
+  })).filter(m => m.lat && m.lng);
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       {/* Header */}
@@ -70,6 +78,20 @@ export default function FindDonations({ donations, onSelectDonation }) {
               </button>
             )}
           </div>
+
+          {/* Radius dropdown */}
+          {onRadiusChange && (
+            <select
+              value={radiusKm}
+              onChange={e => onRadiusChange(Number(e.target.value))}
+              className="px-4 py-2.5 bg-gray-50/50 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 appearance-none cursor-pointer font-medium text-gray-700 w-full sm:w-32"
+            >
+              <option value={5}>5 km</option>
+              <option value={10}>10 km</option>
+              <option value={25}>25 km</option>
+              <option value={50}>50 km</option>
+            </select>
+          )}
 
           {/* Sort dropdown */}
           <select
@@ -115,6 +137,21 @@ export default function FindDonations({ donations, onSelectDonation }) {
         <p className="text-sm text-gray-500 font-medium">{filtered.length} donation{filtered.length !== 1 ? 's' : ''} available</p>
       </div>
 
+      {/* Map View */}
+      {mapMarkers.length > 0 && (
+        <div className="mb-6">
+          <MapView 
+            height="300px" 
+            interactive={true} 
+            markers={mapMarkers} 
+            onMarkerClick={(id) => {
+              const donation = filtered.find(d => d._id === id);
+              if (donation) onSelectDonation(donation);
+            }} 
+          />
+        </div>
+      )}
+
       {/* Donation Cards Grid */}
       {filtered.length === 0 ? (
         <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-16 text-center">
@@ -153,7 +190,7 @@ export default function FindDonations({ donations, onSelectDonation }) {
               <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                 <div className="flex items-center gap-1.5 text-sm text-gray-500">
                   <MapPin size={14} className="text-gray-400" />
-                  <span className="truncate max-w-[180px]">{don.pickupAddress.split(',')[0]}</span>
+                  <span className="truncate max-w-[180px]">{don.pickupAddress ? don.pickupAddress.split(',')[0] : 'Approximate Area'}</span>
                   <span className="text-emerald-600 font-semibold ml-1">{don.distance} km</span>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-emerald-600 transition-all">

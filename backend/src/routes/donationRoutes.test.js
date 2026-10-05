@@ -18,7 +18,8 @@ describe('Donation Routes Regression', () => {
     expect(routes).toEqual([
       { path: '/', method: 'POST' },
       { path: '/mine', method: 'GET' },
-      { path: '/my-claims', method: 'GET' }, // Static route before dynamic
+      { path: '/my-claims', method: 'GET' },
+      { path: '/nearby', method: 'GET' }, // Static route before dynamic
       { path: '/', method: 'GET' },
       { path: '/:donationId/claim', method: 'POST' },
       { path: '/:donationId/ready-for-pickup', method: 'PATCH' },

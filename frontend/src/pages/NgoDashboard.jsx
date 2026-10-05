@@ -10,7 +10,10 @@ import NgoImpact from '../components/impact/NgoImpact';
 import EmptyState from '../components/ui/EmptyState';
 import { LayoutDashboard, Search, HandHeart, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { mockClaims, mockNgoStats, mockNgoProfile } from '../data/ngoMockData';
-import { getAvailableDonations } from '../services/api';
+import { getNearbyDonations, updateProfileLocation } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import LocationPicker from '../components/map/LocationPicker';
+import Button from '../components/ui/Button';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -41,27 +44,37 @@ const titles = {
 };
 
 export default function NgoDashboard({ onLogout }) {
+  const { appProfile, fetchProfile } = useAuth();
   const [activeView, setActiveView] = useState('overview');
   const [selectedDonation, setSelectedDonation] = useState(null);
   
   const [availableDonations, setAvailableDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [radiusKm, setRadiusKm] = useState(10);
+  const [locationUpdating, setLocationUpdating] = useState(false);
+  const [tempLocation, setTempLocation] = useState(null);
 
   const fetchAvailableDonations = async () => {
+    if (!appProfile?.latitude || !appProfile?.longitude) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const res = await getAvailableDonations();
+      const res = await getNearbyDonations(radiusKm);
       // Map explicit donor names
       const mappedDonations = res.data.map(d => ({
         ...d,
         donorName: d.donorOrganizationName || d.donorName || 'Anonymous Donor',
-        distance: 'N/A', // Distance calculation not implemented yet
+        distance: d.distanceKm,
       }));
       setAvailableDonations(mappedDonations);
     } catch (err) {
-      setError(err.message || 'Unable to load available donations.');
+      setError(err.message || 'Unable to load nearby donations.');
     } finally {
       setLoading(false);
     }
@@ -69,7 +82,21 @@ export default function NgoDashboard({ onLogout }) {
 
   useEffect(() => {
     fetchAvailableDonations();
-  }, []);
+  }, [appProfile?.latitude, appProfile?.longitude, radiusKm]);
+
+  const handleUpdateLocation = async () => {
+    if (!tempLocation) return;
+    setLocationUpdating(true);
+    try {
+      await updateProfileLocation(tempLocation.latitude, tempLocation.longitude);
+      await fetchProfile();
+      setTempLocation(null);
+    } catch (err) {
+      setError(err.message || 'Failed to update location.');
+    } finally {
+      setLocationUpdating(false);
+    }
+  };
 
 
 
@@ -102,11 +129,44 @@ export default function NgoDashboard({ onLogout }) {
     }
 
     if (activeView === 'find' || activeView === 'overview') {
+      if (!appProfile?.latitude || !appProfile?.longitude) {
+        return (
+          <div className="max-w-2xl mx-auto pt-12">
+            <div className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-sm text-center">
+              <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <MapPin size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Set your organization location</h2>
+              <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                Set your organization location to discover nearby food donations.
+              </p>
+              
+              <div className="mb-6 text-left">
+                <LocationPicker 
+                  value={tempLocation} 
+                  onChange={setTempLocation} 
+                  disabled={locationUpdating} 
+                />
+              </div>
+
+              <Button 
+                onClick={handleUpdateLocation} 
+                disabled={!tempLocation || locationUpdating}
+                isLoading={locationUpdating}
+                className="w-full sm:w-auto px-8"
+              >
+                Save Location
+              </Button>
+            </div>
+          </div>
+        );
+      }
+
       if (loading) {
         return (
           <div className="flex flex-col items-center justify-center py-32 text-gray-400">
             <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
-            <p className="text-gray-500 font-medium">Loading available donations...</p>
+            <p className="text-gray-500 font-medium">Loading nearby donations...</p>
           </div>
         );
       }
@@ -126,7 +186,7 @@ export default function NgoDashboard({ onLogout }) {
 
     switch (activeView) {
       case 'find':
-        return <FindDonations donations={availableDonations} onSelectDonation={handleSelectDonation} />;
+        return <FindDonations donations={availableDonations} onSelectDonation={handleSelectDonation} radiusKm={radiusKm} onRadiusChange={setRadiusKm} />;
       case 'claims':
         return <MyClaims onSelectClaim={handleSelectDonation} />;
       case 'tracking':
@@ -169,9 +229,9 @@ export default function NgoDashboard({ onLogout }) {
       <div className="flex-1 flex flex-col min-w-0 bg-[#FBFBFA] relative">
         <AppNavbar 
           title={titles[activeView]} 
-          userName={mockNgoProfile.name}
+          userName={appProfile?.name || mockNgoProfile.name}
           userRole="NGO Partner"
-          userInitials={mockNgoProfile.initials}
+          userInitials={appProfile?.name ? appProfile.name.charAt(0) : mockNgoProfile.initials}
         />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">

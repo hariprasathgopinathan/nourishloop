@@ -93,3 +93,18 @@ export async function markPickedUp(donationId) {
   });
 }
 
+export async function updateProfileLocation(latitude, longitude) {
+  return await authFetch(`${API_BASE_URL}/auth/profile/location`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ latitude, longitude }),
+  });
+}
+
+export async function getNearbyDonations(radiusKm) {
+  const query = radiusKm ? `?radiusKm=${radiusKm}` : '';
+  return await authFetch(`${API_BASE_URL}/donations/nearby${query}`);
+}
+

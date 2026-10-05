@@ -3,6 +3,7 @@ import { Store, HeartHandshake, AlertCircle, CheckCircle2, Building, MapPin, Has
 import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import LocationPicker from '../components/map/LocationPicker';
 
 import { createProfile } from '../services/api';
 
@@ -14,7 +15,8 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
     phone: '',
     organizationName: '',
     address: '',
-    pincode: ''
+    pincode: '',
+    location: null
   });
   
   const [touched, setTouched] = useState({});
@@ -37,6 +39,10 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
     if (!value.trim()) return 'This field is required';
     if (field === 'phone' && !/^\+?[\d\s-]{10,}$/.test(value)) return 'Please enter a valid phone number';
     if (field === 'pincode' && !/^[\d\w\s-]{4,}$/.test(value)) return 'Please enter a valid pincode';
+    if (field === 'location' && role === 'NGO') {
+      if (!value) return 'Please set your organization location on the map';
+      if (!Number.isFinite(value.latitude) || !Number.isFinite(value.longitude)) return 'Invalid location coordinates';
+    }
     return null;
   };
 
@@ -48,13 +54,14 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
       formData.organizationName.trim() && 
       formData.address.trim() && 
       formData.pincode.trim() && 
-      !getFieldError('pincode');
+      !getFieldError('pincode') &&
+      (role === 'DONOR' || (role === 'NGO' && formData.location && !getFieldError('location')));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched({
-      name: true, phone: true, organizationName: true, address: true, pincode: true
+      name: true, phone: true, organizationName: true, address: true, pincode: true, location: true
     });
     
     if (!role) {
@@ -76,7 +83,9 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
       role,
       organizationName: formData.organizationName.trim(),
       address: formData.address.trim(),
-      pincode: formData.pincode.trim()
+      pincode: formData.pincode.trim(),
+      latitude: formData.location ? formData.location.latitude : undefined,
+      longitude: formData.location ? formData.location.longitude : undefined
     };
 
     try {
@@ -362,6 +371,27 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
                 {getFieldError('pincode') && <p className="mt-1.5 text-xs text-red-500 font-medium animate-in fade-in">{getFieldError('pincode')}</p>}
               </div>
             </div>
+
+            {role === 'NGO' && (
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Organization Location</label>
+                <p className="text-sm text-gray-500 mb-3">
+                  This location will be used to help you discover nearby food donations.
+                </p>
+                <LocationPicker 
+                  value={formData.location}
+                  onChange={(loc) => {
+                    handleChange('location', loc);
+                  }}
+                  disabled={loading}
+                />
+                {getFieldError('location') && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle size={14} /> {getFieldError('location')}
+                  </p>
+                )}
+              </div>
+            )}
           </section>
 
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100">
