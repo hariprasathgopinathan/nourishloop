@@ -4,6 +4,7 @@ import NgoDashboard from './pages/NgoDashboard';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import OnboardingPage from './pages/OnboardingPage';
 import MapDemoPage from './pages/MapDemoPage';
@@ -76,7 +77,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+      </NotificationProvider>
     </AuthProvider>
   );
 }

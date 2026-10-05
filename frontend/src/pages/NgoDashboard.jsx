@@ -14,6 +14,8 @@ import { getNearbyDonations, updateProfileLocation } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/map/LocationPicker';
 import Button from '../components/ui/Button';
+import NotificationsList from '../components/notifications/NotificationsList';
+import { useNotification } from '../context/NotificationContext';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -23,8 +25,8 @@ const mainNav = [
   { label: 'Impact', icon: BarChart2, id: 'impact' },
 ];
 
-const accountNav = [
-  { label: 'Notifications', icon: Bell, id: 'notifications', badge: 3 },
+const getAccountNav = (unreadCount) => [
+  { label: 'Notifications', icon: Bell, id: 'notifications', badge: unreadCount > 0 ? unreadCount : null },
   { label: 'Profile', icon: User, id: 'profile' },
   { label: 'Settings', icon: Settings, id: 'settings' },
   { label: 'Help & Support', icon: HelpCircle, id: 'support' },
@@ -47,6 +49,7 @@ export default function NgoDashboard({ onLogout }) {
   const { appProfile, fetchProfile } = useAuth();
   const [activeView, setActiveView] = useState('overview');
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const { unreadCount } = useNotification();
   
   const [availableDonations, setAvailableDonations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +85,10 @@ export default function NgoDashboard({ onLogout }) {
 
   useEffect(() => {
     fetchAvailableDonations();
+
+    const handleUpdate = () => fetchAvailableDonations();
+    window.addEventListener('donation-updated', handleUpdate);
+    return () => window.removeEventListener('donation-updated', handleUpdate);
   }, [appProfile?.latitude, appProfile?.longitude, radiusKm]);
 
   const handleUpdateLocation = async () => {
@@ -194,7 +201,7 @@ export default function NgoDashboard({ onLogout }) {
       case 'impact':
         return <NgoImpact />;
       case 'notifications':
-        return <div className="pt-12"><EmptyState icon={Bell} title="Notifications" description="View and manage alerts." /></div>;
+        return <div className="pt-6"><NotificationsList /></div>;
       case 'profile':
         return <div className="pt-12"><EmptyState icon={User} title="NGO Profile" description="Manage organization details." /></div>;
       case 'settings':
@@ -222,7 +229,7 @@ export default function NgoDashboard({ onLogout }) {
         activeItem={activeView === 'detail' ? 'find' : activeView} 
         onItemClick={handleNavigate} 
         mainNav={mainNav}
-        accountNav={accountNav}
+        accountNav={getAccountNav(unreadCount)}
         onLogout={onLogout}
       />
 
@@ -232,6 +239,7 @@ export default function NgoDashboard({ onLogout }) {
           userName={appProfile?.name || mockNgoProfile.name}
           userRole="NGO Partner"
           userInitials={appProfile?.name ? appProfile.name.charAt(0) : mockNgoProfile.initials}
+          onNotificationClick={() => handleNavigate('notifications')}
         />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">

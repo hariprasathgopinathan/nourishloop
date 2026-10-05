@@ -2,6 +2,7 @@ const { getMyClaimsHandler } = require('./donationController');
 const donationService = require('../services/donationService');
 
 jest.mock('../services/donationService');
+jest.mock('../config/firebaseAdmin');
 
 describe('Donation Controller - getMyClaimsHandler', () => {
   let req, res, next;

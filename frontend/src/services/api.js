@@ -112,3 +112,18 @@ export async function getDonationRoute(donationId) {
   return await authFetch(`${API_BASE_URL}/donations/${donationId}/route`);
 }
 
+export async function getNotifications() {
+  return await authFetch(`${API_BASE_URL}/notifications`);
+}
+
+export async function markNotificationAsRead(id) {
+  return await authFetch(`${API_BASE_URL}/notifications/${id}/read`, {
+    method: 'PATCH'
+  });
+}
+
+export async function markAllNotificationsAsRead() {
+  return await authFetch(`${API_BASE_URL}/notifications/read-all`, {
+    method: 'PATCH'
+  });
+}

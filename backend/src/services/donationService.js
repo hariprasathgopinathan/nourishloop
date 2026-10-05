@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Donation = require('../models/Donation');
 const { calculateDistanceKm, obscureCoordinate } = require('../utils/geo');
 const { getRoute } = require('./locationService');
+const { sendNotification } = require('./notificationService');
 
 /**
  * Creates a new donation after validating the donor.
@@ -227,6 +228,19 @@ const claimDonation = async (donationId, ngoId) => {
     throw error;
   }
 
+  // Send notification to donor
+  try {
+    await sendNotification({
+      recipientId: claimedDonation.donorId,
+      type: 'DONATION_CLAIMED',
+      title: 'Donation Claimed',
+      message: 'Your donation has been claimed by an NGO.',
+      donationId: claimedDonation._id
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   return claimedDonation;
 };
 
@@ -344,6 +358,19 @@ const markReadyForPickup = async (donationId, donorId) => {
     throw error;
   }
 
+  // Send notification to the NGO
+  try {
+    await sendNotification({
+      recipientId: updatedDonation.claimedBy,
+      type: 'DONATION_READY',
+      title: 'Ready for Pickup',
+      message: 'The donor has marked your claimed donation as ready for pickup.',
+      donationId: updatedDonation._id
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
+  }
+
   const { donorId: populatedDonor, claimedBy, ...rest } = updatedDonation;
   return {
     ...rest,
@@ -420,6 +447,19 @@ const markPickedUp = async (donationId, ngoId) => {
     const error = new Error('Invalid status transition. Donation must be READY_FOR_PICKUP.');
     error.status = 409;
     throw error;
+  }
+
+  // Send notification to donor
+  try {
+    await sendNotification({
+      recipientId: updatedDonation.donorId._id,
+      type: 'DONATION_PICKED_UP',
+      title: 'Donation Picked Up',
+      message: 'Your donation has been picked up successfully.',
+      donationId: updatedDonation._id
+    });
+  } catch (err) {
+    console.error('Notification failed:', err);
   }
 
   const { donorId: populatedDonor, claimedBy, ...rest } = updatedDonation;

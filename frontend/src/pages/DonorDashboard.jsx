@@ -8,6 +8,8 @@ import EmptyState from '../components/ui/EmptyState';
 import { LayoutDashboard, List, PlusCircle, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { getMyDonations } from '../services/api';
 import PickupTracking from '../components/pickup/PickupTracking';
+import NotificationsList from '../components/notifications/NotificationsList';
+import { useNotification } from '../context/NotificationContext';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -17,8 +19,8 @@ const mainNav = [
   { label: 'Impact', icon: BarChart2, id: 'impact' },
 ];
 
-const accountNav = [
-  { label: 'Notifications', icon: Bell, id: 'notifications', badge: 2 },
+const getAccountNav = (unreadCount) => [
+  { label: 'Notifications', icon: Bell, id: 'notifications', badge: unreadCount > 0 ? unreadCount : null },
   { label: 'Profile', icon: User, id: 'profile' },
   { label: 'Settings', icon: Settings, id: 'settings' },
   { label: 'Help & Support', icon: HelpCircle, id: 'support' },
@@ -29,6 +31,7 @@ export default function DonorDashboard({ onLogout }) {
   const [data, setData] = useState({ stats: null, donations: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { unreadCount } = useNotification();
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -45,6 +48,10 @@ export default function DonorDashboard({ onLogout }) {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const handleUpdate = () => fetchDashboardData();
+    window.addEventListener('donation-updated', handleUpdate);
+    return () => window.removeEventListener('donation-updated', handleUpdate);
   }, []);
 
   const renderContent = () => {
@@ -88,7 +95,7 @@ export default function DonorDashboard({ onLogout }) {
       case 'impact':
         return <div className="pt-12"><EmptyState icon={BarChart2} title="Your Impact" description="See the difference you've made in your community." /></div>;
       case 'notifications':
-        return <div className="pt-12"><EmptyState icon={Bell} title="Notifications" description="You have no new notifications." /></div>;
+        return <div className="pt-6"><NotificationsList /></div>;
       case 'profile':
         return <div className="pt-12"><EmptyState icon={User} title="Profile" description="Manage your account settings and preferences." /></div>;
       case 'settings':
@@ -124,7 +131,7 @@ export default function DonorDashboard({ onLogout }) {
         activeItem={activeView} 
         onItemClick={setActiveView} 
         mainNav={mainNav}
-        accountNav={accountNav}
+        accountNav={getAccountNav(unreadCount)}
         onLogout={onLogout}
       />
 
@@ -134,6 +141,7 @@ export default function DonorDashboard({ onLogout }) {
           userName="Arun Kumar"
           userRole="Donor"
           userInitials="AK"
+          onNotificationClick={() => setActiveView('notifications')}
         />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">

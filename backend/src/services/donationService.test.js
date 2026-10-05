@@ -7,6 +7,8 @@ const Donation = require('../models/Donation');
 jest.mock('../models/User');
 jest.mock('../models/Donation');
 jest.mock('./locationService');
+jest.mock('./notificationService');
+jest.mock('../config/firebaseAdmin');
 
 describe('Donation Service - getMyClaims', () => {
   const validNgoId = new mongoose.Types.ObjectId().toString();
@@ -488,5 +490,108 @@ describe('Donation Service - getDonationRoute', () => {
     expect(route.durationMinutes).toBe(30);
     expect(route.geometry.type).toBe('LineString');
     expect(route.donationId).toBe(validDonationId);
+  });
+});
+
+describe('Donation Service - Notifications & Status Transitions', () => {
+  const { claimDonation, markReadyForPickup, markPickedUp } = require('./donationService');
+  const { sendNotification } = require('./notificationService');
+  const User = require('../models/User');
+  const Donation = require('../models/Donation');
+
+  const validDonationId = new mongoose.Types.ObjectId().toString();
+  const validNgoId = new mongoose.Types.ObjectId().toString();
+  const validDonorId = new mongoose.Types.ObjectId().toString();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('claim creates exactly one donor notification and recipients are correct', async () => {
+    User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: validDonationId, donorId: validDonorId, status: 'CLAIMED' })
+    });
+
+    await claimDonation(validDonationId, validNgoId);
+
+    expect(sendNotification).toHaveBeenCalledTimes(1);
+    expect(sendNotification).toHaveBeenCalledWith(expect.objectContaining({
+      recipientId: validDonorId,
+      type: 'DONATION_CLAIMED'
+    }));
+  });
+
+  test('ready creates exactly one NGO notification', async () => {
+    User.findById.mockResolvedValue({ _id: validDonorId, role: 'DONOR' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      populate: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ _id: validDonationId, claimedBy: validNgoId, donorId: { _id: validDonorId }, status: 'READY_FOR_PICKUP' })
+      })
+    });
+
+    await markReadyForPickup(validDonationId, validDonorId);
+
+    expect(sendNotification).toHaveBeenCalledTimes(1);
+    expect(sendNotification).toHaveBeenCalledWith(expect.objectContaining({
+      recipientId: validNgoId,
+      type: 'DONATION_READY'
+    }));
+  });
+
+  test('picked-up creates exactly one donor notification', async () => {
+    User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      populate: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue({ _id: validDonationId, claimedBy: validNgoId, donorId: { _id: validDonorId }, status: 'PICKED_UP' })
+      })
+    });
+
+    await markPickedUp(validDonationId, validNgoId);
+
+    expect(sendNotification).toHaveBeenCalledTimes(1);
+    expect(sendNotification).toHaveBeenCalledWith(expect.objectContaining({
+      recipientId: validDonorId,
+      type: 'DONATION_PICKED_UP'
+    }));
+  });
+
+  test('notification failure does not corrupt the donation state transition', async () => {
+    User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: validDonationId, donorId: validDonorId, status: 'CLAIMED' })
+    });
+
+    sendNotification.mockRejectedValueOnce(new Error('Network error'));
+
+    // Should not throw
+    const res = await claimDonation(validDonationId, validNgoId);
+    expect(res).toBeDefined();
+    expect(sendNotification).toHaveBeenCalledTimes(1);
+  });
+
+  test('duplicate lifecycle transition does not create duplicate notification', async () => {
+    User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      select: jest.fn().mockResolvedValue(null) // Atomic fail
+    });
+    Donation.findById.mockResolvedValue({ _id: validDonationId, status: 'CLAIMED' });
+
+    await expect(claimDonation(validDonationId, validNgoId)).rejects.toThrow('Donation is no longer available for claiming');
+    expect(sendNotification).toHaveBeenCalledTimes(0);
+  });
+
+  test('notification does not expose private location data', async () => {
+    User.findById.mockResolvedValue({ _id: validNgoId, role: 'NGO' });
+    Donation.findOneAndUpdate.mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: validDonationId, donorId: validDonorId, status: 'CLAIMED' })
+    });
+
+    await claimDonation(validDonationId, validNgoId);
+
+    const callArgs = sendNotification.mock.calls[0][0];
+    expect(callArgs).not.toHaveProperty('pickupAddress');
+    expect(callArgs).not.toHaveProperty('latitude');
+    expect(callArgs).not.toHaveProperty('longitude');
   });
 });
