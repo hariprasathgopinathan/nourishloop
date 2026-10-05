@@ -33,6 +33,21 @@ const createApplicationProfile = async (firebaseUid, email, profileData) => {
     longitude
   } = profileData;
 
+  // Validate geography if provided
+  if (latitude !== undefined && longitude !== undefined) {
+    const numLat = Number(latitude);
+    const numLng = Number(longitude);
+
+    if (
+      !Number.isFinite(numLat) || numLat < -90 || numLat > 90 ||
+      !Number.isFinite(numLng) || numLng < -180 || numLng > 180
+    ) {
+      const error = new Error('Invalid geographic coordinates');
+      error.status = 400;
+      throw error;
+    }
+  }
+
   // Create new user profile using trusted firebaseUid and email
   const user = new User({
     firebaseUid,
@@ -43,8 +58,8 @@ const createApplicationProfile = async (firebaseUid, email, profileData) => {
     organizationName,
     address,
     pincode,
-    latitude,
-    longitude
+    latitude: latitude !== undefined ? Number(latitude) : undefined,
+    longitude: longitude !== undefined ? Number(longitude) : undefined
   });
 
   return await user.save();

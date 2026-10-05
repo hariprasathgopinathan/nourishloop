@@ -221,3 +221,13 @@ surplus-food-donation-network/
 - **Render** hosts the Express API with auto-deploy from GitHub.
 - **MongoDB Atlas** provides the managed database cluster.
 - **Firebase** handles authentication (external service, no hosting needed).
+
+## 7. Security Hardening
+
+- **Helmet**: Secures Express apps by setting HTTP response headers.
+- **CORS**: Rejects unexpected origins using an environment-controlled allowlist.
+- **Rate Limiting**: Mitigates request-abuse and rate-limiting protection by enforcing specific rate limits per route category.
+- **Input Validation**: Rejects invalid parameters and ensures data consistency before persisting to MongoDB.
+- **Location Privacy**: Implements bounds-checking and coordinate obscuring to avoid revealing exact paths prematurely.
+- **Socket.IO Restrictions**: Validates Firebase credentials and strictly derives private rooms from verified backend profile data.
+- **Sanitization**: Obscures internal stack traces in production to prevent information leakage.

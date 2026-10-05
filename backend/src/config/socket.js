@@ -5,9 +5,16 @@ const authService = require('../services/authService');
 let io;
 
 const initSocket = (server) => {
+  const getCorsOrigins = () => {
+    if (process.env.FRONTEND_ORIGIN) {
+      return process.env.FRONTEND_ORIGIN.split(',').map(o => o.trim());
+    }
+    return ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'];
+  };
+
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: getCorsOrigins(),
       methods: ['GET', 'POST'],
       credentials: true
     }

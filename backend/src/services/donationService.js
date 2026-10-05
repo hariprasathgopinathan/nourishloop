@@ -42,6 +42,19 @@ const createDonation = async (donationData) => {
     throw error;
   }
 
+  // --- Validate Geography ---
+  const numLat = Number(latitude);
+  const numLng = Number(longitude);
+
+  if (
+    !Number.isFinite(numLat) || numLat < -90 || numLat > 90 ||
+    !Number.isFinite(numLng) || numLng < -180 || numLng > 180
+  ) {
+    const error = new Error('Invalid geographic coordinates');
+    error.status = 400;
+    throw error;
+  }
+
   // --- Validate quantity ---
   const parsedQuantity = Number(quantity);
   if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
@@ -75,8 +88,8 @@ const createDonation = async (donationData) => {
     description,
     pickupAddress,
     pincode,
-    latitude,
-    longitude,
+    latitude: numLat,
+    longitude: numLng,
     availableUntil,
   });
 

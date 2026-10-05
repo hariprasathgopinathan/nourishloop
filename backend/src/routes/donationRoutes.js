@@ -1,5 +1,6 @@
 const express = require('express');
 const { requireAuth, requireAppUser, requireRole } = require('../middleware/authMiddleware');
+const { mutationLimiter, heavyEndpointLimiter } = require('../middleware/rateLimitMiddleware');
 const router = express.Router();
 const { 
   createDonationHandler, 
@@ -14,7 +15,7 @@ const {
 } = require('../controllers/donationController');
 
 // POST /api/donations
-router.post('/', requireAuth, requireAppUser, requireRole('DONOR'), createDonationHandler);
+router.post('/', mutationLimiter, requireAuth, requireAppUser, requireRole('DONOR'), createDonationHandler);
 
 // GET /api/donations/mine
 router.get('/mine', requireAuth, requireAppUser, requireRole('DONOR'), getMyDonationsHandler);
@@ -23,21 +24,21 @@ router.get('/mine', requireAuth, requireAppUser, requireRole('DONOR'), getMyDona
 router.get('/my-claims', requireAuth, requireAppUser, requireRole('NGO'), getMyClaimsHandler);
 
 // GET /api/donations/nearby
-router.get('/nearby', requireAuth, requireAppUser, requireRole('NGO'), getNearbyDonationsHandler);
+router.get('/nearby', heavyEndpointLimiter, requireAuth, requireAppUser, requireRole('NGO'), getNearbyDonationsHandler);
 
 // GET /api/donations
 router.get('/', requireAuth, requireAppUser, requireRole('NGO'), getDonationsHandler);
 
 // POST /api/donations/:donationId/claim
-router.post('/:donationId/claim', requireAuth, requireAppUser, requireRole('NGO'), claimDonationHandler);
+router.post('/:donationId/claim', mutationLimiter, requireAuth, requireAppUser, requireRole('NGO'), claimDonationHandler);
 
 // PATCH /api/donations/:donationId/ready-for-pickup
-router.patch('/:donationId/ready-for-pickup', requireAuth, requireAppUser, requireRole('DONOR'), markReadyForPickupHandler);
+router.patch('/:donationId/ready-for-pickup', mutationLimiter, requireAuth, requireAppUser, requireRole('DONOR'), markReadyForPickupHandler);
 
 // PATCH /api/donations/:donationId/picked-up
-router.patch('/:donationId/picked-up', requireAuth, requireAppUser, requireRole('NGO'), markPickedUpHandler);
+router.patch('/:donationId/picked-up', mutationLimiter, requireAuth, requireAppUser, requireRole('NGO'), markPickedUpHandler);
 
 // GET /api/donations/:donationId/route
-router.get('/:donationId/route', requireAuth, requireAppUser, requireRole('NGO'), getDonationRouteHandler);
+router.get('/:donationId/route', heavyEndpointLimiter, requireAuth, requireAppUser, requireRole('NGO'), getDonationRouteHandler);
 
 module.exports = router;

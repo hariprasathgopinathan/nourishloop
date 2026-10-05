@@ -1,5 +1,6 @@
 const express = require('express');
 const { requireAuth, requireAppUser } = require('../middleware/authMiddleware');
+const { notificationLimiter } = require('../middleware/rateLimitMiddleware');
 const {
   getNotificationsHandler,
   markReadHandler,
@@ -8,7 +9,7 @@ const {
 
 const router = express.Router();
 
-router.use(requireAuth, requireAppUser);
+router.use(notificationLimiter, requireAuth, requireAppUser);
 
 router.get('/', getNotificationsHandler);
 router.patch('/read-all', markAllReadHandler);
