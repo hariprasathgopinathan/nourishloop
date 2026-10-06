@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         try {
           await fetchProfile();
-        } catch (err) {
+        } catch {
           // Error state is handled in fetchProfile
         }
       } else {

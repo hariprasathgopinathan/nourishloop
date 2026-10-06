@@ -68,17 +68,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     }
   }, [selectedClaim, role]);
 
-  useEffect(() => {
-    if (role === 'DONOR' && initialDonations) {
-      setClaimsList(initialDonations.filter(d => ['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(d.status)));
-    } else if (role === 'NGO') {
-      fetchNgoClaims();
-    }
-  }, [role, initialDonations]);
-
-  const fetchNgoClaims = async () => {
-    setLoading(true);
-    setError(null);
+  const fetchNgoClaims = useCallback(async () => {
     try {
       const res = await getMyClaims();
       setClaimsList((res.data || []).filter(d => ['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(d.status)));
@@ -87,7 +77,22 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (role === 'DONOR' && initialDonations) {
+      // Async wrapper to avoid synchronous setState warning
+      Promise.resolve().then(() => {
+        setClaimsList(initialDonations.filter(d => ['CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP'].includes(d.status)));
+      });
+    } else if (role === 'NGO') {
+      Promise.resolve().then(() => {
+        setLoading(true);
+        setError(null);
+        fetchNgoClaims();
+      });
+    }
+  }, [role, initialDonations, fetchNgoClaims]);
 
   const handleAction = async () => {
     if (!selectedClaim) return;

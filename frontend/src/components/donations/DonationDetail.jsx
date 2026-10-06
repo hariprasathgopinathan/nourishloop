@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MapPin, Clock, Package, Utensils, Building2, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Package, Utensils, Building2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from '../ui/Button';
 import UrgencyBadge from '../ui/UrgencyBadge';
 import StatusBadge from '../ui/StatusBadge';

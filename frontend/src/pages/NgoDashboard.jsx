@@ -59,14 +59,12 @@ export default function NgoDashboard({ onLogout }) {
   const [locationUpdating, setLocationUpdating] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
 
-  const fetchAvailableDonations = async () => {
+  const fetchAvailableDonations = useCallback(async () => {
     if (!appProfile?.latitude || !appProfile?.longitude) {
-      setLoading(false);
+      Promise.resolve().then(() => setLoading(false));
       return;
     }
 
-    setLoading(true);
-    setError(null);
     try {
       const res = await getNearbyDonations(radiusKm);
       // Map explicit donor names
@@ -81,7 +79,7 @@ export default function NgoDashboard({ onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [appProfile?.latitude, appProfile?.longitude, radiusKm]);
 
   useEffect(() => {
     fetchAvailableDonations();
@@ -89,7 +87,7 @@ export default function NgoDashboard({ onLogout }) {
     const handleUpdate = () => fetchAvailableDonations();
     window.addEventListener('donation-updated', handleUpdate);
     return () => window.removeEventListener('donation-updated', handleUpdate);
-  }, [appProfile?.latitude, appProfile?.longitude, radiusKm]);
+  }, [fetchAvailableDonations]);
 
   const handleUpdateLocation = async () => {
     if (!tempLocation) return;

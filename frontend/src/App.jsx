@@ -27,7 +27,7 @@ function AppContent() {
   }
 
   if (profileError && user) {
-    return <OnboardingPage onLogout={handleLogout} onSuccess={(role) => {
+    return <OnboardingPage onLogout={handleLogout} onSuccess={() => {
       // The profile is refreshed in OnboardingPage so appProfile will be populated shortly.
       // We don't need to do anything here because AuthContext updates.
     }} />;
@@ -58,7 +58,7 @@ function AppContent() {
       <AuthPage 
         intentRole={authIntent} 
         onBack={() => setAuthIntent(null)} 
-        onSuccess={(role) => {
+        onSuccess={() => {
           setAuthIntent(null);
           // Wait for AuthContext to resolve the profile via subscribeToAuthState
         }} 

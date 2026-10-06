@@ -24,8 +24,6 @@ export default function MyClaims({ onSelectClaim }) {
   const [statusFilter, setStatusFilter] = useState('All');
 
   const fetchClaims = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await getMyClaims();
       setClaims(res.data || []);

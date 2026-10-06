@@ -110,7 +110,7 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
             }, 1500);
             return;
           }
-        } catch (refreshErr) {
+        } catch {
           setError("Profile already exists but could not be loaded. Please reload.");
         }
       } else if (err.status === 401) {

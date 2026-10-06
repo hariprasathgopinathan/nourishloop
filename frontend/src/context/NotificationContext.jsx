@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { connectSocket, disconnectSocket, getSocket } from '../services/socket';
+import { connectSocket, disconnectSocket } from '../services/socket';
 import { useAuth } from './AuthContext';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/api';
 
@@ -8,7 +8,8 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const { currentUser, role } = useAuth();
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+
+  const unreadCount = notifications.filter(n => !n.readAt).length;
 
   const fetchNotifications = async () => {
     try {
@@ -26,12 +27,12 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (currentUser && role) {
       fetchNotifications();
-      
+
       connectSocket().then((socket) => {
         socket.on('notification:new', (notification) => {
           setNotifications((prev) => [notification, ...prev]);
         });
-        
+
         socket.on('donation:status-updated', () => {
           // Might want to emit an event or rely on other contexts re-fetching,
           // for now we can just log it or dispatch an event
@@ -47,11 +48,6 @@ export const NotificationProvider = ({ children }) => {
       disconnectSocket();
     };
   }, [currentUser, role]);
-
-  useEffect(() => {
-    const count = notifications.filter(n => !n.readAt).length;
-    setUnreadCount(count);
-  }, [notifications]);
 
   const markAsRead = async (id) => {
     try {

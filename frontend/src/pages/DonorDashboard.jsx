@@ -34,8 +34,6 @@ export default function DonorDashboard({ onLogout }) {
   const { unreadCount } = useNotification();
 
   const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await getMyDonations();
       setData(res.data);

@@ -16,17 +16,13 @@ export default function UrgencyBadge({ availableUntil }) {
   
   const diffHours = diffMs / (1000 * 60 * 60);
   
-  let level = 'NORMAL';
   let styles = 'bg-emerald-50 text-emerald-700 border border-emerald-100';
   
   if (diffHours < 1) {
-    level = 'CRITICAL';
     styles = 'bg-red-50 text-red-700 border border-red-200 shadow-sm';
   } else if (diffHours < 3) {
-    level = 'URGENT';
     styles = 'bg-orange-50 text-orange-700 border border-orange-200';
   } else if (diffHours < 12) {
-    level = 'EXPIRING SOON';
     styles = 'bg-amber-50 text-amber-700 border border-amber-200';
   }
 
