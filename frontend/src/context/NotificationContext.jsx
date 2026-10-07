@@ -6,7 +6,7 @@ import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const { currentUser, role } = useAuth();
+  const { user, appProfile } = useAuth();
   const [notifications, setNotifications] = useState([]);
 
   const unreadCount = notifications.filter(n => !n.readAt).length;
@@ -25,7 +25,7 @@ export const NotificationProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (currentUser && role) {
+    if (user && appProfile) {
       fetchNotifications();
 
       connectSocket().then((socket) => {
@@ -47,7 +47,7 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       disconnectSocket();
     };
-  }, [currentUser, role]);
+  }, [user, appProfile]);
 
   const markAsRead = async (id) => {
     try {

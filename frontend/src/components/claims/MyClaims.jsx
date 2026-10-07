@@ -4,8 +4,6 @@ import StatusBadge from '../ui/StatusBadge';
 import EmptyState from '../ui/EmptyState';
 import { getMyClaims } from '../../services/api';
 
-
-
 const statusFilters = ['All', 'CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP', 'EXPIRED', 'CANCELLED'];
 const statusLabels = {
   All: 'All status',
@@ -39,7 +37,7 @@ export default function MyClaims({ onSelectClaim }) {
   }, []);
 
   const filtered = claims.filter(c => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       c.foodName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.donorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.donorOrganizationName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -52,7 +50,7 @@ export default function MyClaims({ onSelectClaim }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-        <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
+        <Loader2 className="animate-spin h-10 w-10 text-brand-teal mb-4" />
         <p className="text-gray-500 font-medium">Loading your claims...</p>
       </div>
     );
@@ -61,9 +59,9 @@ export default function MyClaims({ onSelectClaim }) {
   if (error) {
     return (
       <div className="pt-12">
-        <EmptyState 
-          title="Configuration Error" 
-          description={error} 
+        <EmptyState
+          title="Configuration Error"
+          description={error}
           actionLabel="Try Again"
           onAction={fetchClaims}
         />
@@ -74,10 +72,10 @@ export default function MyClaims({ onSelectClaim }) {
   if (claims.length === 0) {
     return (
       <div className="pt-12">
-        <EmptyState 
-          icon={HandHeart} 
-          title="No claims yet" 
-          description="Browse available donations and claim food for your organization. Claimed donations will appear here." 
+        <EmptyState
+          icon={HandHeart}
+          title="No claims yet"
+          description="Browse available donations and claim food for your organization. Claimed donations will appear here."
         />
       </div>
     );
@@ -87,12 +85,12 @@ export default function MyClaims({ onSelectClaim }) {
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">My claims</h2>
+        <h2 className="text-3xl font-semibold text-brand-text mb-2 tracking-tight">My claims</h2>
         <p className="text-gray-500 text-lg">Track and manage food you've claimed from donors.</p>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="bg-white p-2 rounded-2xl border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1 max-w-md">
             <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -101,7 +99,7 @@ export default function MyClaims({ onSelectClaim }) {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by food, category, donor, or address..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal transition-all"
             />
           </div>
           <div className="relative">
@@ -109,7 +107,7 @@ export default function MyClaims({ onSelectClaim }) {
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-2.5 bg-gray-50/50 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 appearance-none cursor-pointer font-medium text-gray-700 w-full sm:w-48"
+              className="pl-10 pr-8 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal appearance-none cursor-pointer font-medium text-brand-text w-full sm:w-48"
             >
               {statusFilters.map(s => (
                 <option key={s} value={s}>{statusLabels[s]}</option>
@@ -127,11 +125,11 @@ export default function MyClaims({ onSelectClaim }) {
       ) : (
         <div className="space-y-3">
           {filtered.map(claim => (
-            <div key={claim._id} className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all group">
+            <div key={claim._id} className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm hover:border-brand-teal/40 hover:shadow-md transition-all group">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-gray-900 truncate">{claim.foodName}</h3>
+                    <h3 className="font-semibold text-brand-text truncate">{claim.foodName}</h3>
                     <StatusBadge status={claim.status} />
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500">
@@ -151,13 +149,13 @@ export default function MyClaims({ onSelectClaim }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <button 
+                  <button
                     onClick={() => onSelectClaim?.(claim)}
-                    className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
+                    className="text-sm font-semibold text-brand-teal hover:text-brand-darkTeal hover:bg-brand-teal/10 px-3 py-1.5 rounded-lg transition-colors"
                   >
                     View details
                   </button>
-                  <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                  <button className="p-2 text-gray-400 hover:text-brand-teal hover:bg-brand-teal/10 rounded-lg transition-colors">
                     <MoreHorizontal size={18} />
                   </button>
                 </div>

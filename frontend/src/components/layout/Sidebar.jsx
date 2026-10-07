@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  List, 
-  PlusCircle, 
-  MapPin, 
-  BarChart2, 
-  Bell, 
-  User, 
-  Settings, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  List,
+  PlusCircle,
+  MapPin,
+  BarChart2,
+  Bell,
+  User,
+  Settings,
+  LogOut,
+  Menu,
   X,
   HelpCircle
 } from 'lucide-react';
@@ -56,8 +56,8 @@ export default function Sidebar({ activeItem, onItemClick }) {
         className={`
           w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium
           transition-all duration-200 group relative
-          ${isActive 
-            ? 'bg-emerald-50 text-emerald-700' 
+          ${isActive
+            ? 'bg-emerald-50 text-emerald-700'
             : 'text-gray-600 hover:bg-white hover:shadow-sm hover:text-gray-900'
           }
         `}
@@ -103,8 +103,8 @@ export default function Sidebar({ activeItem, onItemClick }) {
         `}
       >
         {/* Branding Area */}
-        <div className="p-6 pt-8 pb-8 pl-8 flex items-center">
-          <Logo />
+        <div className="p-6 pt-7 pb-6 flex items-center justify-center border-b border-gray-100">
+          <Logo compact className="h-16 w-auto" />
         </div>
 
         {/* Navigation Areas */}

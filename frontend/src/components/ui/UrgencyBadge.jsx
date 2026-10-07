@@ -5,7 +5,7 @@ export default function UrgencyBadge({ availableUntil }) {
   const date = new Date(availableUntil);
   const now = new Date();
   const diffMs = date - now;
-  
+
   if (diffMs <= 0) {
     return (
       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
@@ -13,11 +13,11 @@ export default function UrgencyBadge({ availableUntil }) {
       </div>
     );
   }
-  
+
   const diffHours = diffMs / (1000 * 60 * 60);
-  
-  let styles = 'bg-emerald-50 text-emerald-700 border border-emerald-100';
-  
+
+  let styles = 'bg-brand-green/10 text-brand-darkGreen border border-brand-green/20';
+
   if (diffHours < 1) {
     styles = 'bg-red-50 text-red-700 border border-red-200 shadow-sm';
   } else if (diffHours < 3) {

@@ -11,7 +11,7 @@ import MapDemoPage from './pages/MapDemoPage';
 
 function AppContent() {
   const { user, profileError, logout, appProfile } = useAuth();
-  
+
   const [authIntent, setAuthIntent] = useState(null);
 
   const handleLogout = async () => {
@@ -43,7 +43,7 @@ function AppContent() {
         </ProtectedRoute>
       );
     }
-    
+
     if (role === 'ngo') {
       return (
         <ProtectedRoute fallbackAction={handleLogout}>
@@ -55,21 +55,21 @@ function AppContent() {
 
   if (authIntent) {
     return (
-      <AuthPage 
-        intentRole={authIntent} 
-        onBack={() => setAuthIntent(null)} 
+      <AuthPage
+        intentRole={authIntent}
+        onBack={() => setAuthIntent(null)}
         onSuccess={() => {
           setAuthIntent(null);
           // Wait for AuthContext to resolve the profile via subscribeToAuthState
-        }} 
+        }}
       />
     );
   }
 
   return (
-    <LandingPage 
-      onLoginDonor={() => setAuthIntent('donor')} 
-      onLoginNgo={() => setAuthIntent('ngo')} 
+    <LandingPage
+      onLoginDonor={() => setAuthIntent('donor')}
+      onLoginNgo={() => setAuthIntent('ngo')}
     />
   );
 }

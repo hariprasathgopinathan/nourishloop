@@ -9,7 +9,7 @@ export default function MapDemoPage() {
           <h1 className="text-2xl font-bold text-gray-900">MapLibre OSM Demo</h1>
           <p className="text-sm text-gray-500 mt-1">Open-source mapping layer foundation test</p>
         </div>
-        
+
         <div className="p-6 space-y-8">
           <section>
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Default View (Chennai)</h2>
@@ -18,9 +18,9 @@ export default function MapDemoPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-800 mb-4">View with Marker</h2>
-            <MapView 
-              className="w-full" 
-              height="300px" 
+            <MapView
+              className="w-full"
+              height="300px"
               zoom={14}
               marker={{ lng: 80.2785, lat: 13.0827 }} // Sample coords in Chennai
             />

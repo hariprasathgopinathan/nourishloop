@@ -1,7 +1,21 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-brand-green: #059669;
+  --color-brand-dark-green: #064e3b;
+  --color-brand-teal: #0d9488;
+  --color-brand-dark-teal: #134e4a;
+  --color-brand-neutral: #f8fafc;
+  --color-brand-text: #1e293b;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
 @layer base {
   html {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--color-brand-text);
+    background-color: var(--color-brand-neutral);
   }
 }

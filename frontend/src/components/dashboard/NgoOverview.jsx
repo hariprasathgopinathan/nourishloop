@@ -4,8 +4,11 @@ import ImpactCard from '../impact/ImpactCard';
 import UrgencyBadge from '../ui/UrgencyBadge';
 import StatusBadge from '../ui/StatusBadge';
 import { Package, HandHeart, Truck, CheckCircle, MapPin, ArrowRight, Clock } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function NgoOverview({ stats, recentAvailable, activeClaims, onFindDonations, onViewClaims }) {
+  const { appProfile } = useAuth();
+
   const statCards = [
     { label: 'Available nearby', value: stats.availableNearby, icon: Package, trend: '5%' },
     { label: 'Active claims', value: stats.activeClaims, icon: HandHeart },
@@ -18,12 +21,14 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Good morning, Hope Foundation</h2>
+          <h2 className="text-3xl font-semibold text-brand-text mb-2 tracking-tight">
+            Good morning, {appProfile?.name || 'NGO Partner'}
+          </h2>
           <p className="text-gray-500 text-lg">Find surplus food available near your organization.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" onClick={onViewClaims}>View my claims</Button>
-          <Button onClick={onFindDonations} size="lg" className="shadow-emerald-500/20 shadow-lg">
+          <Button onClick={onFindDonations} variant="ngoPrimary" size="lg">
             Find donations
           </Button>
         </div>
@@ -32,12 +37,13 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {statCards.map(stat => (
-          <ImpactCard 
+          <ImpactCard
             key={stat.label}
             label={stat.label}
             value={stat.value}
             icon={stat.icon}
             trend={stat.trend}
+            theme="ngo"
           />
         ))}
       </div>
@@ -47,12 +53,12 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
         <div className="lg:col-span-2 space-y-6">
           <div className="flex justify-between items-end">
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 tracking-tight">Available nearby</h3>
+              <h3 className="text-xl font-semibold text-brand-text tracking-tight">Available nearby</h3>
               <p className="text-sm text-gray-500 mt-1">Surplus food ready for your organization to claim.</p>
             </div>
-            <button 
+            <button
               onClick={onFindDonations}
-              className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
+              className="text-sm font-semibold text-brand-teal hover:text-brand-darkTeal hover:bg-brand-teal/10 px-3 py-1.5 rounded-lg transition-colors"
             >
               Browse all &rarr;
             </button>
@@ -60,11 +66,11 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
 
           <div className="space-y-3">
             {recentAvailable.slice(0, 4).map(don => (
-              <div key={don._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all group cursor-pointer">
+              <div key={don._id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-brand-teal/30 hover:shadow-md transition-all group cursor-pointer">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="font-semibold text-gray-900 truncate">{don.foodName}</h4>
+                      <h4 className="font-semibold text-brand-text truncate">{don.foodName}</h4>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-xs font-medium flex-shrink-0">
                         {don.category}
                       </span>
@@ -80,7 +86,7 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <UrgencyBadge availableUntil={don.availableUntil} />
-                    <button className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 transition-colors">
+                    <button className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-brand-teal group-hover:bg-brand-teal/10 transition-colors">
                       <ArrowRight size={16} />
                     </button>
                   </div>
@@ -93,10 +99,10 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
         {/* Active Claims Sidebar */}
         <div className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-brand-text tracking-tight flex items-center gap-2">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-teal/70 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-teal"></span>
               </span>
               Active claims
             </h3>
@@ -114,11 +120,11 @@ export default function NgoOverview({ stats, recentAvailable, activeClaims, onFi
           ) : (
             <div className="space-y-4">
               {activeClaims.map(claim => (
-                <div key={claim._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors cursor-pointer">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400"></div>
+                <div key={claim._id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden group hover:border-brand-teal/40 transition-colors cursor-pointer">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-teal"></div>
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-gray-900 leading-tight">{claim.foodName}</h4>
+                      <h4 className="font-semibold text-brand-text leading-tight">{claim.foodName}</h4>
                       <p className="text-xs font-medium text-gray-500 mt-1">{claim.quantity} {claim.unit} · {claim.donorName}</p>
                     </div>
                     <StatusBadge status={claim.status} />

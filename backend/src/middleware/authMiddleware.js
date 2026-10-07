@@ -62,7 +62,9 @@ const requireAppUser = async (req, res, next) => {
       firebaseUid: user.firebaseUid,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      latitude: user.latitude,
+      longitude: user.longitude
     };
 
     next();

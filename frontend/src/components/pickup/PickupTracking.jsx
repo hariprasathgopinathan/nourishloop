@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, ArrowLeft, Clock, Building2, CheckCircle, Circle, Package, AlertCircle, Loader2, ChevronRight } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
 import Button from '../ui/Button';
@@ -25,6 +25,22 @@ function getActiveStep(status) {
 }
 
 export default function PickupTracking({ role = 'NGO', initialDonations, onUpdate, onBack }) {
+  const isNgo = role === 'NGO';
+
+  // Theme variables based on role
+  const theme = {
+    text: isNgo ? 'text-brand-teal' : 'text-brand-green',
+    textDark: isNgo ? 'text-brand-darkTeal' : 'text-brand-darkGreen',
+    bg: isNgo ? 'bg-brand-teal/10' : 'bg-brand-green/10',
+    bgSolid: isNgo ? 'bg-brand-teal text-white' : 'bg-brand-green text-white',
+    border: isNgo ? 'border-brand-teal/20' : 'border-brand-green/20',
+    ring: isNgo ? 'ring-brand-teal/20' : 'ring-brand-green/20',
+    hoverText: isNgo ? 'hover:text-brand-teal' : 'hover:text-brand-green',
+    hoverBorder: isNgo ? 'hover:border-brand-teal/30' : 'hover:border-brand-green/30',
+    ping: isNgo ? 'bg-brand-teal/70' : 'bg-brand-green/70',
+    dot: isNgo ? 'bg-brand-teal' : 'bg-brand-green',
+    buttonVariant: isNgo ? 'ngoPrimary' : 'primary',
+  };
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [claimsList, setClaimsList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -141,7 +157,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-        <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
+        <Loader2 className={`animate-spin h-10 w-10 ${theme.text} mb-4`} />
         <p className="text-gray-500 font-medium">Loading active pickups...</p>
       </div>
     );
@@ -168,7 +184,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
             <div className="w-16 h-16 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Package size={28} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight">No active pickups</h3>
+            <h3 className="text-lg font-bold text-brand-text mb-2 tracking-tight">No active pickups</h3>
             <p className="text-gray-500 mb-6">There are no donations currently in progress for pickup.</p>
             {onBack && (
               <Button onClick={onBack} variant="secondary">Go back</Button>
@@ -181,19 +197,19 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     return (
       <div className="max-w-4xl mx-auto pb-12 space-y-4">
         {onBack && (
-          <button onClick={onBack} className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 mb-4 transition-colors">
+          <button onClick={onBack} className={`flex items-center gap-2 text-sm font-semibold text-gray-600 ${theme.hoverText} mb-4 transition-colors`}>
             <ArrowLeft size={16} /> Back
           </button>
         )}
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Pickups</h2>
+        <h2 className="text-2xl font-bold text-brand-text mb-6">Active Pickups</h2>
         {claimsList.map(c => (
           <div
             key={c._id}
             onClick={() => setSelectedClaim(c)}
-            className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:border-emerald-200 hover:shadow-md transition-all flex items-center justify-between"
+            className={`bg-white p-5 rounded-2xl border border-gray-200 shadow-sm cursor-pointer ${theme.hoverBorder} hover:shadow-md transition-all flex items-center justify-between`}
           >
             <div>
-              <h3 className="font-semibold text-gray-900 mb-1">{c.foodName}</h3>
+              <h3 className="font-semibold text-brand-text mb-1">{c.foodName}</h3>
               <div className="flex gap-3 text-sm text-gray-500">
                 <span>{c.quantity} {c.unit}</span>
                 <span>•</span>
@@ -217,7 +233,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
     <div className="max-w-4xl mx-auto pb-12">
       <button
         onClick={handleBackToList}
-        className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 mb-8 group transition-colors"
+        className={`flex items-center gap-2 text-sm font-semibold text-gray-600 ${theme.hoverText} mb-8 group transition-colors`}
       >
         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
         Back to pickups
@@ -234,11 +250,11 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
       )}
 
       {actionState === 'success' && (
-        <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-4 shadow-sm">
-          <CheckCircle className="text-emerald-600 mt-0.5 flex-shrink-0" size={22} />
+        <div className={`mb-8 p-6 ${theme.bg} border ${theme.border} rounded-2xl flex items-start gap-4 shadow-sm`}>
+          <CheckCircle className={`${theme.text} mt-0.5 flex-shrink-0`} size={22} />
           <div>
-            <h4 className="text-emerald-900 font-bold text-base mb-1">Update successful</h4>
-            <p className="text-emerald-700 text-sm">The pickup status has been successfully updated.</p>
+            <h4 className={`${theme.textDark} font-bold text-base mb-1`}>Update successful</h4>
+            <p className={`${theme.textDark} opacity-80 text-sm`}>The pickup status has been successfully updated.</p>
           </div>
         </div>
       )}
@@ -246,10 +262,10 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Timeline */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+          <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm">
             <div className="flex items-start justify-between gap-4 mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">{selectedClaim.foodName}</h2>
+                <h2 className="text-2xl font-bold text-brand-text tracking-tight mb-1">{selectedClaim.foodName}</h2>
                 <p className="text-gray-500">{selectedClaim.quantity} {selectedClaim.unit}</p>
               </div>
               <StatusBadge status={selectedClaim.status} />
@@ -265,12 +281,12 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
                   <div key={step.key} className="flex gap-4">
                     <div className="flex flex-col items-center">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                        isComplete ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400'
-                      } ${isCurrent ? 'ring-4 ring-emerald-100' : ''}`}>
+                        isComplete ? theme.bgSolid : 'bg-gray-100 text-gray-400'
+                      } ${isCurrent ? `ring-4 ${theme.ring}` : ''}`}>
                         {isComplete ? <CheckCircle size={16} /> : <Circle size={16} />}
                       </div>
                       {!isLast && (
-                        <div className={`w-0.5 h-16 ${isComplete && i < activeStep ? 'bg-emerald-300' : 'bg-gray-200'}`}></div>
+                        <div className={`w-0.5 h-16 ${isComplete && i < activeStep ? theme.bg : 'bg-gray-200'}`}></div>
                       )}
                     </div>
                     <div className="pb-8">
@@ -281,10 +297,10 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
                         {step.description}
                       </p>
                       {isCurrent && (
-                        <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+                        <span className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full ${theme.bg} ${theme.textDark} text-xs font-medium`}>
                           <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${theme.ping}`}></span>
+                            <span className={`relative inline-flex rounded-full h-2 w-2 ${theme.dot}`}></span>
                           </span>
                           Current step
                         </span>
@@ -296,16 +312,16 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 tracking-tight mb-4 flex items-center gap-2">
-              <MapPin size={18} className="text-emerald-600" />
+          <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm">
+            <h3 className="text-lg font-semibold text-brand-text tracking-tight mb-4 flex items-center gap-2">
+              <MapPin size={18} className={theme.text} />
               Pickup location
             </h3>
 
             {role === 'DONOR' && (
               <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden mb-4">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">
+                  <div className={`w-12 h-12 rounded-full ${theme.bg} ${theme.text} flex items-center justify-center mb-2`}>
                     <MapPin size={22} />
                   </div>
                   <p className="text-xs text-gray-500 font-medium">Map preview available after integration</p>
@@ -317,7 +333,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
               <div className="w-full h-64 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden mb-4">
                 {routeLoading && (
                   <div className="flex flex-col items-center text-center">
-                    <Loader2 className="animate-spin h-8 w-8 text-emerald-500 mb-2" />
+                    <Loader2 className={`animate-spin h-8 w-8 ${theme.text} mb-2`} />
                     <p className="text-sm text-gray-500 font-medium">Calculating pickup route...</p>
                   </div>
                 )}
@@ -348,13 +364,13 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
                         lng: routeData.geometry.coordinates[0][0],
                         lat: routeData.geometry.coordinates[0][1],
                         id: 'ngo-origin',
-                        color: '#3b82f6' // blue for NGO
+                        color: '#0D7A70' // brand-teal for NGO
                       },
                       {
                         lng: routeData.geometry.coordinates[routeData.geometry.coordinates.length - 1][0],
                         lat: routeData.geometry.coordinates[routeData.geometry.coordinates.length - 1][1],
                         id: 'donation-dest',
-                        color: '#10b981' // emerald for pickup
+                        color: '#138A53' // brand-green for pickup
                       }
                     ]}
                   />
@@ -363,20 +379,20 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
             )}
 
             {role === 'NGO' && routeData && (
-              <div className="flex gap-6 mb-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+              <div className={`flex gap-6 mb-4 p-4 ${theme.bg} rounded-xl border ${theme.border}`}>
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Distance</p>
-                  <p className="text-lg font-bold text-emerald-900">{routeData.distanceKm} km</p>
+                  <p className={`text-lg font-bold ${theme.textDark}`}>{routeData.distanceKm} km</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Est. Travel Time</p>
-                  <p className="text-lg font-bold text-emerald-900">{routeData.durationMinutes} min</p>
+                  <p className={`text-lg font-bold ${theme.textDark}`}>{routeData.durationMinutes} min</p>
                 </div>
               </div>
             )}
 
             <div className="mt-4">
-              <p className="text-sm font-medium text-gray-900">{selectedClaim.pickupAddress}</p>
+              <p className="text-sm font-medium text-brand-text">{selectedClaim.pickupAddress}</p>
             </div>
           </div>
         </div>
@@ -384,34 +400,34 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
         {/* Sidebar Info */}
         <div className="space-y-6">
           {role === 'NGO' && selectedClaim.donorName && (
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                 <Building2 size={15} className="text-gray-400" />
                 Donor
               </h3>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm border border-emerald-100">
+                <div className={`w-12 h-12 rounded-full ${theme.bg} ${theme.text} flex items-center justify-center font-bold text-sm border ${theme.border}`}>
                   {selectedClaim.donorName.charAt(0)}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">{selectedClaim.donorName}</p>
+                  <p className="font-semibold text-brand-text">{selectedClaim.donorName}</p>
                   <p className="text-xs text-gray-500 font-medium">Verified donor</p>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Timing</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500 flex items-center gap-1.5"><Clock size={13}/> Claimed</span>
-                <span className="text-gray-900 font-medium">{new Date(selectedClaim.claimedAt).toLocaleDateString()}</span>
+                <span className="text-brand-text font-medium">{new Date(selectedClaim.claimedAt).toLocaleDateString()}</span>
               </div>
               {selectedClaim.pickedUpAt && (
                 <div className="flex justify-between">
                   <span className="text-gray-500 flex items-center gap-1.5"><CheckCircle size={13}/> Picked up</span>
-                  <span className="text-gray-900 font-medium">{new Date(selectedClaim.pickedUpAt).toLocaleDateString()}</span>
+                  <span className="text-brand-text font-medium">{new Date(selectedClaim.pickedUpAt).toLocaleDateString()}</span>
                 </div>
               )}
             </div>
@@ -419,22 +435,22 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
 
           {/* Action Button */}
           {role === 'DONOR' && selectedClaim.status === 'CLAIMED' && (
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               {!showConfirm ? (
                 <>
-                  <h3 className="font-semibold text-gray-900 mb-2">Ready for pickup?</h3>
+                  <h3 className="font-semibold text-brand-text mb-2">Ready for pickup?</h3>
                   <p className="text-sm text-gray-500 mb-5">Mark this as ready when the food is packaged and waiting.</p>
-                  <Button onClick={() => setShowConfirm(true)} className="w-full shadow-emerald-500/20 shadow-lg">
+                  <Button onClick={() => setShowConfirm(true)} variant={theme.buttonVariant} className="w-full">
                     Mark Ready for Pickup
                   </Button>
                 </>
               ) : (
                 <>
-                  <h3 className="font-bold text-gray-900 mb-2">Confirm status</h3>
+                  <h3 className="font-bold text-brand-text mb-2">Confirm status</h3>
                   <p className="text-sm text-gray-500 mb-5">The NGO will be notified to come collect the food.</p>
                   <div className="flex gap-3">
                     <Button variant="ghost" onClick={() => setShowConfirm(false)} className="flex-1" disabled={actionState === 'loading'}>Cancel</Button>
-                    <Button onClick={handleAction} className="flex-1" isLoading={actionState === 'loading'}>Confirm</Button>
+                    <Button onClick={handleAction} variant={theme.buttonVariant} className="flex-1" isLoading={actionState === 'loading'}>Confirm</Button>
                   </div>
                 </>
               )}
@@ -442,22 +458,22 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
           )}
 
           {role === 'NGO' && selectedClaim.status === 'READY_FOR_PICKUP' && (
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               {!showConfirm ? (
                 <>
-                  <h3 className="font-semibold text-gray-900 mb-2">Collected food?</h3>
+                  <h3 className="font-semibold text-brand-text mb-2">Collected food?</h3>
                   <p className="text-sm text-gray-500 mb-5">Confirm once you have successfully picked up the donation.</p>
-                  <Button onClick={() => setShowConfirm(true)} className="w-full shadow-emerald-500/20 shadow-lg">
+                  <Button onClick={() => setShowConfirm(true)} variant={theme.buttonVariant} className="w-full">
                     Confirm Pickup
                   </Button>
                 </>
               ) : (
                 <>
-                  <h3 className="font-bold text-gray-900 mb-2">Confirm collection</h3>
+                  <h3 className="font-bold text-brand-text mb-2">Confirm collection</h3>
                   <p className="text-sm text-gray-500 mb-5">This marks the donation process as fully complete.</p>
                   <div className="flex gap-3">
                     <Button variant="ghost" onClick={() => setShowConfirm(false)} className="flex-1" disabled={actionState === 'loading'}>Cancel</Button>
-                    <Button onClick={handleAction} className="flex-1" isLoading={actionState === 'loading'}>Confirm</Button>
+                    <Button onClick={handleAction} variant={theme.buttonVariant} className="flex-1" isLoading={actionState === 'loading'}>Confirm</Button>
                   </div>
                 </>
               )}
@@ -465,7 +481,7 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
           )}
 
           {selectedClaim.status === 'PICKED_UP' && (
-            <div className="bg-emerald-50 p-4 rounded-xl text-emerald-700 text-sm font-medium flex items-center justify-center gap-2">
+            <div className={`${theme.bg} p-4 rounded-xl ${theme.textDark} text-sm font-medium flex items-center justify-center gap-2`}>
               <CheckCircle size={16} /> Picked Up
             </div>
           )}

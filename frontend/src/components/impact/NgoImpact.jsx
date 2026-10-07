@@ -19,14 +19,14 @@ export default function NgoImpact() {
         <p className="text-gray-500 text-lg">Your organization's contribution to fighting food waste and hunger.</p>
       </div>
 
-      <div className="bg-emerald-50 rounded-2xl p-4 sm:p-6 text-emerald-800 text-sm font-medium border border-emerald-100 flex items-center justify-between shadow-sm">
+      <div className="bg-brand-teal/10 rounded-2xl p-4 sm:p-6 text-brand-darkTeal text-sm font-medium border border-brand-teal/20 flex items-center justify-between shadow-sm">
         <p>This impact data is updated automatically based on your completed claims.</p>
-        <span className="hidden sm:inline-block px-2.5 py-1 bg-emerald-100 rounded-md text-emerald-700 text-xs font-semibold uppercase tracking-wider">Demo Data</span>
+        <span className="hidden sm:inline-block px-2.5 py-1 bg-brand-teal/20 rounded-md text-brand-darkTeal text-xs font-semibold uppercase tracking-wider">Demo Data</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {impactStats.map(stat => (
-          <ImpactCard 
+          <ImpactCard
             key={stat.label}
             label={stat.label}
             value={stat.value}
@@ -39,17 +39,17 @@ export default function NgoImpact() {
       {/* Visualizations Placeholder */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center min-h-[300px] text-center">
-          <EmptyState 
-            icon={Scale} 
-            title="Monthly Food Rescue" 
-            description="Chart visualization of your food rescue volume over time will appear here." 
+          <EmptyState
+            icon={Scale}
+            title="Monthly Food Rescue"
+            description="Chart visualization of your food rescue volume over time will appear here."
           />
         </div>
         <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center min-h-[300px] text-center">
-          <EmptyState 
-            icon={Users} 
-            title="Demographics Reached" 
-            description="Breakdown of communities and locations served by your redistributions." 
+          <EmptyState
+            icon={Users}
+            title="Demographics Reached"
+            description="Breakdown of communities and locations served by your redistributions."
           />
         </div>
       </div>

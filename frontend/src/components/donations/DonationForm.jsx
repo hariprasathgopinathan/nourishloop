@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Button from '../ui/Button';
 import { createDonation } from '../../services/api';
 import LocationPicker from '../map/LocationPicker';
-import { CheckCircle2, AlertCircle, Utensils, MapPin, Clock } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Utensils, MapPin, Clock, UploadCloud } from 'lucide-react';
 
 const initialFormState = {
   foodName: '',
@@ -18,10 +18,10 @@ const initialFormState = {
 
 const InputWrapper = ({ label, error, required, children, icon: Icon }) => (
   <div className="flex flex-col group">
-    <label className="text-sm font-medium text-gray-700 mb-2 flex justify-between items-center transition-colors group-focus-within:text-emerald-700">
+    <label className="text-sm font-medium text-gray-700 mb-2 flex justify-between items-center transition-colors group-focus-within:text-brand-darkGreen">
       <span className="flex items-center gap-2">
-        {Icon && <Icon size={16} className="text-gray-400 group-focus-within:text-emerald-600 transition-colors" />}
-        {label} {required && <span className="text-emerald-500">*</span>}
+        {Icon && <Icon size={16} className="text-gray-400 group-focus-within:text-brand-green transition-colors" />}
+        {label} {required && <span className="text-brand-green">*</span>}
       </span>
       {error && <span className="text-red-500 text-xs font-medium flex items-center gap-1"><AlertCircle size={12}/> {error}</span>}
     </label>
@@ -73,7 +73,7 @@ export default function DonationForm() {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
-    
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -81,10 +81,10 @@ export default function DonationForm() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    
+
     setErrors({});
     setIsSubmitting(true);
-    
+
     try {
       const donationData = {
         foodName: form.foodName,
@@ -98,9 +98,9 @@ export default function DonationForm() {
         longitude: form.location ? form.location.longitude : undefined,
         availableUntil: form.availableUntil,
       };
-      
+
       await createDonation(donationData);
-      
+
       setForm(initialFormState);
       setSuccessMessage('Donation posted successfully! It is now visible to nearby NGOs.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -120,23 +120,23 @@ export default function DonationForm() {
   };
 
   const inputClass = (error) => `
-    w-full px-4 py-3 bg-white border rounded-xl text-sm transition-all focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500
+    w-full px-4 py-3 bg-white border rounded-xl text-sm transition-all focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green
     ${error ? 'border-red-300 shadow-[0_0_0_4px_rgba(239,68,68,0.1)] focus:border-red-500 focus:ring-red-500/10 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 shadow-sm'}
   `;
 
   return (
     <div className="max-w-3xl mx-auto pb-12">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">Create a Donation</h2>
+        <h2 className="text-3xl font-bold text-brand-text mb-3 tracking-tight">Post a Donation</h2>
         <p className="text-gray-500 text-lg">Share surplus food with an organization nearby.</p>
       </div>
 
       {successMessage && (
-        <div className="mb-8 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-sm font-medium flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="text-emerald-600 mt-0.5" size={20} />
+        <div className="mb-8 p-5 bg-brand-green/10 border border-brand-green/20 rounded-2xl text-brand-darkGreen text-sm font-medium flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4">
+          <CheckCircle2 className="text-brand-green mt-0.5" size={20} />
           <div>
-            <h4 className="text-emerald-900 font-bold mb-1 text-base">Success</h4>
-            <p className="text-emerald-700">{successMessage}</p>
+            <h4 className="text-brand-darkGreen font-bold mb-1 text-base">Success</h4>
+            <p className="text-brand-darkGreen/80">{successMessage}</p>
           </div>
         </div>
       )}
@@ -151,19 +151,19 @@ export default function DonationForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-xl shadow-emerald-900/5 relative overflow-hidden">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-xl shadow-brand-green/5 relative overflow-hidden">
         {/* Subtle background decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-emerald-50 to-transparent rounded-bl-[100px] -z-10 opacity-60"></div>
-        
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-brand-green/10 to-transparent rounded-bl-[100px] -z-10 opacity-60"></div>
+
         {/* Section 1: Food Details */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">1</div>
-            <h3 className="text-lg font-semibold text-gray-900 tracking-tight">Food Details</h3>
+            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">1</div>
+            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Food Details</h3>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
               <InputWrapper label="Food Name" error={errors.foodName} required icon={Utensils}>
                 <input
                   type="text"
@@ -174,58 +174,56 @@ export default function DonationForm() {
                   className={inputClass(errors.foodName)}
                 />
               </InputWrapper>
-            </div>
-            
-            <InputWrapper label="Category" error={errors.category} required>
-              <div className="relative">
-                <select name="category" value={form.category} onChange={handleChange} className={`${inputClass(errors.category)} appearance-none cursor-pointer pr-10 font-medium text-gray-700`}>
-                  <option value="" disabled>Select a category</option>
-                  <option value="Prepared Meals">Prepared Meals</option>
-                  <option value="Produce">Produce</option>
-                  <option value="Bakery">Bakery</option>
-                  <option value="Dairy">Dairy</option>
-                  <option value="Packaged Food">Packaged Food</option>
-                  <option value="Beverages">Beverages</option>
-                  <option value="Other">Other</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-              </div>
-            </InputWrapper>
 
-            <div className="grid grid-cols-2 gap-4">
-              <InputWrapper label="Quantity" error={errors.quantity} required>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={form.quantity}
-                  onChange={handleChange}
-                  placeholder="e.g., 30"
-                  className={inputClass(errors.quantity)}
-                />
-              </InputWrapper>
-              
-              <InputWrapper label="Unit" error={errors.unit} required>
+              <InputWrapper label="Category" error={errors.category} required>
                 <div className="relative">
-                  <select name="unit" value={form.unit} onChange={handleChange} className={`${inputClass(errors.unit)} appearance-none cursor-pointer pr-8 font-medium text-gray-700`}>
-                    <option value="" disabled>Unit</option>
-                    <option value="Plates">Plates</option>
-                    <option value="Packets">Packets</option>
-                    <option value="Boxes">Boxes</option>
-                    <option value="kg">kg</option>
-                    <option value="Litres">Litres</option>
-                    <option value="Pieces">Pieces</option>
+                  <select name="category" value={form.category} onChange={handleChange} className={`${inputClass(errors.category)} appearance-none cursor-pointer pr-10 font-medium text-gray-700`}>
+                    <option value="" disabled>Select a category</option>
+                    <option value="Prepared Meals">Prepared Meals</option>
+                    <option value="Produce">Produce</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Dairy">Dairy</option>
+                    <option value="Packaged Food">Packaged Food</option>
+                    <option value="Beverages">Beverages</option>
                     <option value="Other">Other</option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
                 </div>
               </InputWrapper>
-            </div>
 
-            <div className="md:col-span-2">
+              <div className="grid grid-cols-2 gap-4">
+                <InputWrapper label="Quantity" error={errors.quantity} required>
+                  <input
+                    type="number"
+                    name="quantity"
+                    value={form.quantity}
+                    onChange={handleChange}
+                    placeholder="e.g., 30"
+                    className={inputClass(errors.quantity)}
+                  />
+                </InputWrapper>
+
+                <InputWrapper label="Unit" error={errors.unit} required>
+                  <div className="relative">
+                    <select name="unit" value={form.unit} onChange={handleChange} className={`${inputClass(errors.unit)} appearance-none cursor-pointer pr-8 font-medium text-gray-700`}>
+                      <option value="" disabled>Unit</option>
+                      <option value="Plates">Plates</option>
+                      <option value="Packets">Packets</option>
+                      <option value="Boxes">Boxes</option>
+                      <option value="kg">kg</option>
+                      <option value="Litres">Litres</option>
+                      <option value="Pieces">Pieces</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
+                </InputWrapper>
+              </div>
+
               <InputWrapper label="Description">
                 <textarea
                   name="description"
@@ -237,23 +235,36 @@ export default function DonationForm() {
                 />
               </InputWrapper>
             </div>
+
+            {/* Image Upload Box */}
+            <div className="lg:col-span-1">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Food Image (Optional)</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-2xl h-full min-h-[250px] flex flex-col items-center justify-center p-6 text-center cursor-pointer hover:bg-brand-green/5 hover:border-brand-green/50 transition-colors group">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-brand-green/10 transition-colors">
+                  <UploadCloud className="text-gray-400 group-hover:text-brand-green" size={24} />
+                </div>
+                <h4 className="font-semibold text-gray-700 group-hover:text-brand-darkGreen mb-1">Click to upload</h4>
+                <p className="text-xs text-gray-500">or drag & drop</p>
+                <p className="text-xs text-gray-400 mt-4">PNG, JPG up to 5MB</p>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Section 2: Pickup Details */}
         <section className="space-y-6 pt-4">
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">2</div>
-            <h3 className="text-lg font-semibold text-gray-900 tracking-tight">Pickup Details</h3>
+            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">2</div>
+            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Pickup Details</h3>
           </div>
-          
-          <div className="bg-emerald-50/50 rounded-2xl p-6 border border-emerald-100/50 mb-6 flex gap-4 items-start">
-            <div className="bg-emerald-100 p-2 rounded-xl text-emerald-600 mt-0.5">
+
+          <div className="bg-brand-green/5 rounded-2xl p-6 border border-brand-green/20 mb-6 flex gap-4 items-start">
+            <div className="bg-brand-green/20 p-2 rounded-xl text-brand-darkGreen mt-0.5">
               <MapPin size={20} />
             </div>
             <div>
-              <h4 className="font-semibold text-emerald-900 mb-1">Pickup location</h4>
-              <p className="text-sm text-emerald-700/80">Where should the NGO come to collect this food? Make sure the address is accurate.</p>
+              <h4 className="font-semibold text-brand-darkGreen mb-1">Pickup location</h4>
+              <p className="text-sm text-brand-darkGreen/80">Where should the NGO come to collect this food? Make sure the address is accurate.</p>
             </div>
           </div>
 
@@ -270,7 +281,7 @@ export default function DonationForm() {
                 />
               </InputWrapper>
             </div>
-            
+
             <InputWrapper label="Pincode" error={errors.pincode}>
               <input
                 type="text"
@@ -303,10 +314,10 @@ export default function DonationForm() {
         {/* Section 3: Availability */}
         <section className="space-y-6 pt-4">
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">3</div>
-            <h3 className="text-lg font-semibold text-gray-900 tracking-tight">Availability</h3>
+            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">3</div>
+            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Availability</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputWrapper label="Available Until" error={errors.availableUntil} required icon={Clock}>
               <input
@@ -325,7 +336,7 @@ export default function DonationForm() {
           <Button type="button" variant="ghost" size="lg" onClick={handleReset} disabled={isSubmitting} className="w-full sm:w-auto">
             Clear Form
           </Button>
-          <Button type="submit" size="lg" disabled={isSubmitting} isLoading={isSubmitting} className="w-full sm:w-auto shadow-lg shadow-emerald-500/20 text-base px-8">
+          <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} isLoading={isSubmitting} className="w-full sm:w-auto text-base px-8">
             Post Donation
           </Button>
         </div>

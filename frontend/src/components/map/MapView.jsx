@@ -94,7 +94,7 @@ export default function MapView({
       }
       Object.values(markersInstances.current).forEach(m => m.remove());
       markersInstances.current = {};
-      
+
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
@@ -106,7 +106,7 @@ export default function MapView({
   // Handle marker updates
   useEffect(() => {
     if (!mapInstance.current) return;
-    
+
     // Remove existing marker
     if (markerInstance.current) {
       markerInstance.current.remove();
@@ -116,10 +116,10 @@ export default function MapView({
     // Add new marker if valid coordinates provided
     if (marker && typeof marker.lng === 'number' && typeof marker.lat === 'number') {
       try {
-        markerInstance.current = new Marker({ color: '#10b981' }) // Emerald-500
+        markerInstance.current = new Marker({ color: '#138A53' }) // brand-green
           .setLngLat([marker.lng, marker.lat])
           .addTo(mapInstance.current);
-          
+
         // Re-center map on new marker
         mapInstance.current.flyTo({
           center: [marker.lng, marker.lat],
@@ -134,7 +134,7 @@ export default function MapView({
   // Handle multiple markers
   useEffect(() => {
     if (!mapInstance.current) return;
-    
+
     const currentInstances = markersInstances.current;
     const newInstances = {};
 
@@ -170,7 +170,7 @@ export default function MapView({
 
     // Remove any markers that are no longer in the list
     Object.values(currentInstances).forEach(markerObj => markerObj.remove());
-    
+
     markersInstances.current = newInstances;
   }, [markers]);
 
@@ -197,7 +197,7 @@ export default function MapView({
               'line-cap': 'round'
             },
             paint: {
-              'line-color': '#10b981', // emerald-500
+              'line-color': '#138A53', // brand-green
               'line-width': 4
             }
           });
@@ -225,7 +225,7 @@ export default function MapView({
 
   if (error) {
     return (
-      <div 
+      <div
         className={`bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-gray-500 p-4 ${className}`}
         style={{ height }}
       >
@@ -235,9 +235,9 @@ export default function MapView({
   }
 
   return (
-    <div 
-      ref={mapContainer} 
-      className={`rounded-lg overflow-hidden border border-gray-200 shadow-sm ${className}`} 
+    <div
+      ref={mapContainer}
+      className={`rounded-lg overflow-hidden border border-gray-200 shadow-sm ${className}`}
       style={{ height, width: '100%' }}
     />
   );

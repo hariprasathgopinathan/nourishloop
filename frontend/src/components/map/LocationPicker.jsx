@@ -20,7 +20,7 @@ export default function LocationPicker({
 
   const handleGetCurrentLocation = () => {
     if (disabled) return;
-    
+
     setError('');
     setLoadingLocation(true);
 
@@ -86,7 +86,7 @@ export default function LocationPicker({
               type="button"
               onClick={handleClear}
               disabled={disabled}
-              className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4 mr-1 text-gray-400" />
               Clear
@@ -96,7 +96,7 @@ export default function LocationPicker({
             type="button"
             onClick={handleGetCurrentLocation}
             disabled={disabled || loadingLocation}
-            className="inline-flex items-center px-3 py-1.5 border border-emerald-600 shadow-sm text-xs font-medium rounded text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+            className="inline-flex items-center px-3 py-1.5 border border-brand-green shadow-sm text-xs font-medium rounded text-white bg-brand-green hover:bg-brand-darkGreen focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50"
           >
             <Navigation className={`h-4 w-4 mr-1 ${loadingLocation ? 'animate-pulse' : ''}`} />
             {loadingLocation ? 'Locating...' : 'Use current location'}
@@ -118,11 +118,11 @@ export default function LocationPicker({
           interactive={!disabled}
           className={disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-crosshair'}
         />
-        
+
         {value && (
           <div className="absolute bottom-6 left-2 right-2 flex justify-center pointer-events-none">
             <div className="bg-gray-900/90 text-white text-xs px-3 py-1.5 rounded-full shadow-lg flex items-center backdrop-blur-sm pointer-events-auto">
-              <MapPin className="h-3 w-3 mr-1.5 text-emerald-400" />
+              <MapPin className="h-3 w-3 mr-1.5 text-brand-green" />
               <span className="font-mono">
                 {value.latitude.toFixed(6)}, {value.longitude.toFixed(6)}
               </span>

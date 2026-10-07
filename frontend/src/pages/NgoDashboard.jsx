@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AppSidebar from '../components/layout/AppSidebar';
 import AppNavbar from '../components/layout/AppNavbar';
 import NgoOverview from '../components/dashboard/NgoOverview';
@@ -25,12 +25,7 @@ const mainNav = [
   { label: 'Impact', icon: BarChart2, id: 'impact' },
 ];
 
-const getAccountNav = (unreadCount) => [
-  { label: 'Notifications', icon: Bell, id: 'notifications', badge: unreadCount > 0 ? unreadCount : null },
-  { label: 'Profile', icon: User, id: 'profile' },
-  { label: 'Settings', icon: Settings, id: 'settings' },
-  { label: 'Help & Support', icon: HelpCircle, id: 'support' },
-];
+
 
 const titles = {
   overview: 'Overview',
@@ -50,11 +45,11 @@ export default function NgoDashboard({ onLogout }) {
   const [activeView, setActiveView] = useState('overview');
   const [selectedDonation, setSelectedDonation] = useState(null);
   const { unreadCount } = useNotification();
-  
+
   const [availableDonations, setAvailableDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [radiusKm, setRadiusKm] = useState(10);
   const [locationUpdating, setLocationUpdating] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
@@ -125,9 +120,9 @@ export default function NgoDashboard({ onLogout }) {
   const renderContent = () => {
     if (activeView === 'detail' && selectedDonation) {
       return (
-        <DonationDetail 
-          donation={selectedDonation} 
-          onBack={() => handleNavigate('find')} 
+        <DonationDetail
+          donation={selectedDonation}
+          onBack={() => handleNavigate('find')}
           onClaimSuccess={handleClaimSuccess}
         />
       );
@@ -137,25 +132,25 @@ export default function NgoDashboard({ onLogout }) {
       if (!appProfile?.latitude || !appProfile?.longitude) {
         return (
           <div className="max-w-2xl mx-auto pt-12">
-            <div className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-sm text-center">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-3xl border border-brand-teal/20 shadow-sm text-center">
+              <div className="w-16 h-16 bg-brand-teal/10 text-brand-teal rounded-full flex items-center justify-center mx-auto mb-6">
                 <MapPin size={32} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Set your organization location</h2>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
                 Set your organization location to discover nearby food donations.
               </p>
-              
+
               <div className="mb-6 text-left">
-                <LocationPicker 
-                  value={tempLocation} 
-                  onChange={setTempLocation} 
-                  disabled={locationUpdating} 
+                <LocationPicker
+                  value={tempLocation}
+                  onChange={setTempLocation}
+                  disabled={locationUpdating}
                 />
               </div>
 
-              <Button 
-                onClick={handleUpdateLocation} 
+              <Button
+                onClick={handleUpdateLocation}
                 disabled={!tempLocation || locationUpdating}
                 isLoading={locationUpdating}
                 className="w-full sm:w-auto px-8"
@@ -170,7 +165,7 @@ export default function NgoDashboard({ onLogout }) {
       if (loading) {
         return (
           <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-            <Loader2 className="animate-spin h-10 w-10 text-emerald-500 mb-4" />
+            <Loader2 className="animate-spin h-10 w-10 text-brand-teal mb-4" />
             <p className="text-gray-500 font-medium">Loading nearby donations...</p>
           </div>
         );
@@ -178,10 +173,10 @@ export default function NgoDashboard({ onLogout }) {
       if (error) {
         return (
           <div className="pt-12">
-            <EmptyState 
-              title="Unable to load donations" 
-              description={error} 
-              actionLabel="Try Again" 
+            <EmptyState
+              title="Unable to load donations"
+              description={error}
+              actionLabel="Try Again"
               onAction={fetchAvailableDonations}
             />
           </div>
@@ -210,9 +205,9 @@ export default function NgoDashboard({ onLogout }) {
       default:
         const activeClaims = mockClaims.filter(c => c.status === 'CLAIMED' || c.status === 'READY_FOR_PICKUP');
         return (
-          <NgoOverview 
-            stats={mockNgoStats} 
-            recentAvailable={availableDonations} 
+          <NgoOverview
+            stats={mockNgoStats}
+            recentAvailable={availableDonations}
             activeClaims={activeClaims}
             onFindDonations={() => handleNavigate('find')}
             onViewClaims={() => handleNavigate('claims')}
@@ -222,22 +217,22 @@ export default function NgoDashboard({ onLogout }) {
   };
 
   return (
-    <div className="flex h-screen bg-[#FDFDFC] font-sans text-gray-900 overflow-hidden selection:bg-emerald-100 selection:text-emerald-900">
-      <AppSidebar 
-        activeItem={activeView === 'detail' ? 'find' : activeView} 
-        onItemClick={handleNavigate} 
+    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-teal/20 selection:text-brand-darkTeal">
+      <AppSidebar
+        activeItem={activeView === 'detail' ? 'find' : activeView}
+        onItemClick={handleNavigate}
         mainNav={mainNav}
-        accountNav={getAccountNav(unreadCount)}
-        onLogout={onLogout}
+        role="ngo"
       />
 
-      <div className="flex-1 flex flex-col min-w-0 bg-[#FBFBFA] relative">
-        <AppNavbar 
-          title={titles[activeView]} 
+      <div className="flex-1 flex flex-col min-w-0 bg-brand-neutral relative">
+        <AppNavbar
           userName={appProfile?.name || mockNgoProfile.name}
           userRole="NGO Partner"
-          userInitials={appProfile?.name ? appProfile.name.charAt(0) : mockNgoProfile.initials}
+          userInitials={appProfile?.name ? appProfile.name.charAt(0).toUpperCase() : mockNgoProfile.initials}
           onNotificationClick={() => handleNavigate('notifications')}
+          onMenuClick={handleNavigate}
+          onLogout={onLogout}
         />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">
