@@ -171,7 +171,6 @@ These features are **not part of the MVP** and should not be implemented until e
 
 - **Donation history & analytics** — Dashboard with statistics for donors and NGOs.
 - **Ratings & feedback** — NGOs can rate donors and vice versa.
-- **Photo uploads** — Donors can attach photos of the food.
 - **Push notifications** — Browser or mobile push notifications.
 - **Admin panel** — Platform admin dashboard for oversight and moderation.
 - **Multi-language support** — Localization for different regions.
