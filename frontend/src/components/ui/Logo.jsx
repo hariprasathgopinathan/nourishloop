@@ -11,7 +11,7 @@ export default function Logo({ className = "h-8", compact = false }) {
       <img
         src={compact ? "/logo-icon.png" : "/logo.png"}
         alt="NourishLoop Logo"
-        className={`object-contain mix-blend-multiply ${className.replace('drop-shadow-sm', '')}`}
+        className={`object-contain ${className.replace('drop-shadow-sm', '')}`}
       />
     </div>
   );
