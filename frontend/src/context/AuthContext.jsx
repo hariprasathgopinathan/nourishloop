@@ -15,17 +15,21 @@ export const AuthProvider = ({ children }) => {
 
   const [appProfile, setAppProfile] = useState(null);
   const [profileError, setProfileError] = useState(null);
+  const [isProfileMissing, setIsProfileMissing] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const res = await getMe();
       setAppProfile(res.data.user);
       setProfileError(null);
+      setIsProfileMissing(false);
       return res.data.user;
     } catch (err) {
       if (err.status === 404) {
-        setProfileError("Firebase authentication succeeds, but the application profile is not linked.");
+        setIsProfileMissing(true);
+        setProfileError(null);
       } else {
+        setIsProfileMissing(false);
         setProfileError(err.message || "Failed to load application profile.");
       }
       setAppProfile(null);
@@ -69,6 +73,7 @@ export const AuthProvider = ({ children }) => {
     user,
     appProfile,
     profileError,
+    isProfileMissing,
     loading,
     login,
     register,

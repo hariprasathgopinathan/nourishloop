@@ -3,7 +3,7 @@ const authService = require('../services/authService');
 const getCurrentUser = async (req, res) => {
   try {
     const firebaseUid = req.user.uid;
-    const user = await authService.findUserByFirebaseUid(firebaseUid);
+    const user = await authService.findUserByFirebaseUid(firebaseUid, req.user.email);
 
     if (!user) {
       return res.status(404).json({
@@ -71,11 +71,12 @@ const createProfileHandler = async (req, res) => {
       });
     }
 
-    const user = await authService.createApplicationProfile(firebaseUid, email, req.body);
+    const result = await authService.createApplicationProfile(firebaseUid, email, req.body);
+    const user = result.user;
 
-    return res.status(201).json({
+    return res.status(result.reused ? 200 : 201).json({
       success: true,
-      message: 'Application profile created successfully',
+      message: result.reused ? 'Existing application profile found and linked' : 'Application profile created successfully',
       data: {
         user: {
           id: user._id,

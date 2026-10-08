@@ -51,6 +51,32 @@ describe('GET /api/auth/me', () => {
     expect(response.body.message).toBe('Authenticated Firebase user is not linked to an application account.');
   });
 
+  it('TEST 8b: legacy user found by matching email and backfills firebaseUid -> 200', async () => {
+    const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'new_firebase_uid', email: 'legacy@test.com' });
+    getAuth.mockReturnValue({ verifyIdToken });
+    
+    const mockLegacyUser = {
+      _id: 'mongo_legacy',
+      email: 'legacy@test.com',
+      role: 'NGO',
+      save: jest.fn().mockResolvedValue(true)
+    };
+    
+    // First findOne (firebaseUid) returns null, second (email) returns mockLegacyUser
+    User.findOne
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(mockLegacyUser);
+
+    const response = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', 'Bearer valid-token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(mockLegacyUser.firebaseUid).toBe('new_firebase_uid');
+    expect(mockLegacyUser.save).toHaveBeenCalled();
+  });
+
   it('TEST 9: Invalid token -> 401', async () => {
     const verifyIdToken = jest.fn().mockRejectedValue(new Error('Invalid token'));
     getAuth.mockReturnValue({ verifyIdToken });
@@ -195,24 +221,23 @@ describe('POST /api/auth/profile', () => {
       .set('Authorization', 'Bearer valid-token')
       .send({ name: 'Test', phone: '123', role: 'DONOR' });
 
-    expect(response.status).toBe(409);
-    expect(response.body.message).toBe('Application profile already exists for this account.');
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Existing application profile found and linked');
   });
 
-  it('8. Existing email', async () => {
-    const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'firebase_new', email: 'exist@test.com' });
+  it('8b. Existing firebaseUid reuses profile without duplication', async () => {
+    const verifyIdToken = jest.fn().mockResolvedValue({ uid: 'firebase_exist', email: 'test@test.com' });
     getAuth.mockReturnValue({ verifyIdToken });
     
-    // First findOne (firebaseUid) returns null, second (email) returns a document
-    User.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({ email: 'exist@test.com' });
+    User.findOne.mockResolvedValueOnce({ _id: 'exist_mongo', firebaseUid: 'firebase_exist', email: 'test@test.com' });
 
     const response = await request(app)
       .post('/api/auth/profile')
       .set('Authorization', 'Bearer valid-token')
       .send({ name: 'Test', phone: '123', role: 'DONOR' });
 
-    expect(response.status).toBe(409);
-    expect(response.body.message).toBe('An application account already exists for this email.');
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Existing application profile found and linked');
   });
 
   it('9 & 10 & 13 & 14. Firebase UID and Email taken from req.user, tampered body ignored', async () => {

@@ -48,7 +48,7 @@ const requireAppUser = async (req, res, next) => {
   }
 
   try {
-    const user = await authService.findUserByFirebaseUid(req.user.uid);
+    const user = await authService.findUserByFirebaseUid(req.user.uid, req.user.email);
     
     if (!user) {
       return res.status(404).json({

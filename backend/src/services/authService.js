@@ -1,24 +1,37 @@
 const User = require('../models/User');
 
-const findUserByFirebaseUid = async (firebaseUid) => {
-  return await User.findOne({ firebaseUid });
+const findUserByFirebaseUid = async (firebaseUid, email = null) => {
+  let user = await User.findOne({ firebaseUid });
+  
+  const normalizedEmail = email ? email.toLowerCase().trim() : null;
+  
+  if (!user && normalizedEmail) {
+    user = await User.findOne({ email: normalizedEmail });
+    if (user && !user.firebaseUid) {
+      user.firebaseUid = firebaseUid;
+      await user.save();
+    }
+  }
+  
+  return user;
 };
 
 const createApplicationProfile = async (firebaseUid, email, profileData) => {
+  const normalizedEmail = email ? email.toLowerCase().trim() : null;
+
   // Check if firebaseUid already exists
-  const existingUid = await User.findOne({ firebaseUid });
-  if (existingUid) {
-    const error = new Error('Application profile already exists for this account.');
-    error.status = 409;
-    throw error;
+  let existingUser = await User.findOne({ firebaseUid });
+
+  if (!existingUser && normalizedEmail) {
+    existingUser = await User.findOne({ email: normalizedEmail });
   }
 
-  // Check if email already exists
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
-    const error = new Error('An application account already exists for this email.');
-    error.status = 409;
-    throw error;
+  if (existingUser) {
+    if (!existingUser.firebaseUid) {
+      existingUser.firebaseUid = firebaseUid;
+      await existingUser.save();
+    }
+    return { user: existingUser, reused: true };
   }
 
   // Extract allowed fields
@@ -51,7 +64,7 @@ const createApplicationProfile = async (firebaseUid, email, profileData) => {
   // Create new user profile using trusted firebaseUid and email
   const user = new User({
     firebaseUid,
-    email,
+    email: normalizedEmail || email,
     name,
     phone,
     role,
@@ -62,7 +75,8 @@ const createApplicationProfile = async (firebaseUid, email, profileData) => {
     longitude: longitude !== undefined ? Number(longitude) : undefined
   });
 
-  return await user.save();
+  const savedUser = await user.save();
+  return { user: savedUser, reused: false };
 };
 
 const updateUserLocation = async (userId, latitude, longitude) => {
