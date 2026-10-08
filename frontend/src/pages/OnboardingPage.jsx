@@ -157,30 +157,8 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
       </header>
 
       <main className="flex-1 max-w-[1240px] w-full mx-auto px-6 py-10">
-        <div className="flex flex-col lg:flex-row gap-16">
-          {/* Left Sidebar Steps */}
-          <div className="hidden lg:block w-[240px] shrink-0">
-            <div className="sticky top-28 space-y-6">
-              {[
-                { num: 1, label: 'Personal Details', active: true },
-                { num: 2, label: 'Organization Type', active: true },
-                { num: 3, label: 'Organization Details', active: false },
-                { num: 4, label: 'Location (NGO)', active: false },
-                { num: 5, label: 'Review & Create', active: false },
-              ].map((step, idx) => (
-                <div key={idx} className="flex items-center gap-4">
-                  <div className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[12px] font-bold ${step.active ? 'bg-brand-donor text-white' : 'bg-brand-surface border border-brand-border text-brand-text-muted'}`}>
-                    {step.active ? <Check size={14} /> : step.num}
-                  </div>
-                  <span className={`text-[13px] font-medium ${step.active ? 'text-brand-text' : 'text-brand-text-muted'}`}>
-                    {step.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 max-w-[640px]">
+        <div className="flex flex-col lg:flex-row justify-center gap-16">
+          <div className="flex-1 max-w-[640px] mx-auto">
             {error && (
               <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-[8px] flex items-start gap-3 text-red-700 text-[13px] animate-in fade-in slide-in-from-top-2">
                 <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
@@ -255,15 +233,6 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="sm:col-span-2">
-                    <label className="block text-[13px] font-medium text-brand-text mb-1.5">Email Address</label>
-                    <input
-                      type="email"
-                      disabled
-                      value={user?.email || "you@example.com"}
-                      className="w-full px-3.5 py-2.5 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] text-brand-text-muted cursor-not-allowed"
-                    />
-                  </div>
 
                   <div>
                     <label className="block text-[13px] font-medium text-brand-text mb-1.5">Full Name</label>
@@ -357,14 +326,7 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
                 )}
               </section>
 
-              <div className="pt-8 flex flex-row items-center justify-between border-t border-brand-border">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="px-6 py-2.5 text-[14px] font-semibold text-brand-text"
-                >
-                  Back
-                </Button>
+              <div className="pt-8 flex flex-row items-center justify-end border-t border-brand-border">
                 <Button
                   type="submit"
                   variant="primary"
@@ -372,7 +334,7 @@ export default function OnboardingPage({ onSuccess, onLogout }) {
                   disabled={loading}
                   className="px-10 py-2.5 rounded-[8px] text-[14px] font-semibold bg-brand-donor"
                 >
-                  Next
+                  Create Profile
                 </Button>
               </div>
 
