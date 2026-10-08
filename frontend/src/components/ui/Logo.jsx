@@ -9,7 +9,7 @@ export default function Logo({ className = "h-8", compact = false }) {
   return (
     <div className={`flex items-center ${compact ? 'justify-center' : ''}`}>
       <img
-        src={compact ? "/logo-icon.png" : "/logo.png"}
+        src="/images/nourishloop-logo.png"
         alt="NourishLoop Logo"
         className={`object-contain ${className.replace('drop-shadow-sm', '')}`}
       />

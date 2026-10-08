@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Button from '../ui/Button';
 import { createDonation } from '../../services/api';
 import LocationPicker from '../map/LocationPicker';
-import { CheckCircle2, AlertCircle, Utensils, MapPin, Clock, UploadCloud } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Utensils, MapPin, Clock, UploadCloud, X, Image as ImageIcon } from 'lucide-react';
 
 const initialFormState = {
   foodName: '',
@@ -14,7 +14,9 @@ const initialFormState = {
   pincode: '',
   location: null,
   availableUntil: '',
+  image: null,
 };
+
 
 const InputWrapper = ({ label, error, required, children, icon: Icon }) => (
   <div className="flex flex-col group">
@@ -35,6 +37,66 @@ export default function DonationForm() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleFile = (file) => {
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please upload an image file (PNG, JPG).');
+      return;
+    }
+    // Check size < 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('File size must be less than 5MB.');
+      return;
+    }
+    
+    setErrorMessage('');
+    
+    // Create local object URL for preview
+    const previewUrl = URL.createObjectURL(file);
+    
+    setForm(prev => ({ 
+      ...prev, 
+      image: { file, previewUrl } 
+    }));
+  };
+
+  const removeImage = () => {
+    if (form.image && form.image.previewUrl) {
+      URL.revokeObjectURL(form.image.previewUrl);
+    }
+    setForm(prev => ({ ...prev, image: null }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -110,6 +172,9 @@ export default function DonationForm() {
   };
 
   const handleReset = () => {
+    if (form.image && form.image.previewUrl) {
+      URL.revokeObjectURL(form.image.previewUrl);
+    }
     setForm(initialFormState);
     setErrors({});
     setSuccessMessage('');
@@ -233,14 +298,55 @@ export default function DonationForm() {
             {/* Image Upload Box */}
             <div className="lg:col-span-1">
               <label className="text-[13px] font-bold text-brand-text mb-1.5 block">Food Image (Optional)</label>
-              <div className="border border-dashed border-brand-border rounded-[8px] h-[220px] flex flex-col items-center justify-center p-5 text-center cursor-pointer hover:bg-brand-neutral hover:border-brand-donor/50 transition-colors group">
-                <div className="w-[40px] h-[40px] bg-gray-100 rounded-[8px] flex items-center justify-center mb-3 group-hover:bg-brand-donor-light transition-colors">
-                  <UploadCloud className="text-gray-400 group-hover:text-brand-donor" size={20} />
+              
+              {!form.image ? (
+                <div 
+                  className={`border border-dashed rounded-[8px] h-[220px] flex flex-col items-center justify-center p-5 text-center cursor-pointer transition-colors group relative
+                    ${dragActive ? 'border-brand-donor bg-brand-donor/5' : 'border-brand-border hover:bg-brand-neutral hover:border-brand-donor/50'}`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/png, image/jpeg, image/jpg"
+                    onChange={handleFileChange}
+                  />
+                  <div className={`w-[40px] h-[40px] rounded-[8px] flex items-center justify-center mb-3 transition-colors ${dragActive ? 'bg-brand-donor/10' : 'bg-gray-100 group-hover:bg-brand-donor-light'}`}>
+                    <UploadCloud className={dragActive ? 'text-brand-donor' : 'text-gray-400 group-hover:text-brand-donor'} size={20} />
+                  </div>
+                  <h4 className={`font-bold text-[13px] mb-0.5 ${dragActive ? 'text-brand-donor' : 'text-brand-text group-hover:text-brand-donor'}`}>Click to upload</h4>
+                  <p className="text-[11px] text-brand-text-muted">or drag & drop</p>
+                  <p className="text-[11px] text-gray-400 mt-2">PNG, JPG up to 5MB</p>
                 </div>
-                <h4 className="font-bold text-[13px] text-brand-text group-hover:text-brand-donor mb-0.5">Click to upload</h4>
-                <p className="text-[11px] text-brand-text-muted">or drag & drop</p>
-                <p className="text-[11px] text-gray-400 mt-2">PNG, JPG up to 5MB</p>
-              </div>
+              ) : (
+                <div className="border border-brand-border rounded-[8px] h-[220px] p-3 flex flex-col relative bg-white">
+                  <button 
+                    type="button" 
+                    onClick={removeImage}
+                    className="absolute top-4 right-4 w-[28px] h-[28px] bg-white/90 backdrop-blur-sm shadow-sm rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors z-10"
+                  >
+                    <X size={16} />
+                  </button>
+                  <div className="w-full h-full rounded-[6px] overflow-hidden bg-gray-50 flex items-center justify-center border border-gray-100">
+                    <img 
+                      src={form.image.previewUrl} 
+                      alt="Food preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 px-1">
+                    <ImageIcon size={14} className="text-brand-text-muted" />
+                    <p className="text-[12px] font-medium text-brand-text truncate pr-2">
+                      {form.image.file.name}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>
