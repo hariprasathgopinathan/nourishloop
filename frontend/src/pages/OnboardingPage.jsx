@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Store, HeartHandshake, AlertCircle, CheckCircle2, Building, MapPin, Hash, User, Phone, Mail, Bell, LogOut, Check } from 'lucide-react';
+import { Store, HeartHandshake, AlertCircle, CheckCircle2, Bell, LogOut, Check } from 'lucide-react';
 import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';

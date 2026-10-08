@@ -8,14 +8,13 @@ import MyClaims from '../components/claims/MyClaims';
 import PickupTracking from '../components/pickup/PickupTracking';
 import NgoImpact from '../components/impact/NgoImpact';
 import EmptyState from '../components/ui/EmptyState';
-import { LayoutDashboard, Search, HandHeart, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Search, HandHeart, MapPin, BarChart2, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { mockClaims, mockNgoStats, mockNgoProfile } from '../data/ngoMockData';
 import { getNearbyDonations, updateProfileLocation } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/map/LocationPicker';
 import Button from '../components/ui/Button';
 import NotificationsList from '../components/notifications/NotificationsList';
-import { useNotification } from '../context/NotificationContext';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -27,24 +26,13 @@ const mainNav = [
 
 
 
-const titles = {
-  overview: 'Overview',
-  find: 'Find Donations',
-  detail: 'Donation Details',
-  claims: 'My Claims',
-  tracking: 'Pickup Tracking',
-  impact: 'Community Impact',
-  notifications: 'Notifications',
-  profile: 'Profile',
-  settings: 'Settings',
-  support: 'Help & Support'
-};
+
 
 export default function NgoDashboard({ onLogout }) {
   const { appProfile, fetchProfile } = useAuth();
   const [activeView, setActiveView] = useState('overview');
   const [selectedDonation, setSelectedDonation] = useState(null);
-  const { unreadCount } = useNotification();
+  // Removed unused unreadCount
 
   const [availableDonations, setAvailableDonations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +65,7 @@ export default function NgoDashboard({ onLogout }) {
   }, [appProfile?.latitude, appProfile?.longitude, radiusKm]);
 
   useEffect(() => {
-    fetchAvailableDonations();
+    Promise.resolve().then(() => fetchAvailableDonations());
 
     const handleUpdate = () => fetchAvailableDonations();
     window.addEventListener('donation-updated', handleUpdate);

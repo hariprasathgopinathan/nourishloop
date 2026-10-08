@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Leaf, MapPin, Truck, RefreshCw, ShieldCheck, Heart, Clock, Building2, Store } from 'lucide-react';
+import { ArrowRight, MapPin, Truck, ShieldCheck, Heart, Building2, Store } from 'lucide-react';
 import Logo from '../components/ui/Logo';
 import heroImage from '../assets/hero.png';
 
@@ -147,7 +147,7 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
             <span className="text-[13px] text-brand-text-muted font-medium">Keep Good Food in the Loop.</span>
           </div>
           <div className="text-[12px] text-brand-text-muted">
-            © {new Date().getFullYear()} NourishLoop
+            © 2024 NourishLoop
           </div>
         </div>
       </footer>

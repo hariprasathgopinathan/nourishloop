@@ -4,11 +4,10 @@ import { CheckCircle2, AlertCircle, Mail, Lock, User, Eye, EyeOff } from 'lucide
 import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
 
-export default function AuthPage({ intentRole = 'donor', onBack, onSuccess }) {
+export default function AuthPage({ onSuccess }) {
   const { login, register } = useAuth();
 
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState(intentRole);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -5,11 +5,11 @@ import DonationForm from '../components/donations/DonationForm';
 import Overview from '../components/dashboard/Overview';
 import DonationsList from '../components/donations/DonationsList';
 import EmptyState from '../components/ui/EmptyState';
-import { LayoutDashboard, List, PlusCircle, MapPin, BarChart2, Bell, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
+import { LayoutDashboard, List, PlusCircle, MapPin, BarChart2, User, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { getMyDonations } from '../services/api';
 import PickupTracking from '../components/pickup/PickupTracking';
 import NotificationsList from '../components/notifications/NotificationsList';
-import { useNotification } from '../context/NotificationContext';
+import DonorImpact from '../components/impact/DonorImpact';
 import { useAuth } from '../context/AuthContext';
 
 const mainNav = [
@@ -27,7 +27,6 @@ export default function DonorDashboard({ onLogout }) {
   const [data, setData] = useState({ stats: null, donations: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { unreadCount } = useNotification();
   const { appProfile } = useAuth();
 
   const fetchDashboardData = async () => {
@@ -54,7 +53,7 @@ export default function DonorDashboard({ onLogout }) {
       return (
         <div className="flex flex-col items-center justify-center py-32 text-gray-400">
           <Loader2 className="animate-spin h-10 w-10 text-brand-donor mb-4" />
-          <p className="text-gray-500 font-medium">Loading your dashboard...</p>
+          <p className="text-[14px] font-bold text-brand-text-muted">Loading your dashboard...</p>
         </div>
       );
     }
@@ -88,7 +87,7 @@ export default function DonorDashboard({ onLogout }) {
       case 'tracking':
         return <PickupTracking role="DONOR" initialDonations={donations} onUpdate={fetchDashboardData} />;
       case 'impact':
-        return <div className="pt-12"><EmptyState icon={BarChart2} title="Your Impact" description="See the difference you've made in your community." /></div>;
+        return <DonorImpact />;
       case 'notifications':
         return <div className="pt-6"><NotificationsList /></div>;
       case 'profile':
@@ -108,20 +107,9 @@ export default function DonorDashboard({ onLogout }) {
     }
   };
 
-  const titles = {
-    overview: 'Overview',
-    donations: 'My Donations',
-    create: 'Post Donation',
-    tracking: 'Pickup Tracking',
-    impact: 'Impact',
-    notifications: 'Notifications',
-    profile: 'Profile',
-    settings: 'Settings',
-    support: 'Help & Support'
-  };
 
   return (
-    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-donor/20 selection:text-brand-darkGreen">
+    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-donor-light selection:text-brand-donor">
       <AppSidebar
         activeItem={activeView}
         onItemClick={setActiveView}
