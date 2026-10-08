@@ -7,7 +7,7 @@ export default function Navbar({ title = "Overview" }) {
         <h2 className="text-xl font-semibold text-gray-900 hidden md:block tracking-tight">{title}</h2>
 
         {/* Search Bar - hidden on mobile for cleaner UI, could be toggled */}
-        <div className="hidden lg:flex items-center gap-2 bg-gray-50/50 hover:bg-gray-100/50 border border-gray-200/60 focus-within:bg-white focus-within:border-brand-green focus-within:ring-4 focus-within:ring-brand-green/10 rounded-full px-4 py-2 w-96 transition-all duration-300">
+        <div className="hidden lg:flex items-center gap-2 bg-gray-50/50 hover:bg-gray-100/50 border border-gray-200/60 focus-within:bg-white focus-within:border-brand-donor focus-within:ring-4 focus-within:ring-brand-donor/10 rounded-full px-4 py-2 w-96 transition-all duration-300">
           <Search size={16} className="text-gray-400" />
           <input
             type="text"
@@ -18,7 +18,7 @@ export default function Navbar({ title = "Overview" }) {
       </div>
 
       <div className="flex items-center gap-5 ml-auto">
-        <button className="relative p-2 text-gray-400 hover:text-brand-green transition-colors rounded-full hover:bg-brand-green/10">
+        <button className="relative p-2 text-gray-400 hover:text-brand-donor transition-colors rounded-full hover:bg-brand-donor/10">
           <Bell size={20} />
           <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
         </button>
@@ -26,7 +26,7 @@ export default function Navbar({ title = "Overview" }) {
         <div className="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
 
         <button className="flex items-center gap-3 group text-left focus:outline-none">
-          <div className="w-10 h-10 rounded-full bg-brand-green/10 text-brand-darkGreen flex items-center justify-center font-bold text-sm shadow-inner overflow-hidden border border-brand-green/30">
+          <div className="w-10 h-10 rounded-full bg-brand-donor/10 text-brand-darkGreen flex items-center justify-center font-bold text-sm shadow-inner overflow-hidden border border-brand-donor/30">
             AK
           </div>
           <div className="hidden sm:block">

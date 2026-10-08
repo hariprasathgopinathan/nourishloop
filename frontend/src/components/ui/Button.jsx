@@ -12,12 +12,12 @@ export default function Button({
   const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]";
 
   const variants = {
-    primary: "bg-brand-green text-white hover:bg-brand-darkGreen focus:ring-brand-green shadow-sm",
-    secondary: "bg-white text-brand-text border border-gray-200 hover:bg-gray-50 focus:ring-brand-green shadow-sm",
+    primary: "bg-brand-donor text-white hover:bg-brand-donor-hover focus:ring-brand-donor shadow-sm",
+    secondary: "bg-white text-brand-text border border-gray-200 hover:bg-gray-50 focus:ring-brand-donor shadow-sm",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm",
     dangerOutline: "bg-white text-red-600 border border-red-200 hover:bg-red-50 focus:ring-red-500",
     ghost: "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-brand-text focus:ring-gray-200",
-    ngoPrimary: "bg-brand-teal text-white hover:bg-brand-darkTeal focus:ring-brand-teal shadow-sm",
+    ngoPrimary: "bg-brand-ngo text-white hover:bg-brand-ngo-hover focus:ring-brand-ngo shadow-sm",
   };
 
   const sizes = {

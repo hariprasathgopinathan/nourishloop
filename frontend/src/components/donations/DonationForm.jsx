@@ -12,18 +12,18 @@ const initialFormState = {
   description: '',
   pickupAddress: '',
   pincode: '',
-  location: null, // { latitude, longitude }
+  location: null,
   availableUntil: '',
 };
 
 const InputWrapper = ({ label, error, required, children, icon: Icon }) => (
   <div className="flex flex-col group">
-    <label className="text-sm font-medium text-gray-700 mb-2 flex justify-between items-center transition-colors group-focus-within:text-brand-darkGreen">
-      <span className="flex items-center gap-2">
-        {Icon && <Icon size={16} className="text-gray-400 group-focus-within:text-brand-green transition-colors" />}
-        {label} {required && <span className="text-brand-green">*</span>}
+    <label className="text-[13px] font-bold text-brand-text mb-1.5 flex justify-between items-center transition-colors">
+      <span className="flex items-center gap-1.5">
+        {Icon && <Icon size={14} className="text-gray-400 group-focus-within:text-brand-donor transition-colors" />}
+        {label} {required && <span className="text-red-500">*</span>}
       </span>
-      {error && <span className="text-red-500 text-xs font-medium flex items-center gap-1"><AlertCircle size={12}/> {error}</span>}
+      {error && <span className="text-red-500 text-[11px] font-bold flex items-center gap-1"><AlertCircle size={10}/> {error}</span>}
     </label>
     {children}
   </div>
@@ -59,11 +59,9 @@ export default function DonationForm() {
       newErrors.location = 'Please select a pickup location on the map';
     } else if (
       !Number.isFinite(form.location.latitude) ||
-      !Number.isFinite(form.location.longitude) ||
-      form.location.latitude < -90 || form.location.latitude > 90 ||
-      form.location.longitude < -180 || form.location.longitude > 180
+      !Number.isFinite(form.location.longitude)
     ) {
-      newErrors.location = 'Invalid location coordinates selected';
+      newErrors.location = 'Invalid location coordinates';
     }
     if (!form.availableUntil) newErrors.availableUntil = 'Required';
     return newErrors;
@@ -77,7 +75,6 @@ export default function DonationForm() {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      // scroll to top to see errors
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -120,50 +117,47 @@ export default function DonationForm() {
   };
 
   const inputClass = (error) => `
-    w-full px-4 py-3 bg-white border rounded-xl text-sm transition-all focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green
-    ${error ? 'border-red-300 shadow-[0_0_0_4px_rgba(239,68,68,0.1)] focus:border-red-500 focus:ring-red-500/10 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 shadow-sm'}
+    w-full px-3.5 py-2.5 bg-brand-surface border rounded-[8px] text-[13px] transition-all focus:outline-none focus:ring-1 focus:border-brand-donor focus:ring-brand-donor
+    ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50/10' : 'border-brand-border'}
   `;
 
   return (
-    <div className="max-w-3xl mx-auto pb-12">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-brand-text mb-3 tracking-tight">Post a Donation</h2>
-        <p className="text-gray-500 text-lg">Share surplus food with an organization nearby.</p>
+    <div className="max-w-[800px] mx-auto pb-12">
+      <div className="mb-6">
+        <h2 className="text-[26px] font-bold text-brand-text mb-1 tracking-tight">Post a Donation</h2>
+        <p className="text-[14px] text-brand-text-muted">Share surplus food with an organization nearby.</p>
       </div>
 
       {successMessage && (
-        <div className="mb-8 p-5 bg-brand-green/10 border border-brand-green/20 rounded-2xl text-brand-darkGreen text-sm font-medium flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="text-brand-green mt-0.5" size={20} />
+        <div className="mb-6 p-4 bg-brand-donor-light border border-brand-donor/20 rounded-[8px] text-brand-text text-[13px] flex items-start gap-3 shadow-[0_2px_8px_rgba(15,23,42,0.02)] animate-in fade-in">
+          <CheckCircle2 className="text-brand-donor mt-0.5" size={16} />
           <div>
-            <h4 className="text-brand-darkGreen font-bold mb-1 text-base">Success</h4>
-            <p className="text-brand-darkGreen/80">{successMessage}</p>
+            <h4 className="font-bold mb-0.5">Success</h4>
+            <p className="text-brand-text-muted">{successMessage}</p>
           </div>
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-sm font-medium flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4">
-          <AlertCircle className="text-red-600 mt-0.5" size={20} />
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-[8px] text-brand-text text-[13px] flex items-start gap-3 shadow-[0_2px_8px_rgba(15,23,42,0.02)] animate-in fade-in">
+          <AlertCircle className="text-red-600 mt-0.5" size={16} />
           <div>
-            <h4 className="text-red-900 font-bold mb-1 text-base">Error</h4>
-            <p className="text-red-700">{errorMessage}</p>
+            <h4 className="font-bold text-red-700 mb-0.5">Error</h4>
+            <p className="text-red-600">{errorMessage}</p>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-xl shadow-brand-green/5 relative overflow-hidden">
-        {/* Subtle background decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-brand-green/10 to-transparent rounded-bl-[100px] -z-10 opacity-60"></div>
-
+      <form onSubmit={handleSubmit} className="bg-brand-surface p-6 sm:p-8 rounded-[12px] border border-brand-border shadow-[0_2px_10px_rgba(15,23,42,0.02)] space-y-8 relative overflow-hidden">
         {/* Section 1: Food Details */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">1</div>
-            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Food Details</h3>
+        <section className="space-y-5">
+          <div className="flex items-center gap-3 border-b border-brand-border pb-3">
+            <div className="w-[24px] h-[24px] rounded-full bg-brand-donor text-white flex items-center justify-center text-[12px] font-bold">1</div>
+            <h3 className="text-[16px] font-bold text-brand-text tracking-tight">Food Details</h3>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-5">
               <InputWrapper label="Food Name" error={errors.foodName} required icon={Utensils}>
                 <input
                   type="text"
@@ -177,7 +171,7 @@ export default function DonationForm() {
 
               <InputWrapper label="Category" error={errors.category} required>
                 <div className="relative">
-                  <select name="category" value={form.category} onChange={handleChange} className={`${inputClass(errors.category)} appearance-none cursor-pointer pr-10 font-medium text-gray-700`}>
+                  <select name="category" value={form.category} onChange={handleChange} className={`${inputClass(errors.category)} appearance-none cursor-pointer pr-10 text-brand-text font-medium`}>
                     <option value="" disabled>Select a category</option>
                     <option value="Prepared Meals">Prepared Meals</option>
                     <option value="Produce">Produce</option>
@@ -187,7 +181,7 @@ export default function DonationForm() {
                     <option value="Beverages">Beverages</option>
                     <option value="Other">Other</option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
                 </div>
@@ -207,7 +201,7 @@ export default function DonationForm() {
 
                 <InputWrapper label="Unit" error={errors.unit} required>
                   <div className="relative">
-                    <select name="unit" value={form.unit} onChange={handleChange} className={`${inputClass(errors.unit)} appearance-none cursor-pointer pr-8 font-medium text-gray-700`}>
+                    <select name="unit" value={form.unit} onChange={handleChange} className={`${inputClass(errors.unit)} appearance-none cursor-pointer pr-8 text-brand-text font-medium`}>
                       <option value="" disabled>Unit</option>
                       <option value="Plates">Plates</option>
                       <option value="Packets">Packets</option>
@@ -217,7 +211,7 @@ export default function DonationForm() {
                       <option value="Pieces">Pieces</option>
                       <option value="Other">Other</option>
                     </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                    <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                   </div>
@@ -230,7 +224,7 @@ export default function DonationForm() {
                   value={form.description}
                   onChange={handleChange}
                   rows={3}
-                  placeholder="Add any additional details about the food, packaging, or dietary info (optional)"
+                  placeholder="Add any additional details (optional)"
                   className={`${inputClass()} resize-none`}
                 />
               </InputWrapper>
@@ -238,37 +232,37 @@ export default function DonationForm() {
 
             {/* Image Upload Box */}
             <div className="lg:col-span-1">
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Food Image (Optional)</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-2xl h-full min-h-[250px] flex flex-col items-center justify-center p-6 text-center cursor-pointer hover:bg-brand-green/5 hover:border-brand-green/50 transition-colors group">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-brand-green/10 transition-colors">
-                  <UploadCloud className="text-gray-400 group-hover:text-brand-green" size={24} />
+              <label className="text-[13px] font-bold text-brand-text mb-1.5 block">Food Image (Optional)</label>
+              <div className="border border-dashed border-brand-border rounded-[8px] h-[220px] flex flex-col items-center justify-center p-5 text-center cursor-pointer hover:bg-brand-neutral hover:border-brand-donor/50 transition-colors group">
+                <div className="w-[40px] h-[40px] bg-gray-100 rounded-[8px] flex items-center justify-center mb-3 group-hover:bg-brand-donor-light transition-colors">
+                  <UploadCloud className="text-gray-400 group-hover:text-brand-donor" size={20} />
                 </div>
-                <h4 className="font-semibold text-gray-700 group-hover:text-brand-darkGreen mb-1">Click to upload</h4>
-                <p className="text-xs text-gray-500">or drag & drop</p>
-                <p className="text-xs text-gray-400 mt-4">PNG, JPG up to 5MB</p>
+                <h4 className="font-bold text-[13px] text-brand-text group-hover:text-brand-donor mb-0.5">Click to upload</h4>
+                <p className="text-[11px] text-brand-text-muted">or drag & drop</p>
+                <p className="text-[11px] text-gray-400 mt-2">PNG, JPG up to 5MB</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Section 2: Pickup Details */}
-        <section className="space-y-6 pt-4">
-          <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">2</div>
-            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Pickup Details</h3>
+        <section className="space-y-5 pt-2">
+          <div className="flex items-center gap-3 border-b border-brand-border pb-3">
+            <div className="w-[24px] h-[24px] rounded-full bg-brand-donor text-white flex items-center justify-center text-[12px] font-bold">2</div>
+            <h3 className="text-[16px] font-bold text-brand-text tracking-tight">Pickup Details</h3>
           </div>
 
-          <div className="bg-brand-green/5 rounded-2xl p-6 border border-brand-green/20 mb-6 flex gap-4 items-start">
-            <div className="bg-brand-green/20 p-2 rounded-xl text-brand-darkGreen mt-0.5">
-              <MapPin size={20} />
+          <div className="bg-brand-neutral rounded-[8px] p-4 border border-brand-border mb-4 flex gap-3 items-start">
+            <div className="bg-white p-1.5 rounded-[6px] text-brand-text-muted mt-0.5 border border-brand-border">
+              <MapPin size={16} />
             </div>
             <div>
-              <h4 className="font-semibold text-brand-darkGreen mb-1">Pickup location</h4>
-              <p className="text-sm text-brand-darkGreen/80">Where should the NGO come to collect this food? Make sure the address is accurate.</p>
+              <h4 className="font-bold text-[13px] text-brand-text mb-0.5">Pickup location</h4>
+              <p className="text-[12px] text-brand-text-muted">Where should the NGO come to collect this food? Make sure the address is accurate.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="md:col-span-2">
               <InputWrapper label="Pickup Address" error={errors.pickupAddress} required>
                 <input
@@ -294,7 +288,7 @@ export default function DonationForm() {
             </InputWrapper>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <LocationPicker
               value={form.location}
               onChange={(loc) => {
@@ -304,39 +298,39 @@ export default function DonationForm() {
               disabled={isSubmitting}
             />
             {errors.location && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle size={14} /> {errors.location}
+              <p className="mt-1.5 text-[11px] text-red-500 font-bold flex items-center gap-1">
+                <AlertCircle size={12} /> {errors.location}
               </p>
             )}
           </div>
         </section>
 
         {/* Section 3: Availability */}
-        <section className="space-y-6 pt-4">
-          <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-            <div className="w-8 h-8 rounded-full bg-brand-green/20 text-brand-darkGreen flex items-center justify-center font-bold">3</div>
-            <h3 className="text-lg font-semibold text-brand-text tracking-tight">Availability</h3>
+        <section className="space-y-5 pt-2">
+          <div className="flex items-center gap-3 border-b border-brand-border pb-3">
+            <div className="w-[24px] h-[24px] rounded-full bg-brand-donor text-white flex items-center justify-center text-[12px] font-bold">3</div>
+            <h3 className="text-[16px] font-bold text-brand-text tracking-tight">Availability</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <InputWrapper label="Available Until" error={errors.availableUntil} required icon={Clock}>
               <input
                 type="datetime-local"
                 name="availableUntil"
                 value={form.availableUntil}
                 onChange={handleChange}
-                className={`${inputClass(errors.availableUntil)} cursor-pointer font-medium text-gray-700`}
+                className={`${inputClass(errors.availableUntil)} cursor-pointer font-medium text-brand-text`}
               />
             </InputWrapper>
           </div>
         </section>
 
         {/* Action Bar */}
-        <div className="pt-8 mt-4 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-gray-100">
-          <Button type="button" variant="ghost" size="lg" onClick={handleReset} disabled={isSubmitting} className="w-full sm:w-auto">
+        <div className="pt-6 mt-2 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-brand-border">
+          <Button type="button" variant="ghost" className="w-full sm:w-auto px-5 py-2.5 text-[13px] font-bold text-brand-text" onClick={handleReset} disabled={isSubmitting}>
             Clear Form
           </Button>
-          <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} isLoading={isSubmitting} className="w-full sm:w-auto text-base px-8">
+          <Button type="submit" variant="primary" disabled={isSubmitting} isLoading={isSubmitting} className="w-full sm:w-auto px-6 py-2.5 rounded-[8px] text-[13px] font-bold bg-brand-donor">
             Post Donation
           </Button>
         </div>

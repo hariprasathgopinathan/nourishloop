@@ -29,16 +29,16 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
 
   // Theme variables based on role
   const theme = {
-    text: isNgo ? 'text-brand-teal' : 'text-brand-green',
+    text: isNgo ? 'text-brand-ngo' : 'text-brand-donor',
     textDark: isNgo ? 'text-brand-darkTeal' : 'text-brand-darkGreen',
-    bg: isNgo ? 'bg-brand-teal/10' : 'bg-brand-green/10',
-    bgSolid: isNgo ? 'bg-brand-teal text-white' : 'bg-brand-green text-white',
-    border: isNgo ? 'border-brand-teal/20' : 'border-brand-green/20',
-    ring: isNgo ? 'ring-brand-teal/20' : 'ring-brand-green/20',
-    hoverText: isNgo ? 'hover:text-brand-teal' : 'hover:text-brand-green',
-    hoverBorder: isNgo ? 'hover:border-brand-teal/30' : 'hover:border-brand-green/30',
-    ping: isNgo ? 'bg-brand-teal/70' : 'bg-brand-green/70',
-    dot: isNgo ? 'bg-brand-teal' : 'bg-brand-green',
+    bg: isNgo ? 'bg-brand-ngo/10' : 'bg-brand-donor/10',
+    bgSolid: isNgo ? 'bg-brand-ngo text-white' : 'bg-brand-donor text-white',
+    border: isNgo ? 'border-brand-ngo/20' : 'border-brand-donor/20',
+    ring: isNgo ? 'ring-brand-ngo/20' : 'ring-brand-donor/20',
+    hoverText: isNgo ? 'hover:text-brand-ngo' : 'hover:text-brand-donor',
+    hoverBorder: isNgo ? 'hover:border-brand-ngo/30' : 'hover:border-brand-donor/30',
+    ping: isNgo ? 'bg-brand-ngo/70' : 'bg-brand-donor/70',
+    dot: isNgo ? 'bg-brand-ngo' : 'bg-brand-donor',
     buttonVariant: isNgo ? 'ngoPrimary' : 'primary',
   };
   const [selectedClaim, setSelectedClaim] = useState(null);

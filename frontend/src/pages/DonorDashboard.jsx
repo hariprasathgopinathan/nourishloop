@@ -53,7 +53,7 @@ export default function DonorDashboard({ onLogout }) {
     if (loading) {
       return (
         <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-          <Loader2 className="animate-spin h-10 w-10 text-brand-green mb-4" />
+          <Loader2 className="animate-spin h-10 w-10 text-brand-donor mb-4" />
           <p className="text-gray-500 font-medium">Loading your dashboard...</p>
         </div>
       );
@@ -121,7 +121,7 @@ export default function DonorDashboard({ onLogout }) {
   };
 
   return (
-    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-green/20 selection:text-brand-darkGreen">
+    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-donor/20 selection:text-brand-darkGreen">
       <AppSidebar
         activeItem={activeView}
         onItemClick={setActiveView}
@@ -132,7 +132,7 @@ export default function DonorDashboard({ onLogout }) {
       <div className="flex-1 flex flex-col min-w-0 bg-brand-neutral relative">
         <AppNavbar
           userName={appProfile?.name || "Donor"}
-          userRole="Donor"
+          userRole={`DONOR - ${appProfile?.organizationName || 'Organization'}`}
           userInitials={appProfile?.name ? appProfile.name.substring(0, 2).toUpperCase() : "DO"}
           onNotificationClick={() => setActiveView('notifications')}
           onMenuClick={setActiveView}

@@ -4,16 +4,17 @@ import Button from '../ui/Button';
 import UrgencyBadge from '../ui/UrgencyBadge';
 import StatusBadge from '../ui/StatusBadge';
 import MapView from '../map/MapView';
-
 import { claimDonation } from '../../services/api';
-
-// Temporary dev identifier (will be replaced by Firebase Auth user ID)
-
+import { format } from 'date-fns';
 
 export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [claimState, setClaimState] = useState('idle'); // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState('');
+
+  const getPlaceholderImage = (category) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(category || 'Food')}&background=E0F2FE&color=0284C7&size=800&font-size=0.15`;
+  };
 
   const handleClaim = async () => {
     if (!donation || !donation._id) {
@@ -21,8 +22,6 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
       setErrorMessage('Invalid donation selection.');
       return;
     }
-
-
 
     if (donation.status !== 'AVAILABLE') {
       setClaimState('error');
@@ -38,7 +37,6 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
       setClaimState('success');
 
       if (onClaimSuccess) {
-        // Keep the donor display fields intact, since the API response strips them
         const updatedDonation = {
           ...donation,
           ...response.data.donation
@@ -64,104 +62,115 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
   const isAddressHidden = !donation.pickupAddress;
 
   return (
-    <div className="max-w-4xl mx-auto pb-12">
+    <div className="max-w-[1000px] mx-auto pb-12">
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-brand-teal mb-8 group transition-colors"
+        className="flex items-center gap-1.5 text-[13px] font-bold text-brand-text-muted hover:text-brand-ngo mb-6 transition-colors"
       >
-        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        <ArrowLeft size={16} />
         Back to donations
       </button>
 
       {/* Success State */}
       {claimState === 'success' && (
-        <div className="mb-8 p-6 bg-brand-teal/10 border border-brand-teal/20 rounded-2xl flex items-start gap-4 shadow-sm">
-          <CheckCircle2 className="text-brand-teal mt-0.5 flex-shrink-0" size={22} />
+        <div className="mb-6 p-5 bg-brand-ngo-light border border-brand-ngo/20 rounded-[12px] flex items-start gap-4 shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
+          <CheckCircle2 className="text-brand-ngo mt-0.5 shrink-0" size={20} />
           <div>
-            <h4 className="text-brand-darkTeal font-bold text-base mb-1">Donation claimed successfully</h4>
-            <p className="text-brand-darkTeal/80 text-sm">You have reserved this food for pickup. Please coordinate with the donor for collection.</p>
+            <h4 className="text-brand-ngo font-bold text-[14px] mb-1">Donation claimed successfully</h4>
+            <p className="text-brand-text-muted text-[13px]">You have reserved this food for pickup. Please coordinate with the donor for collection.</p>
           </div>
         </div>
       )}
 
       {/* Error State */}
       {claimState === 'error' && (
-        <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-4 shadow-sm">
-          <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={22} />
+        <div className="mb-6 p-5 bg-red-50 border border-red-200 rounded-[12px] flex items-start gap-4 shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
+          <AlertCircle className="text-red-600 mt-0.5 shrink-0" size={20} />
           <div>
-            <h4 className="text-red-900 font-bold text-base mb-1">Failed to claim donation</h4>
-            <p className="text-red-700 text-sm">{errorMessage}</p>
+            <h4 className="text-red-700 font-bold text-[14px] mb-1">Failed to claim donation</h4>
+            <p className="text-red-600 text-[13px]">{errorMessage}</p>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Food Information Card */}
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm">
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-brand-text tracking-tight mb-2">{donation.foodName}</h1>
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
-                    {donation.category}
-                  </span>
-                  <StatusBadge status={donation.status} />
-                </div>
-              </div>
-              <UrgencyBadge availableUntil={donation.availableUntil} />
+        <div className="flex-1 lg:w-2/3 space-y-6">
+          
+          <div className="bg-brand-surface rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+            {/* Header Image */}
+            <div className="h-[240px] w-full bg-gray-100 relative">
+              {donation.imageUrl ? (
+                <img src={donation.imageUrl} alt={donation.foodName} className="w-full h-full object-cover" />
+              ) : (
+                <img src={getPlaceholderImage(donation.category)} alt={donation.category} className="w-full h-full object-cover" />
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand-teal/10 text-brand-teal flex items-center justify-center flex-shrink-0">
-                  <Package size={18} />
-                </div>
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-0.5">Quantity</p>
-                  <p className="text-lg font-semibold text-brand-text">{donation.quantity} <span className="text-gray-400 font-medium text-sm">{donation.unit}</span></p>
+                  <h1 className="text-[24px] font-bold text-brand-text tracking-tight mb-2">{donation.foodName}</h1>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-[6px] bg-gray-100 text-gray-700 text-[12px] font-bold">
+                      {donation.category}
+                    </span>
+                    <StatusBadge status={donation.status} />
+                  </div>
                 </div>
+                <UrgencyBadge availableUntil={donation.availableUntil} />
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand-teal/10 text-brand-teal flex items-center justify-center flex-shrink-0">
-                  <Clock size={18} />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-0.5">Available until</p>
-                  <p className="text-sm font-semibold text-brand-text">
-                    {isNaN(new Date(donation.availableUntil).getTime())
-                      ? 'Unknown date'
-                      : new Date(donation.availableUntil).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            <div className="pt-6 border-t border-gray-100">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <Utensils size={14} className="text-gray-400" />
-                Description
-              </h3>
-              <p className={`text-sm leading-relaxed ${donation.description ? 'text-gray-600' : 'text-gray-400 italic'}`}>
-                {donation.description || 'No additional description provided.'}
-              </p>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="flex items-start gap-3 bg-brand-neutral p-4 rounded-[12px] border border-brand-border">
+                  <div className="w-8 h-8 rounded-[8px] bg-white text-brand-ngo flex items-center justify-center shrink-0 border border-brand-border shadow-sm">
+                    <Package size={16} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider mb-0.5">Quantity</p>
+                    <p className="text-[15px] font-bold text-brand-text">{donation.quantity} <span className="text-brand-text-muted font-medium text-[13px]">{donation.unit}</span></p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-brand-neutral p-4 rounded-[12px] border border-brand-border">
+                  <div className="w-8 h-8 rounded-[8px] bg-white text-brand-ngo flex items-center justify-center shrink-0 border border-brand-border shadow-sm">
+                    <Clock size={16} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider mb-0.5">Available until</p>
+                    <p className="text-[14px] font-bold text-brand-text">
+                      {isNaN(new Date(donation.availableUntil).getTime())
+                        ? 'Unknown date'
+                        : format(new Date(donation.availableUntil), 'dd Oct, h:mm a')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-5 border-t border-brand-border">
+                <h3 className="text-[14px] font-bold text-brand-text mb-2 flex items-center gap-2">
+                  <Utensils size={14} className="text-brand-text-muted" />
+                  Description
+                </h3>
+                <p className={`text-[13px] leading-relaxed ${donation.description ? 'text-brand-text-muted' : 'text-gray-400 italic'}`}>
+                  {donation.description || 'No additional description provided.'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Pickup Location Card */}
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-brand-text tracking-tight mb-6 flex items-center gap-2">
-              <MapPin size={18} className="text-brand-teal" />
+          <div className="bg-brand-surface p-6 sm:p-8 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
+            <h3 className="text-[16px] font-bold text-brand-text tracking-tight mb-5 flex items-center gap-2">
+              <MapPin size={16} className="text-brand-ngo" />
               Pickup location
             </h3>
 
             {/* Map */}
             {lat && lng ? (
-              <div className="mb-6">
+              <div className="mb-6 rounded-[12px] overflow-hidden border border-brand-border shadow-sm h-[200px]">
                 <MapView
-                  height="200px"
+                  height="100%"
                   center={[lng, lat]}
                   zoom={13}
                   marker={{ lng, lat }}
@@ -169,32 +178,32 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
                 />
               </div>
             ) : (
-              <div className="w-full h-48 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-6 relative overflow-hidden">
+              <div className="w-full h-[200px] rounded-[12px] bg-gray-100 border border-gray-200 flex items-center justify-center mb-6 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iI2Y5ZmFmYiIvPgo8cGF0aCBkPSJNMzAgMzBMMzAgMTBNMzAgMzBMNTAgMzBNMzAgMzBMMzAgNTBNMzAgMzBMMTAgMzAiIHN0cm9rZT0iI2UwZTBlMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] opacity-60"></div>
                 <div className="flex flex-col items-center text-center relative z-10">
-                  <div className="w-12 h-12 rounded-full bg-brand-teal/10 text-brand-teal flex items-center justify-center mb-2 shadow-sm">
-                    <MapPin size={22} />
+                  <div className="w-10 h-10 rounded-[8px] bg-white text-brand-ngo flex items-center justify-center mb-2 shadow-sm border border-brand-border">
+                    <MapPin size={20} />
                   </div>
-                  <p className="text-xs text-gray-500 font-medium">Map unavailable</p>
+                  <p className="text-[12px] text-gray-500 font-bold">Map unavailable</p>
                 </div>
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Address</p>
-                <p className={`text-sm font-medium ${isAddressHidden ? 'text-gray-500 italic' : 'text-brand-text'}`}>
+                <p className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider mb-1">Address</p>
+                <p className={`text-[13px] font-medium ${isAddressHidden ? 'text-gray-500 italic' : 'text-brand-text'}`}>
                   {isAddressHidden ? 'Exact address revealed after claiming' : donation.pickupAddress}
                 </p>
               </div>
-              <div className="flex gap-6">
+              <div className="flex gap-8">
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Pincode</p>
-                  <p className="text-sm font-medium text-brand-text">{donation.pincode || 'N/A'}</p>
+                  <p className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider mb-1">Pincode</p>
+                  <p className="text-[13px] font-medium text-brand-text">{donation.pincode || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Distance</p>
-                  <p className="text-sm font-semibold text-brand-teal">
+                  <p className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider mb-1">Distance</p>
+                  <p className="text-[13px] font-bold text-brand-ngo">
                     {donation.distance === 'N/A' ? 'N/A' : `${donation.distance} km away`}
                   </p>
                 </div>
@@ -204,87 +213,89 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
         </div>
 
         {/* Sidebar — Donor Info & CTA */}
-        <div className="space-y-6">
+        <div className="lg:w-1/3 flex flex-col gap-6">
           {/* Donor Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <Building2 size={15} className="text-gray-400" />
+          <div className="bg-brand-surface p-6 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
+            <h3 className="text-[13px] font-bold text-brand-text-muted mb-4 flex items-center gap-2 uppercase tracking-wider">
+              <Building2 size={14} className="text-gray-400" />
               Donated by
             </h3>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-brand-teal/10 text-brand-teal flex items-center justify-center font-bold text-sm border border-brand-teal/20">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-[10px] bg-brand-donor-light text-brand-donor flex items-center justify-center font-bold text-[16px]">
                 {donation.donorName.charAt(0)}
               </div>
               <div>
-                <p className="font-semibold text-brand-text">{donation.donorName}</p>
-                <p className="text-xs text-gray-500 font-medium">Verified donor</p>
+                <p className="font-bold text-[14px] text-brand-text">{donation.donorName}</p>
+                <p className="text-[12px] text-brand-text-muted font-medium flex items-center gap-1">
+                  <CheckCircle2 size={12} className="text-brand-donor" />
+                  Verified donor
+                </p>
               </div>
             </div>
           </div>
 
           {/* Claim CTA */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-brand-surface p-6 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
             {claimState === 'success' ? (
               <div className="text-center py-4">
-                <div className="w-14 h-14 rounded-full bg-brand-teal/10 text-brand-teal flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={28} />
+                <div className="w-12 h-12 rounded-[10px] bg-brand-ngo-light text-brand-ngo flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle2 size={24} />
                 </div>
-                <h3 className="font-bold text-brand-text mb-1">Claimed</h3>
-                <p className="text-sm text-gray-500">Coordinate pickup with the donor.</p>
+                <h3 className="font-bold text-[15px] text-brand-text mb-1">Claimed</h3>
+                <p className="text-[13px] text-brand-text-muted">Coordinate pickup with the donor.</p>
               </div>
             ) : !showConfirm ? (
               <>
-                <h3 className="font-semibold text-brand-text mb-2">Interested in this food?</h3>
-                <p className="text-sm text-gray-500 mb-5">Claim this donation to reserve it for your organization's pickup.</p>
+                <h3 className="font-bold text-[15px] text-brand-text mb-1.5">Interested in this food?</h3>
+                <p className="text-[13px] text-brand-text-muted mb-5 leading-snug">Claim this donation to reserve it for your organization's pickup.</p>
                 <Button
                   onClick={() => setShowConfirm(true)}
-                  variant="ngoPrimary"
-                  className="w-full"
-                  size="lg"
+                  variant="primary"
+                  className="w-full bg-brand-ngo hover:bg-brand-ngo-hover py-2.5 rounded-[8px] font-bold text-[14px]"
                   disabled={donation.status !== 'AVAILABLE'}
                 >
-                  Claim donation
+                  Claim Donation
                 </Button>
               </>
             ) : (
               // Confirmation panel
               <div>
-                <h3 className="font-bold text-brand-text mb-1">Claim this donation?</h3>
-                <p className="text-sm text-gray-500 mb-5">Your organization will reserve this food for pickup.</p>
+                <h3 className="font-bold text-[15px] text-brand-text mb-1">Claim this donation?</h3>
+                <p className="text-[13px] text-brand-text-muted mb-4">Your organization will reserve this food for pickup.</p>
 
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3 mb-5 text-sm border border-gray-100">
+                <div className="bg-brand-neutral rounded-[8px] p-3 space-y-2.5 mb-5 text-[12px] border border-brand-border">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Food</span>
-                    <span className="font-medium text-brand-text">{donation.foodName}</span>
+                    <span className="text-brand-text-muted font-bold">Food</span>
+                    <span className="font-bold text-brand-text truncate max-w-[120px]">{donation.foodName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Quantity</span>
-                    <span className="font-medium text-brand-text">{donation.quantity} {donation.unit}</span>
+                    <span className="text-brand-text-muted font-bold">Quantity</span>
+                    <span className="font-bold text-brand-text">{donation.quantity} {donation.unit}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Pickup</span>
-                    <span className="font-medium text-brand-text text-right max-w-[150px] truncate">
+                  <div className="flex justify-between items-start">
+                    <span className="text-brand-text-muted font-bold">Pickup</span>
+                    <span className="font-bold text-brand-text text-right max-w-[120px]">
                       {isAddressHidden ? 'Revealed after claim' : donation.pickupAddress.split(',')[0]}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Button
                     variant="ghost"
                     onClick={() => setShowConfirm(false)}
-                    className="flex-1"
+                    className="flex-1 py-2 text-[13px] font-bold"
                     disabled={claimState === 'loading'}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleClaim}
-                    variant="ngoPrimary"
-                    className="flex-1"
+                    variant="primary"
+                    className="flex-1 bg-brand-ngo hover:bg-brand-ngo-hover py-2 text-[13px] font-bold rounded-[8px]"
                     isLoading={claimState === 'loading'}
                   >
-                    Confirm claim
+                    Confirm Claim
                   </Button>
                 </div>
               </div>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MoreHorizontal, Clock, MapPin, Building2, Loader2, HandHeart } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Loader2, HandHeart } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
 import EmptyState from '../ui/EmptyState';
 import { getMyClaims } from '../../services/api';
 
 const statusFilters = ['All', 'CLAIMED', 'READY_FOR_PICKUP', 'PICKED_UP', 'EXPIRED', 'CANCELLED'];
 const statusLabels = {
-  All: 'All status',
+  All: 'All Status',
   CLAIMED: 'Claimed',
   READY_FOR_PICKUP: 'Ready for Pickup',
   PICKED_UP: 'Picked Up',
@@ -20,6 +20,10 @@ export default function MyClaims({ onSelectClaim }) {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+
+  const getPlaceholderImage = (category) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(category || 'Food')}&background=E0F2FE&color=0284C7&size=120&font-size=0.33`;
+  };
 
   const fetchClaims = async () => {
     try {
@@ -50,8 +54,8 @@ export default function MyClaims({ onSelectClaim }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-        <Loader2 className="animate-spin h-10 w-10 text-brand-teal mb-4" />
-        <p className="text-gray-500 font-medium">Loading your claims...</p>
+        <Loader2 className="animate-spin h-10 w-10 text-brand-ngo mb-4" />
+        <p className="text-brand-text-muted font-bold text-[14px]">Loading your claims...</p>
       </div>
     );
   }
@@ -82,32 +86,32 @@ export default function MyClaims({ onSelectClaim }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-[1240px] mx-auto pb-12">
       {/* Header */}
-      <div>
-        <h2 className="text-3xl font-semibold text-brand-text mb-2 tracking-tight">My claims</h2>
-        <p className="text-gray-500 text-lg">Track and manage food you've claimed from donors.</p>
+      <div className="mb-6">
+        <h2 className="text-[26px] font-bold text-brand-text mb-1 tracking-tight">My Claims</h2>
+        <p className="text-[14px] text-brand-text-muted">Track and manage food you've claimed from donors.</p>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-2 rounded-2xl border border-gray-200 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1 max-w-md">
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-brand-surface p-3 rounded-[12px] border border-brand-border shadow-[0_2px_8px_rgba(15,23,42,0.02)] mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 flex-1">
+          <div className="relative flex-1 max-w-[320px]">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by food, category, donor, or address..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal transition-all"
+              placeholder="Search claims..."
+              className="w-full pl-9 pr-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo transition-all"
             />
           </div>
           <div className="relative">
-            <Filter size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Filter size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal appearance-none cursor-pointer font-medium text-brand-text w-full sm:w-48"
+              className="pl-9 pr-8 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo transition-all appearance-none font-semibold text-brand-text w-full sm:w-[140px] cursor-pointer"
             >
               {statusFilters.map(s => (
                 <option key={s} value={s}>{statusLabels[s]}</option>
@@ -117,51 +121,65 @@ export default function MyClaims({ onSelectClaim }) {
         </div>
       </div>
 
-      {/* Results */}
+      {/* Data Table */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-16 text-center">
-          <p className="text-gray-500">No claims match your criteria.</p>
+        <div className="bg-brand-surface border border-brand-border rounded-[12px] p-16 text-center shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
+          <p className="text-[14px] font-medium text-brand-text-muted">No claims match your criteria.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map(claim => (
-            <div key={claim._id} className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm hover:border-brand-teal/40 hover:shadow-md transition-all group">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-brand-text truncate">{claim.foodName}</h3>
-                    <StatusBadge status={claim.status} />
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500">
-                    <span className="font-medium text-gray-700">{claim.quantity} {claim.unit}</span>
-                    <span className="flex items-center gap-1">
-                      <Building2 size={13} className="text-gray-400" />
-                      {claim.donorOrganizationName || claim.donorName || "Anonymous Donor"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin size={13} className="text-gray-400" />
-                      {claim.pickupAddress?.split(',')[0]}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock size={13} className="text-gray-400" />
-                      Claimed {new Date(claim.claimedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <button
-                    onClick={() => onSelectClaim?.(claim)}
-                    className="text-sm font-semibold text-brand-teal hover:text-brand-darkTeal hover:bg-brand-teal/10 px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    View details
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-brand-teal hover:bg-brand-teal/10 rounded-lg transition-colors">
-                    <MoreHorizontal size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="bg-brand-surface border border-brand-border rounded-[12px] shadow-[0_2px_8px_rgba(15,23,42,0.02)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[13px] whitespace-nowrap">
+              <thead className="bg-brand-neutral/50 border-b border-brand-border">
+                <tr>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted">Food Item</th>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted">Donor</th>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted">Quantity</th>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted">Claim Date</th>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted">Status</th>
+                  <th className="px-5 py-3 font-bold text-brand-text-muted text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {filtered.map((claim) => (
+                  <tr key={claim._id} className="hover:bg-brand-ngo-light/50 transition-colors group cursor-pointer" onClick={() => onSelectClaim?.(claim)}>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-[40px] h-[40px] rounded-[6px] bg-gray-100 overflow-hidden shrink-0 border border-gray-200/60">
+                          {claim.imageUrl ? (
+                            <img src={claim.imageUrl} alt={claim.foodName} className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={getPlaceholderImage(claim.category)} alt={claim.category} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-brand-text">{claim.foodName}</p>
+                          <p className="text-[11px] text-brand-text-muted font-medium mt-0.5">{claim.category}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3">
+                      <p className="font-bold text-brand-text">{claim.donorOrganizationName || claim.donorName || "Anonymous"}</p>
+                    </td>
+                    <td className="px-5 py-3 font-bold text-brand-text">
+                      {claim.quantity} <span className="text-brand-text-muted font-medium">{claim.unit}</span>
+                    </td>
+                    <td className="px-5 py-3 text-brand-text">
+                      {new Date(claim.claimedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={claim.status} />
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <button className="p-1.5 text-gray-400 hover:text-brand-ngo hover:bg-brand-ngo-light rounded-[6px] transition-colors focus:outline-none focus:ring-1 focus:ring-brand-ngo">
+                        <MoreHorizontal size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

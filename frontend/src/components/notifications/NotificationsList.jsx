@@ -9,7 +9,7 @@ export default function NotificationsList() {
   const getIcon = (type) => {
     switch (type) {
       case 'DONATION_CLAIMED':
-        return <CheckCircle2 className="text-brand-green" size={24} />;
+        return <CheckCircle2 className="text-brand-donor" size={24} />;
       case 'DONATION_READY':
         return <Package className="text-blue-500" size={24} />;
       case 'DONATION_PICKED_UP':
@@ -26,7 +26,7 @@ export default function NotificationsList() {
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="text-sm font-medium text-brand-green hover:text-brand-darkGreen hover:underline flex items-center gap-1 transition-colors"
+            className="text-sm font-medium text-brand-donor hover:text-brand-darkGreen hover:underline flex items-center gap-1 transition-colors"
           >
             <Check size={16} />
             Mark all as read
@@ -55,7 +55,7 @@ export default function NotificationsList() {
                 }
               }}
               className={`p-5 flex gap-4 transition-colors cursor-default sm:cursor-pointer
-                ${!notification.readAt ? 'bg-brand-green/5' : 'hover:bg-gray-50'}
+                ${!notification.readAt ? 'bg-brand-donor/5' : 'hover:bg-gray-50'}
               `}
             >
               <div className="flex-shrink-0 mt-1">
@@ -78,7 +78,7 @@ export default function NotificationsList() {
               </div>
               {!notification.readAt && (
                 <div className="flex-shrink-0 flex items-center">
-                  <span className="w-2.5 h-2.5 bg-brand-green rounded-full" aria-hidden="true" />
+                  <span className="w-2.5 h-2.5 bg-brand-donor rounded-full" aria-hidden="true" />
                 </div>
               )}
             </div>

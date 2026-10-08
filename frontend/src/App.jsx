@@ -10,9 +10,17 @@ import OnboardingPage from './pages/OnboardingPage';
 import MapDemoPage from './pages/MapDemoPage';
 
 function AppContent() {
-  const { user, profileError, logout, appProfile } = useAuth();
+  const { user, profileError, logout, appProfile, loading } = useAuth();
 
   const [authIntent, setAuthIntent] = useState(null);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-donor"></div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     try {

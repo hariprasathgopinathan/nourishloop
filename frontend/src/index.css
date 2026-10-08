@@ -3,12 +3,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @theme {
-  --color-brand-green: #059669;
-  --color-brand-dark-green: #064e3b;
-  --color-brand-teal: #0d9488;
-  --color-brand-dark-teal: #134e4a;
-  --color-brand-neutral: #f8fafc;
-  --color-brand-text: #1e293b;
+  --color-brand-neutral: #F5F7FA;
+  --color-brand-surface: #FFFFFF;
+  --color-brand-surface-subtle: #F8FAFC;
+  --color-brand-text: #12233F;
+  --color-brand-text-muted: #64748B;
+  --color-brand-border: #E2E8F0;
+  
+  --color-brand-donor: #008A4B;
+  --color-brand-donor-light: #E8F7EF;
+  --color-brand-donor-hover: #007740;
+  
+  --color-brand-ngo: #2F6FCF;
+  --color-brand-ngo-light: #EAF2FF;
+  --color-brand-ngo-hover: #265bb5;
+
   --font-sans: 'Inter', system-ui, sans-serif;
 }
 

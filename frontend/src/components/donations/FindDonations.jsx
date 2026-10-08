@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, MapPin, ArrowRight, X } from 'lucide-react';
-import UrgencyBadge from '../ui/UrgencyBadge';
+import { Search, SlidersHorizontal, MapPin, Clock, X } from 'lucide-react';
 import MapView from '../map/MapView';
+import { format } from 'date-fns';
 
 const categories = ['All', 'Prepared Meals', 'Bakery', 'Produce', 'Dairy', 'Packaged Food', 'Beverages', 'Other'];
 const sortOptions = [
@@ -16,6 +16,10 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
+
+  const getPlaceholderImage = (category) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(category || 'Food')}&background=E0F2FE&color=0284C7&size=400&font-size=0.2`;
+  };
 
   // Filter by search query and category
   let filtered = donations.filter(d => {
@@ -48,33 +52,33 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
     id: d._id,
     lat: d.approximateLocation?.latitude,
     lng: d.approximateLocation?.longitude,
-    color: '#0D9488' // brand-teal
+    color: '#008A4B' // brand-donor
   })).filter(m => m.lat && m.lng);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-[1240px] mx-auto pb-12">
       {/* Header */}
-      <div>
-        <h2 className="text-3xl font-semibold text-brand-text mb-2 tracking-tight">Find donations</h2>
-        <p className="text-gray-500 text-lg">Discover available surplus food from donors near you.</p>
+      <div className="mb-6">
+        <h2 className="text-[26px] font-bold text-brand-text mb-1 tracking-tight">Find Donations</h2>
+        <p className="text-[14px] text-brand-text-muted">Browse available surplus food near your organization.</p>
       </div>
 
       {/* Search + Filters Toolbar */}
-      <div className="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm space-y-3">
+      <div className="bg-brand-surface p-3 rounded-[12px] border border-brand-border shadow-[0_2px_8px_rgba(15,23,42,0.02)] space-y-3 mb-6">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search input */}
           <div className="relative flex-1">
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by food name, category, or donor..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo transition-all"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                <X size={16} />
+                <X size={14} />
               </button>
             )}
           </div>
@@ -84,7 +88,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
             <select
               value={radiusKm}
               onChange={e => onRadiusChange(Number(e.target.value))}
-              className="px-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal appearance-none cursor-pointer font-medium text-brand-text w-full sm:w-32"
+              className="px-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[100px]"
             >
               <option value={5}>5 km</option>
               <option value={10}>10 km</option>
@@ -97,7 +101,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="px-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal appearance-none cursor-pointer font-medium text-brand-text w-full sm:w-48"
+            className="px-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[140px]"
           >
             {sortOptions.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -107,9 +111,9 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
           {/* Filter toggle on mobile */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 rounded-lg text-sm font-medium text-brand-text border border-transparent hover:bg-gray-100 transition-colors"
+            className="sm:hidden flex items-center justify-center gap-2 px-4 py-2 bg-brand-neutral rounded-[8px] text-[13px] font-semibold text-brand-text border border-brand-border transition-colors"
           >
-            <SlidersHorizontal size={16} />
+            <SlidersHorizontal size={14} />
             Filters
           </button>
         </div>
@@ -120,10 +124,10 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-[100px] text-[12px] font-bold transition-all ${
                 activeCategory === cat
-                  ? 'bg-brand-teal text-white shadow-sm'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-brand-text'
+                  ? 'bg-brand-text text-white'
+                  : 'bg-brand-neutral text-brand-text-muted hover:bg-brand-surface border border-brand-border'
               }`}
             >
               {cat}
@@ -133,15 +137,15 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
       </div>
 
       {/* Results count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500 font-medium">{filtered.length} donation{filtered.length !== 1 ? 's' : ''} available</p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[14px] text-brand-text-muted font-medium">{filtered.length} donation{filtered.length !== 1 ? 's' : ''} available</p>
       </div>
 
       {/* Map View */}
       {mapMarkers.length > 0 && (
-        <div className="mb-6 rounded-2xl overflow-hidden border border-gray-200">
+        <div className="mb-6 rounded-[12px] overflow-hidden border border-brand-border shadow-[0_2px_8px_rgba(15,23,42,0.02)] h-[250px]">
           <MapView
-            height="300px"
+            height="100%"
             interactive={true}
             markers={mapMarkers}
             onMarkerClick={(id) => {
@@ -154,50 +158,60 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
 
       {/* Donation Cards Grid */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-16 text-center">
-          <div className="w-16 h-16 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Search size={28} />
+        <div className="bg-brand-surface border border-brand-border rounded-[12px] p-16 text-center shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
+          <div className="w-[48px] h-[48px] bg-brand-neutral text-gray-400 rounded-[12px] flex items-center justify-center mx-auto mb-4 border border-brand-border">
+            <Search size={24} />
           </div>
-          <h3 className="text-lg font-bold text-brand-text mb-2 tracking-tight">No donations found</h3>
-          <p className="text-gray-500">Try adjusting your search or filters to find available food.</p>
+          <h3 className="text-[16px] font-bold text-brand-text mb-1 tracking-tight">No donations found</h3>
+          <p className="text-[13px] text-brand-text-muted">Try adjusting your search or filters to find available food.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filtered.map(don => (
-            <button
+            <div
               key={don._id}
+              className="bg-brand-surface rounded-[12px] border border-brand-border shadow-[0_2px_8px_rgba(15,23,42,0.02)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:border-brand-ngo/30 transition-all flex flex-col group overflow-hidden cursor-pointer"
               onClick={() => onSelectDonation(don)}
-              className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:border-brand-teal/40 hover:shadow-lg transition-all text-left group relative overflow-hidden w-full"
             >
-              {/* Subtle accent line at top */}
-              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-teal/80 to-brand-teal/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-              <div className="flex items-start justify-between gap-3 mb-4">
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-brand-text text-base truncate group-hover:text-brand-darkTeal transition-colors">{don.foodName}</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">{don.donorName}</p>
+              {/* Image Section */}
+              <div className="h-[160px] w-full bg-gray-100 relative overflow-hidden">
+                {don.imageUrl ? (
+                  <img src={don.imageUrl} alt={don.foodName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <img src={getPlaceholderImage(don.category)} alt={don.category} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                )}
+                <div className="absolute top-3 right-3 bg-brand-surface/90 backdrop-blur-md px-2.5 py-1 rounded-[6px] shadow-sm">
+                  <span className="text-[12px] font-bold text-brand-text">{don.quantity} {don.unit}</span>
                 </div>
-                <UrgencyBadge availableUntil={don.availableUntil} />
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
-                  {don.category}
-                </span>
-                <span className="text-sm font-semibold text-gray-700">{don.quantity} <span className="font-medium text-gray-400">{don.unit}</span></span>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              {/* Content Section */}
+              <div className="p-4 flex-1 flex flex-col">
+                <h3 className="font-bold text-[15px] text-brand-text truncate mb-1 group-hover:text-brand-ngo transition-colors">{don.foodName}</h3>
+                
+                <p className="text-[12px] font-bold text-brand-text-muted mb-3 truncate">{don.donorName}</p>
+                
+                <div className="flex items-center gap-1.5 text-[12px] font-medium text-brand-text-muted mb-1">
                   <MapPin size={14} className="text-gray-400" />
-                  <span className="truncate max-w-[180px]">{don.pickupAddress ? don.pickupAddress.split(',')[0] : 'Approximate Area'}</span>
-                  <span className="text-brand-teal font-semibold ml-1">{don.distance} km</span>
+                  <span className="truncate">{don.pickupAddress ? don.pickupAddress.split(',')[0] : 'Approximate Area'}</span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-brand-teal transition-all">
-                  <ArrowRight size={16} />
+                
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-brand-ngo mb-4 ml-[20px]">
+                  {don.distance} km away
+                </div>
+
+                <div className="mt-auto pt-4 border-t border-brand-border">
+                  <div className="flex items-center gap-1.5 text-[12px] font-medium text-brand-text-muted mb-3">
+                    <Clock size={14} className="text-gray-400" />
+                    Available until {format(new Date(don.availableUntil), 'h:mm a')}
+                  </div>
+                  
+                  <button className="w-full bg-brand-ngo-light text-brand-ngo font-bold text-[13px] py-2 rounded-[8px] group-hover:bg-brand-ngo group-hover:text-white transition-colors">
+                    View Details
+                  </button>
                 </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}

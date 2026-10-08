@@ -2,9 +2,9 @@ import React from 'react';
 
 export default function ImpactCard({ icon: Icon, value, label, trend, trendUp = true, theme = 'donor' }) {
   const isNgo = theme === 'ngo';
-  const colorBg = isNgo ? 'bg-brand-teal/10' : 'bg-brand-green/10';
-  const colorText = isNgo ? 'text-brand-teal' : 'text-brand-green';
-  const hoverBorder = isNgo ? 'hover:border-brand-teal/20' : 'hover:border-brand-green/20';
+  const colorBg = isNgo ? 'bg-brand-ngo/10' : 'bg-brand-donor/10';
+  const colorText = isNgo ? 'text-brand-ngo' : 'text-brand-donor';
+  const hoverBorder = isNgo ? 'hover:border-brand-ngo/20' : 'hover:border-brand-donor/20';
 
   return (
     <div className={`bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col h-full relative overflow-hidden group ${hoverBorder} transition-colors`}>

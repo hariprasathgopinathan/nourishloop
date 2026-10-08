@@ -132,8 +132,8 @@ export default function NgoDashboard({ onLogout }) {
       if (!appProfile?.latitude || !appProfile?.longitude) {
         return (
           <div className="max-w-2xl mx-auto pt-12">
-            <div className="bg-white p-8 rounded-3xl border border-brand-teal/20 shadow-sm text-center">
-              <div className="w-16 h-16 bg-brand-teal/10 text-brand-teal rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-3xl border border-brand-ngo/20 shadow-sm text-center">
+              <div className="w-16 h-16 bg-brand-ngo/10 text-brand-ngo rounded-full flex items-center justify-center mx-auto mb-6">
                 <MapPin size={32} />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Set your organization location</h2>
@@ -165,7 +165,7 @@ export default function NgoDashboard({ onLogout }) {
       if (loading) {
         return (
           <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-            <Loader2 className="animate-spin h-10 w-10 text-brand-teal mb-4" />
+            <Loader2 className="animate-spin h-10 w-10 text-brand-ngo mb-4" />
             <p className="text-gray-500 font-medium">Loading nearby donations...</p>
           </div>
         );
@@ -217,7 +217,7 @@ export default function NgoDashboard({ onLogout }) {
   };
 
   return (
-    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-teal/20 selection:text-brand-darkTeal">
+    <div className="flex h-screen bg-brand-neutral font-sans text-brand-text overflow-hidden selection:bg-brand-ngo/20 selection:text-brand-darkTeal">
       <AppSidebar
         activeItem={activeView === 'detail' ? 'find' : activeView}
         onItemClick={handleNavigate}
@@ -228,7 +228,7 @@ export default function NgoDashboard({ onLogout }) {
       <div className="flex-1 flex flex-col min-w-0 bg-brand-neutral relative">
         <AppNavbar
           userName={appProfile?.name || mockNgoProfile.name}
-          userRole="NGO Partner"
+          userRole={`NGO - ${appProfile?.organizationName || 'Organization'}`}
           userInitials={appProfile?.name ? appProfile.name.charAt(0).toUpperCase() : mockNgoProfile.initials}
           onNotificationClick={() => handleNavigate('notifications')}
           onMenuClick={handleNavigate}

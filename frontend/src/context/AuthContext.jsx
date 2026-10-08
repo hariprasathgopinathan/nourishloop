@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (currentUser) => {
+      setLoading(true);
       setUser(currentUser);
       if (currentUser) {
         try {
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FDFDFC] flex flex-col items-center justify-center text-gray-400">
-        <Loader2 className="animate-spin h-12 w-12 text-brand-green mb-4" />
+        <Loader2 className="animate-spin h-12 w-12 text-brand-donor mb-4" />
         <p className="text-gray-500 font-medium">Loading...</p>
       </div>
     );

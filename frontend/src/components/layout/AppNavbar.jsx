@@ -11,10 +11,8 @@ export default function AppNavbar({ userName, userRole, userInitials, onNotifica
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const isNgo = userRole?.toLowerCase() === 'ngo' || userRole?.toLowerCase() === 'ngo partner';
-  const roleColor = isNgo ? 'text-brand-teal' : 'text-brand-green';
-  const avatarBg = isNgo ? 'bg-brand-teal/10' : 'bg-brand-green/10';
-  const avatarBorder = isNgo ? 'border-brand-teal/20' : 'border-brand-green/20';
+  const isNgo = userRole?.toLowerCase().includes('ngo');
+  const avatarBg = isNgo ? 'bg-brand-ngo' : 'bg-brand-donor';
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,63 +25,59 @@ export default function AppNavbar({ userName, userRole, userInitials, onNotifica
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200/60 flex items-center justify-between px-6 lg:px-8 flex-shrink-0 sticky top-0 z-30 transition-all">
+    <header className="h-[72px] bg-brand-surface border-b border-brand-border flex items-center justify-between px-8 flex-shrink-0 sticky top-0 z-30 transition-all">
       <div className="flex-1"></div>
 
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="flex items-center gap-6 ml-auto">
         <button
           onClick={onNotificationClick}
-          className="relative p-2 text-gray-400 hover:text-brand-text transition-colors rounded-lg hover:bg-gray-50"
+          className="relative p-2 text-brand-text-muted hover:text-brand-text transition-colors rounded-full hover:bg-brand-neutral"
           aria-label="Notifications"
         >
           <Bell size={20} />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] text-white font-bold">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           )}
         </button>
-
-        <div className="h-6 w-px bg-gray-200 hidden sm:block mx-1"></div>
 
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="flex items-center gap-3 group text-left focus:outline-none hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-3 group text-left focus:outline-none hover:bg-brand-neutral px-3 py-1.5 rounded-[12px] transition-colors"
           >
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden border ${avatarBg} ${roleColor} ${avatarBorder}`}>
+            <div className={`w-[36px] h-[36px] rounded-full flex items-center justify-center font-bold text-[13px] overflow-hidden text-white ${avatarBg}`}>
               {userInitials}
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-brand-text leading-tight">{userName}</p>
-              <p className={`text-xs font-medium leading-tight mt-0.5 ${roleColor}`}>{userRole}</p>
+              <p className="text-[14px] font-bold text-brand-text leading-[1.1]">{userName}</p>
+              <p className="text-[11px] font-medium text-brand-text-muted leading-[1.3] mt-[2px]">{userRole}</p>
             </div>
-            <ChevronDown size={14} className={`text-gray-400 group-hover:text-gray-600 hidden sm:block transition-transform ${isMenuOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
+            <ChevronDown size={14} className={`text-brand-text-muted group-hover:text-brand-text hidden sm:block transition-transform ml-1 ${isMenuOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <button onClick={() => { onMenuClick('profile'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-text transition-colors">
-                <User size={16} className="text-gray-400" />
+            <div className="absolute right-0 mt-2 w-56 bg-brand-surface rounded-[12px] shadow-[0_4px_20px_rgba(15,23,42,0.1)] border border-brand-border py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <button onClick={() => { onMenuClick('profile'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-brand-text hover:bg-brand-neutral transition-colors">
+                <User size={16} className="text-brand-text-muted" />
                 Profile
               </button>
-              <button onClick={() => { onMenuClick('settings'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-text transition-colors">
-                <Settings size={16} className="text-gray-400" />
+              <button onClick={() => { onMenuClick('settings'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-brand-text hover:bg-brand-neutral transition-colors">
+                <Settings size={16} className="text-brand-text-muted" />
                 Settings
               </button>
-              <button onClick={() => { onMenuClick('support'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-text transition-colors">
-                <HelpCircle size={16} className="text-gray-400" />
+              <button onClick={() => { onMenuClick('support'); setIsMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-brand-text hover:bg-brand-neutral transition-colors">
+                <HelpCircle size={16} className="text-brand-text-muted" />
                 Help & Support
               </button>
               
-              <div className="h-px bg-gray-100 my-2"></div>
+              <div className="h-px bg-brand-border my-2"></div>
               
               <div className="px-3">
                 <button 
                   onClick={() => { onLogout(); setIsMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                 >
-                  <LogOut size={16} />
+                  <LogOut size={14} />
                   Logout
                 </button>
               </div>

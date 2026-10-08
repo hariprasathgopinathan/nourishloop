@@ -19,9 +19,9 @@ export default function NgoImpact() {
         <p className="text-gray-500 text-lg">Your organization's contribution to fighting food waste and hunger.</p>
       </div>
 
-      <div className="bg-brand-teal/10 rounded-2xl p-4 sm:p-6 text-brand-darkTeal text-sm font-medium border border-brand-teal/20 flex items-center justify-between shadow-sm">
+      <div className="bg-brand-ngo/10 rounded-2xl p-4 sm:p-6 text-brand-darkTeal text-sm font-medium border border-brand-ngo/20 flex items-center justify-between shadow-sm">
         <p>This impact data is updated automatically based on your completed claims.</p>
-        <span className="hidden sm:inline-block px-2.5 py-1 bg-brand-teal/20 rounded-md text-brand-darkTeal text-xs font-semibold uppercase tracking-wider">Demo Data</span>
+        <span className="hidden sm:inline-block px-2.5 py-1 bg-brand-ngo/20 rounded-md text-brand-darkTeal text-xs font-semibold uppercase tracking-wider">Demo Data</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
