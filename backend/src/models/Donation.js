@@ -27,6 +27,7 @@ const donationSchema = new mongoose.Schema(
       required: [true, 'Unit is required'],
       trim: true,
     },
+    imageUrl: { type: String },
     description: {
       type: String,
       trim: true,

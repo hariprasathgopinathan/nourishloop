@@ -19,6 +19,7 @@ const createDonation = async (donationData) => {
     description,
     pickupAddress,
     pincode,
+    imageUrl,
     latitude,
     longitude,
     availableUntil,
@@ -88,6 +89,7 @@ const createDonation = async (donationData) => {
     description,
     pickupAddress,
     pincode,
+    imageUrl,
     latitude: numLat,
     longitude: numLng,
     availableUntil,
@@ -509,18 +511,18 @@ const getNearbyDonations = async (ngoLat, ngoLng, radiusKm) => {
     
     if (distanceKm <= radiusKm) {
       // Obscure data for privacy
-      const {
-        donorId,
-        claimedBy,
-        pickupAddress, // Hide exact address
-        pincode,
-        latitude,
-        longitude,
-        createdAt,
-        updatedAt,
-        __v,
-        ...safeData
-      } = donation;
+              const {
+          donorId,
+          claimedBy,
+          pickupAddress, // Hide exact address
+          pincode,
+          latitude,
+          longitude,
+          createdAt,
+          updatedAt,
+          __v,
+          ...safeData
+        } = donation;
 
       nearbyDonations.push({
         ...safeData,
@@ -618,3 +620,8 @@ module.exports = {
   getNearbyDonations,
   getDonationRoute
 };
+
+
+
+
+

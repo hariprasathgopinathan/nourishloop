@@ -46,7 +46,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '10kb' })); // Limit request body size
+app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use('/api', apiLimiter); // Apply general API rate limit
 
 // Routes

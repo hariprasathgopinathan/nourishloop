@@ -145,6 +145,17 @@ export default function DonationForm() {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = undefined;
+      if (form.image && form.image.file) {
+        // Convert image to base64
+        imageUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(form.image.file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
+      }
+      
       const donationData = {
         foodName: form.foodName,
         category: form.category,
@@ -156,6 +167,7 @@ export default function DonationForm() {
         latitude: form.location ? form.location.latitude : undefined,
         longitude: form.location ? form.location.longitude : undefined,
         availableUntil: form.availableUntil,
+        imageUrl,
       };
 
       await createDonation(donationData);
@@ -444,3 +456,4 @@ export default function DonationForm() {
     </div>
   );
 }
+

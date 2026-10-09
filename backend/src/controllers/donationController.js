@@ -7,6 +7,7 @@ const { createDonation, getAvailableDonations, getMyDonations, claimDonation, ge
 const createDonationHandler = async (req, res, next) => {
   try {
     const donationData = { ...req.body, donorId: req.appUser._id };
+    console.log('Received donation with image:', !!req.body.imageUrl);
     const donation = await createDonation(donationData);
 
     res.status(201).json({
@@ -196,3 +197,4 @@ module.exports = {
   getNearbyDonationsHandler,
   getDonationRouteHandler
 };
+
