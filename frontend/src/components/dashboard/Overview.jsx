@@ -40,16 +40,16 @@ export default function Overview({ onCreateClick, stats, recentDonations, expiri
             DONOR - {appProfile?.organizationName || 'Organization'}
           </p>
         </div>
-        <Button onClick={onCreateClick} variant="primary" className="px-5 py-2.5 rounded-[8px] font-semibold">
+        <Button onClick={onCreateClick} variant="primary" className="px-6 py-2.5 rounded-full font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
           + Post Donation
         </Button>
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {statCards.map((stat) => (
-          <div key={stat.label} className="bg-brand-surface border border-brand-border rounded-[12px] p-5 shadow-[0_2px_10px_rgba(15,23,42,0.02)] flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 ${stat.iconBg} ${stat.iconColor}`}>
+          <div key={stat.label} className="bg-brand-surface border border-brand-border/60 rounded-3xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${stat.iconBg} ${stat.iconColor}`}>
               <stat.icon size={22} />
             </div>
             <div>
@@ -79,10 +79,10 @@ export default function Overview({ onCreateClick, stats, recentDonations, expiri
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {recentDonations.slice(0, 5).map(don => (
-                <div key={don._id} className="bg-brand-surface border border-brand-border rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-[0_2px_8px_rgba(15,23,42,0.02)] hover:border-brand-donor/30 transition-colors">
-                  <div className="w-[60px] h-[60px] rounded-[8px] bg-gray-100 overflow-hidden shrink-0 border border-gray-200/60">
+                <div key={don._id} className="bg-brand-surface border border-brand-border/60 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 hover:border-brand-donor/40">
+                  <div className="w-[72px] h-[72px] rounded-2xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 shadow-sm">
                     {don.imageUrl ? (
                       <img src={don.imageUrl} alt={don.foodName} className="w-full h-full object-cover" />
                     ) : (
@@ -117,16 +117,16 @@ export default function Overview({ onCreateClick, stats, recentDonations, expiri
             <div>
               <h3 className="text-[18px] font-bold text-brand-text tracking-tight mb-4">Expiring Soon</h3>
               {expiringSoon.length === 0 ? (
-                <div className="bg-brand-surface border border-brand-border rounded-[12px] p-6 text-center shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
+                <div className="bg-brand-surface border border-brand-border/60 rounded-2xl p-6 text-center shadow-sm">
                   <p className="text-[13px] font-medium text-brand-text-muted">No urgent donations.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {expiringSoon.slice(0, 3).map(don => {
                     const hoursLeft = Math.max(0, Math.round((new Date(don.availableUntil) - new Date()) / (1000 * 60 * 60)));
                     return (
-                      <div key={don._id} className="bg-brand-surface border border-brand-border rounded-[12px] p-3 flex items-center gap-3 shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
-                        <div className="w-[48px] h-[48px] rounded-[6px] bg-gray-100 overflow-hidden shrink-0 border border-gray-200/60">
+                      <div key={don._id} className="bg-brand-surface border border-brand-border/60 rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                        <div className="w-[56px] h-[56px] rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 shadow-sm">
                           {don.imageUrl ? (
                             <img src={don.imageUrl} alt={don.foodName} className="w-full h-full object-cover" />
                           ) : (
@@ -147,8 +147,8 @@ export default function Overview({ onCreateClick, stats, recentDonations, expiri
 
             <div>
               <h3 className="text-[18px] font-bold text-brand-text tracking-tight mb-4">Recent Activity</h3>
-              <div className="bg-brand-surface border border-brand-border rounded-[12px] p-5 shadow-[0_2px_8px_rgba(15,23,42,0.02)]">
-                <div className="space-y-4">
+              <div className="bg-brand-surface border border-brand-border/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="space-y-5">
                   <div className="relative pl-4 border-l-2 border-brand-ngo">
                     <p className="text-[13px] text-brand-text leading-snug">
                       <span className="font-bold">Hope Foundation</span> claimed your donation

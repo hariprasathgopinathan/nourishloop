@@ -75,7 +75,7 @@ export default function AppNavbar({ userName, userRole, userInitials, onNotifica
               <div className="px-3">
                 <button 
                   onClick={() => { onLogout(); setIsMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[13px] font-bold bg-red-700 text-white hover:bg-red-800 hover:shadow-md transition-all duration-300"
                 >
                   <LogOut size={14} />
                   Logout

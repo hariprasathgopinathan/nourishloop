@@ -31,10 +31,9 @@ const InputWrapper = ({ label, error, required, children, icon: Icon }) => (
   </div>
 );
 
-export default function DonationForm() {
+export default function DonationForm({ onSuccess }) {
   const [form, setForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -102,7 +101,6 @@ export default function DonationForm() {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
-    if (successMessage) setSuccessMessage('');
     if (errorMessage) setErrorMessage('');
   };
 
@@ -131,7 +129,6 @@ export default function DonationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
     setErrorMessage('');
 
     const validationErrors = validate();
@@ -173,8 +170,9 @@ export default function DonationForm() {
       await createDonation(donationData);
 
       setForm(initialFormState);
-      setSuccessMessage('Donation posted successfully! It is now visible to nearby NGOs.');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       setErrorMessage(error.message || 'Failed to post donation. Please try again.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -189,7 +187,6 @@ export default function DonationForm() {
     }
     setForm(initialFormState);
     setErrors({});
-    setSuccessMessage('');
     setErrorMessage('');
   };
 
@@ -204,16 +201,6 @@ export default function DonationForm() {
         <h2 className="text-[26px] font-bold text-brand-text mb-1 tracking-tight">Post a Donation</h2>
         <p className="text-[14px] text-brand-text-muted">Share surplus food with an organization nearby.</p>
       </div>
-
-      {successMessage && (
-        <div className="mb-6 p-4 bg-brand-donor-light border border-brand-donor/20 rounded-[8px] text-brand-text text-[13px] flex items-start gap-3 shadow-[0_2px_8px_rgba(15,23,42,0.02)] animate-in fade-in">
-          <CheckCircle2 className="text-brand-donor mt-0.5" size={16} />
-          <div>
-            <h4 className="font-bold mb-0.5">Success</h4>
-            <p className="text-brand-text-muted">{successMessage}</p>
-          </div>
-        </div>
-      )}
 
       {errorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-[8px] text-brand-text text-[13px] flex items-start gap-3 shadow-[0_2px_8px_rgba(15,23,42,0.02)] animate-in fade-in">

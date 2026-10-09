@@ -98,7 +98,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
         {/* Main Content */}
         <div className="flex-1 lg:w-2/3 space-y-6">
           
-          <div className="bg-brand-surface rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+          <div className="bg-brand-surface rounded-3xl border border-brand-border/60 shadow-sm overflow-hidden">
             {/* Header Image */}
             <div className="h-[240px] w-full bg-gray-100 relative">
               {donation.imageUrl ? (
@@ -160,7 +160,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
           </div>
 
           {/* Pickup Location Card */}
-          <div className="bg-brand-surface p-6 sm:p-8 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
+          <div className="bg-brand-surface p-6 sm:p-8 rounded-3xl border border-brand-border/60 shadow-sm">
             <h3 className="text-[16px] font-bold text-brand-text tracking-tight mb-5 flex items-center gap-2">
               <MapPin size={16} className="text-brand-ngo" />
               Pickup location
@@ -215,7 +215,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
         {/* Sidebar — Donor Info & CTA */}
         <div className="lg:w-1/3 flex flex-col gap-6">
           {/* Donor Card */}
-          <div className="bg-brand-surface p-6 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
+          <div className="bg-brand-surface p-6 rounded-3xl border border-brand-border/60 shadow-sm">
             <h3 className="text-[13px] font-bold text-brand-text-muted mb-4 flex items-center gap-2 uppercase tracking-wider">
               <Building2 size={14} className="text-gray-400" />
               Donated by
@@ -235,7 +235,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
           </div>
 
           {/* Claim CTA */}
-          <div className="bg-brand-surface p-6 rounded-[16px] border border-brand-border shadow-[0_2px_12px_rgba(15,23,42,0.02)]">
+          <div className="bg-brand-surface p-6 rounded-3xl border border-brand-border/60 shadow-sm">
             {claimState === 'success' ? (
               <div className="text-center py-4">
                 <div className="w-12 h-12 rounded-[10px] bg-brand-ngo-light text-brand-ngo flex items-center justify-center mx-auto mb-3">
@@ -251,7 +251,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
                 <Button
                   onClick={() => setShowConfirm(true)}
                   variant="primary"
-                  className="w-full bg-brand-ngo hover:bg-brand-ngo-hover py-2.5 rounded-[8px] font-bold text-[14px]"
+                  className="w-full bg-brand-ngo hover:bg-brand-ngo-hover py-3 rounded-full font-bold text-[14px] shadow-sm hover:shadow-md transition-all duration-300"
                   disabled={donation.status !== 'AVAILABLE'}
                 >
                   Claim Donation
@@ -292,7 +292,7 @@ export default function DonationDetail({ donation, onBack, onClaimSuccess }) {
                   <Button
                     onClick={handleClaim}
                     variant="primary"
-                    className="flex-1 bg-brand-ngo hover:bg-brand-ngo-hover py-2 text-[13px] font-bold rounded-[8px]"
+                    className="flex-1 bg-brand-ngo hover:bg-brand-ngo-hover py-2.5 text-[13px] font-bold rounded-full shadow-sm hover:shadow-md transition-all duration-300"
                     isLoading={claimState === 'loading'}
                   >
                     Confirm Claim

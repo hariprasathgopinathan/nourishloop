@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 @theme {
-  --color-brand-neutral: #F5F7FA;
+  --color-brand-neutral: #F1F5F9;
   --color-brand-surface: #FFFFFF;
   --color-brand-surface-subtle: #F8FAFC;
-  --color-brand-text: #12233F;
+  --color-brand-text: #0F172A;
   --color-brand-text-muted: #64748B;
   --color-brand-border: #E2E8F0;
   
-  --color-brand-donor: #008A4B;
-  --color-brand-donor-light: #E8F7EF;
-  --color-brand-donor-hover: #007740;
+  --color-brand-donor: #10B981;
+  --color-brand-donor-light: #ECFDF5;
+  --color-brand-donor-hover: #059669;
   
-  --color-brand-ngo: #2F6FCF;
-  --color-brand-ngo-light: #EAF2FF;
-  --color-brand-ngo-hover: #265bb5;
+  --color-brand-ngo: #0284C7;
+  --color-brand-ngo-light: #E0F2FE;
+  --color-brand-ngo-hover: #0369A1;
 
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Outfit', system-ui, sans-serif;
 }
 
 @layer base {
@@ -26,5 +27,8 @@
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--color-brand-text);
     background-color: var(--color-brand-neutral);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
   }
 }

@@ -9,7 +9,7 @@ export default function Button({
   disabled,
   ...props
 }) {
-  const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]";
+  const baseStyles = "inline-flex items-center justify-center font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98] duration-200 tracking-wide";
 
   const variants = {
     primary: "bg-brand-donor text-white hover:bg-brand-donor-hover focus:ring-brand-donor shadow-sm",

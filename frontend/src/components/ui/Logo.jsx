@@ -14,7 +14,7 @@ export default function Logo({ className = "h-9", compact = false }) {
       <img
         src="/images/logo-icon.png"
         alt="NourishLoop Icon"
-        className={object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105 }
+        className={`object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105 ${className}`}
       />
       
       {/* 

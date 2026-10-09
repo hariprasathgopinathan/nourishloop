@@ -11,6 +11,7 @@ import PickupTracking from '../components/pickup/PickupTracking';
 import NotificationsList from '../components/notifications/NotificationsList';
 import DonorImpact from '../components/impact/DonorImpact';
 import { useAuth } from '../context/AuthContext';
+import Toast from '../components/ui/Toast';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -27,6 +28,7 @@ export default function DonorDashboard({ onLogout }) {
   const [data, setData] = useState({ stats: null, donations: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
   const { appProfile } = useAuth();
 
   const fetchDashboardData = async () => {
@@ -81,7 +83,11 @@ export default function DonorDashboard({ onLogout }) {
 
     switch (activeView) {
       case 'create':
-        return <DonationForm />;
+        return <DonationForm onSuccess={() => {
+          fetchDashboardData();
+          setActiveView('donations');
+          setToastMessage('Donation posted successfully!');
+        }} />;
       case 'donations':
         return <DonationsList donations={donations} />;
       case 'tracking':
@@ -130,6 +136,7 @@ export default function DonorDashboard({ onLogout }) {
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">
           {renderContent()}
         </main>
+        <Toast message={toastMessage} onClose={() => setToastMessage('')} />
       </div>
     </div>
   );

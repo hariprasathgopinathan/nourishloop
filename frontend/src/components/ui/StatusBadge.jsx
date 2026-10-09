@@ -12,7 +12,7 @@ export default function StatusBadge({ status }) {
   const current = config[status] || { label: status, style: 'bg-gray-100 text-gray-700 border border-gray-200' };
 
   return (
-    <span className={`px-2 py-0.5 text-[11px] font-bold rounded-[4px] ${current.style}`}>
+    <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full tracking-wider uppercase ${current.style}`}>
       {current.label}
     </span>
   );

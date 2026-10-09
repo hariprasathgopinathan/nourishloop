@@ -1,7 +1,59 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, MapPin, Truck, ShieldCheck, Heart, Building2, Store, Users, Leaf, Clock, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, MapPin, Truck, ShieldCheck, Heart, Building2, Store, Users, Leaf, Clock, ArrowUpRight, ChevronDown } from 'lucide-react';
 import Logo from '../components/ui/Logo';
+
+const faqs = [
+  {
+    question: "Who can donate food?",
+    answer: "Any registered food business, including restaurants, supermarkets, and catering services, can donate their surplus food. We ensure all donors meet basic food safety guidelines."
+  },
+  {
+    question: "Is there a cost to participate?",
+    answer: "No, NourishLoop is completely free for both donors and NGOs. Our mission is to eliminate barriers to food redistribution."
+  },
+  {
+    question: "How do NGOs claim the food?",
+    answer: "Verified NGOs receive real-time alerts when food becomes available nearby. They can claim it instantly through their dashboard and coordinate pickup directly."
+  },
+  {
+    question: "What types of food can be donated?",
+    answer: "We accept prepared meals, fresh produce, packaged goods, and baked items. All food must be safe for consumption and within its expiration window."
+  }
+];
+
+const FaqItem = ({ faq, isOpen, onClick }) => {
+  return (
+    <div className="border-b border-brand-border/60 last:border-0">
+      <button 
+        onClick={onClick}
+        className="w-full flex items-center justify-between py-6 text-left group focus:outline-none"
+      >
+        <span className={`text-[18px] font-bold transition-colors ${isOpen ? 'text-brand-donor' : 'text-brand-text group-hover:text-brand-donor'}`}>
+          {faq.question}
+        </span>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isOpen ? 'bg-brand-donor/10 text-brand-donor rotate-180' : 'bg-brand-neutral text-brand-text-muted group-hover:bg-brand-donor/10 group-hover:text-brand-donor'}`}>
+          <ChevronDown size={18} />
+        </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="pb-6 text-[16px] text-brand-text-muted leading-relaxed pr-8">
+              {faq.answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const FadeIn = ({ children, delay = 0, direction = 'up', className = "" }) => {
   const directions = {
@@ -26,6 +78,8 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = "" }) => {
 };
 
 export default function LandingPage({ onLoginDonor, onLoginNgo }) {
+  const [openFaq, setOpenFaq] = useState(0);
+
   return (
     <div className="min-h-screen bg-[#FDFDFC] font-sans text-brand-text overflow-hidden">
       
@@ -37,24 +91,33 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
       </div>
 
       {/* HEADER */}
-      <header className="relative z-50 pt-8 pb-4">
-        <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
-          <Logo className="h-20 md:h-24 w-auto shrink-0 hover:scale-105 transition-transform" />
-          <nav className="hidden md:flex items-center gap-8 text-[14px] font-semibold text-brand-text/90">
-            <a href="#about" className="px-5 py-2.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-brand-donor hover:text-brand-donor transition-all">About</a>
-            <a href="#description" className="px-5 py-2.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-brand-donor hover:text-brand-donor transition-all">Mission</a>
-            <a href="#how-it-works" className="px-5 py-2.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-brand-donor hover:text-brand-donor transition-all">How It Works</a>
+      <header className="sticky top-0 z-50 py-4 bg-amber-50/95 backdrop-blur-md border-b border-amber-100 shadow-sm transition-all duration-300">
+        <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Logo className="h-16 md:h-20 w-auto shrink-0 hover:scale-105 transition-transform" />
+          <nav className="hidden md:flex items-center gap-12 lg:gap-16 text-[15px] font-semibold">
+            <a href="#about" className="text-brand-text/90 hover:text-brand-donor transition-colors relative group py-2">
+              About
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-brand-donor transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#description" className="text-brand-text/90 hover:text-brand-donor transition-colors relative group py-2">
+              Mission
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-brand-donor transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#how-it-works" className="text-brand-text/90 hover:text-brand-donor transition-colors relative group py-2">
+              How It Works
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-brand-donor transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5">
             <button 
               onClick={onLoginDonor} 
-              className="px-5 py-2.5 rounded-full border border-gray-200 bg-white shadow-sm text-[14px] font-semibold text-brand-text hover:border-brand-donor hover:text-brand-donor transition-all hidden sm:block"
+              className="px-6 py-3 rounded-full border border-gray-200 bg-white shadow-sm text-[15px] font-semibold text-brand-text hover:border-brand-donor hover:text-brand-donor transition-all hidden sm:block"
             >
               Sign In
             </button>
             <button
               onClick={onLoginDonor}
-              className="bg-brand-donor text-white px-6 py-2.5 rounded-full font-semibold hover:bg-brand-donor-hover hover:scale-105 active:scale-95 transition-all shadow-[0_8px_20px_-8px_rgba(0,138,75,0.6)]"
+              className="bg-brand-donor text-white px-8 py-3 rounded-full font-semibold hover:bg-brand-donor-hover hover:scale-105 active:scale-95 transition-all shadow-md"
             >
               Get Started
             </button>
@@ -64,7 +127,7 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
 
       <main className="flex-col">
         {/* HERO SECTION */}
-        <section className="relative pt-24 pb-32 px-6">
+        <section className="relative pt-16 pb-20 px-6">
           <div className="max-w-[1240px] mx-auto flex flex-col lg:flex-row items-center gap-12">
             
             {/* LEFT: Text & Buttons */}
@@ -129,7 +192,7 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
         </section>
 
         {/* DESCRIPTION / MISSION */}
-        <section id="description" className="py-24 px-6 relative z-10">
+        <section id="description" className="py-16 px-6 relative z-10">
           <div className="max-w-[1000px] mx-auto text-center">
             <FadeIn>
               <h2 className="text-[40px] md:text-[56px] font-extrabold tracking-tight leading-[1.1] text-brand-text mb-8">
@@ -143,7 +206,7 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
         </section>
 
         {/* ABOUT BENTO GRID */}
-        <section id="about" className="py-24 px-6 bg-white border-t border-brand-border/40">
+        <section id="about" className="py-16 px-6 bg-white border-t border-brand-border/40">
           <div className="max-w-[1240px] mx-auto">
             <div className="mb-16">
               <FadeIn>
@@ -206,7 +269,7 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
         </section>
 
         {/* HOW IT WORKS */}
-        <section id="how-it-works" className="py-24 px-6 bg-brand-surface relative overflow-hidden">
+        <section id="how-it-works" className="py-16 px-6 bg-brand-surface relative overflow-hidden">
           <div className="max-w-[1240px] mx-auto relative z-10">
             <FadeIn>
               <div className="text-center mb-20">
@@ -243,8 +306,31 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
           </div>
         </section>
 
+        {/* FAQ SECTION */}
+        <section className="py-20 px-6 bg-white border-t border-brand-border/40">
+          <div className="max-w-[800px] mx-auto">
+            <FadeIn>
+              <div className="text-center mb-16">
+                <h2 className="text-[36px] font-bold text-brand-text mb-4">Frequently Asked Questions</h2>
+                <p className="text-[18px] text-brand-text-muted">Everything you need to know about how the platform works.</p>
+              </div>
+            </FadeIn>
+            
+            <FadeIn delay={0.2} className="bg-brand-surface rounded-[24px] p-6 md:p-8 border border-brand-border/60 shadow-sm">
+              {faqs.map((faq, index) => (
+                <FaqItem 
+                  key={index} 
+                  faq={faq} 
+                  isOpen={openFaq === index} 
+                  onClick={() => setOpenFaq(openFaq === index ? -1 : index)} 
+                />
+              ))}
+            </FadeIn>
+          </div>
+        </section>
+
         {/* CTA */}
-        <section className="py-24 px-6">
+        <section className="pt-20 pb-16 px-6">
           <div className="max-w-[1000px] mx-auto bg-brand-text rounded-[40px] p-12 md:p-20 text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent blur-2xl" />
             
@@ -273,20 +359,21 @@ export default function LandingPage({ onLoginDonor, onLoginNgo }) {
             </FadeIn>
           </div>
         </section>
+
+        {/* MINIMALIST FOOTER */}
+        <footer className="border-t border-brand-border/60 py-8 px-6 bg-white text-center">
+          <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Logo className="h-6 w-auto grayscale opacity-70" />
+            </div>
+            <div className="text-[13px] text-brand-text-muted font-medium">
+              © {new Date().getFullYear()} NourishLoop. All rights reserved.
+            </div>
+          </div>
+        </footer>
       </main>
 
-      {/* FOOTER */}
-      <footer className="bg-white border-t border-brand-border/60 py-12 px-6">
-        <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <Logo className="h-8 w-auto grayscale opacity-80" />
-            <span className="text-[14px] text-brand-text-muted font-medium border-l border-brand-border/60 pl-4">Keep Good Food in the Loop.</span>
-          </div>
-          <div className="text-[13px] text-brand-text-muted font-medium">
-            © 2026 NourishLoop Initiative. All rights reserved.
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 }

@@ -126,8 +126,8 @@ export default function Sidebar({ activeItem, onItemClick }) {
 
         {/* Bottom Area */}
         <div className="p-6 border-t border-gray-100/80 bg-gradient-to-t from-gray-50/50 to-transparent">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-white hover:shadow-sm hover:text-red-600 group transition-all duration-200">
-            <LogOut size={18} className="text-gray-400 group-hover:text-red-500 transition-colors" />
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-bold bg-red-700 text-white hover:bg-red-800 hover:shadow-md transition-all duration-200">
+            <LogOut size={16} />
             Logout
           </button>
         </div>

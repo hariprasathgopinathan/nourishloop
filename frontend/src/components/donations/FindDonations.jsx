@@ -74,7 +74,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by food name, category, or donor..."
-              className="w-full pl-9 pr-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-brand-neutral border border-brand-border/60 rounded-full text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo transition-all"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -88,7 +88,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
             <select
               value={radiusKm}
               onChange={e => onRadiusChange(Number(e.target.value))}
-              className="px-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[100px]"
+              className="px-4 py-2.5 bg-brand-neutral border border-brand-border/60 rounded-full text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[100px] transition-all"
             >
               <option value={5}>5 km</option>
               <option value={10}>10 km</option>
@@ -101,7 +101,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="px-4 py-2 bg-brand-neutral border border-brand-border rounded-[8px] text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[140px]"
+            className="px-4 py-2.5 bg-brand-neutral border border-brand-border/60 rounded-full text-[13px] focus:outline-none focus:bg-brand-surface focus:border-brand-ngo focus:ring-1 focus:ring-brand-ngo appearance-none cursor-pointer font-semibold text-brand-text w-full sm:w-[140px] transition-all"
           >
             {sortOptions.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -124,10 +124,10 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-[100px] text-[12px] font-bold transition-all ${
+              className={`px-4 py-2 rounded-full text-[12px] font-bold transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
                 activeCategory === cat
                   ? 'bg-brand-text text-white'
-                  : 'bg-brand-neutral text-brand-text-muted hover:bg-brand-surface border border-brand-border'
+                  : 'bg-brand-surface text-brand-text-muted hover:bg-brand-neutral border border-brand-border/60'
               }`}
             >
               {cat}
@@ -170,7 +170,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
           {filtered.map(don => (
             <div
               key={don._id}
-              className="bg-brand-surface rounded-[12px] border border-brand-border shadow-[0_2px_8px_rgba(15,23,42,0.02)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:border-brand-ngo/30 transition-all flex flex-col group overflow-hidden cursor-pointer"
+              className="bg-brand-surface rounded-2xl border border-brand-border/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-brand-ngo/40 transition-all duration-300 flex flex-col group overflow-hidden cursor-pointer"
               onClick={() => onSelectDonation(don)}
             >
               {/* Image Section */}
@@ -206,7 +206,7 @@ export default function FindDonations({ donations, onSelectDonation, radiusKm, o
                     Available until {format(new Date(don.availableUntil), 'h:mm a')}
                   </div>
                   
-                  <button className="w-full bg-brand-ngo-light text-brand-ngo font-bold text-[13px] py-2 rounded-[8px] group-hover:bg-brand-ngo group-hover:text-white transition-colors">
+                  <button className="w-full bg-brand-ngo-light text-brand-ngo font-bold text-[13px] py-2.5 rounded-full group-hover:bg-brand-ngo group-hover:text-white transition-all duration-300 shadow-sm hover:shadow-md">
                     View Details
                   </button>
                 </div>
