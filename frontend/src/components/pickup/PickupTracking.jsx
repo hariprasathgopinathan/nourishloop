@@ -315,13 +315,20 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
 
             {role === 'DONOR' && (
               <div className="w-full h-[200px] rounded-[12px] bg-gray-100 border border-gray-200 flex items-center justify-center relative overflow-hidden mb-5">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iI2Y5ZmFmYiIvPgo8cGF0aCBkPSJNMzAgMzBMMzAgMTBNMzAgMzBMNTAgMzBNMzAgMzBMMzAgNTBNMzAgMzBMMTAgMzAiIHN0cm9rZT0iI2UwZTBlMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] opacity-60"></div>
-                <div className="flex flex-col items-center text-center z-10">
-                  <div className={`w-[40px] h-[40px] rounded-[8px] bg-white border border-brand-border ${theme.text} flex items-center justify-center mb-2 shadow-sm`}>
-                    <MapPin size={20} />
+                {selectedClaim.longitude && selectedClaim.latitude ? (
+                  <MapView 
+                    height="100%" 
+                    interactive={false}
+                    center={[selectedClaim.longitude, selectedClaim.latitude]}
+                    zoom={14}
+                    marker={{ lng: selectedClaim.longitude, lat: selectedClaim.latitude }}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center text-center p-4">
+                    <MapPin className="h-[32px] w-[32px] text-gray-400 mb-2" />
+                    <p className="text-[13px] text-gray-500 font-bold">Location coordinates unavailable</p>
                   </div>
-                  <p className="text-[12px] text-gray-500 font-bold">Map preview available after integration</p>
-                </div>
+                )}
               </div>
             )}
 
@@ -334,10 +341,28 @@ export default function PickupTracking({ role = 'NGO', initialDonations, onUpdat
                   </div>
                 )}
                 {routeError && !routeLoading && (
-                  <div className="flex flex-col items-center text-center p-4">
-                    <AlertCircle className="h-[32px] w-[32px] text-red-500 mb-2" />
-                    <p className="text-[13px] text-gray-600 font-bold">{routeError}</p>
-                  </div>
+                  <>
+                    {selectedClaim.longitude && selectedClaim.latitude ? (
+                      <MapView 
+                        height="100%" 
+                        interactive={false}
+                        center={[selectedClaim.longitude, selectedClaim.latitude]}
+                        zoom={14}
+                        marker={{ lng: selectedClaim.longitude, lat: selectedClaim.latitude }}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center text-center p-4">
+                        <AlertCircle className="h-[32px] w-[32px] text-red-500 mb-2" />
+                        <p className="text-[13px] text-gray-600 font-bold">{routeError}</p>
+                      </div>
+                    )}
+                    {selectedClaim.longitude && selectedClaim.latitude && (
+                      <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-red-200 rounded-[8px] px-3 py-2 flex items-center gap-2 shadow-sm z-10 max-w-[90%]">
+                        <AlertCircle className="text-red-500 shrink-0" size={14} />
+                        <p className="text-[12px] text-gray-700 font-bold truncate">{routeError}</p>
+                      </div>
+                    )}
+                  </>
                 )}
                 {routeData && !routeLoading && (
                   <MapView

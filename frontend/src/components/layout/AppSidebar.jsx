@@ -92,7 +92,7 @@ export default function AppSidebar({ activeItem, onItemClick, mainNav, role = 'd
         {/* Navigation Areas */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8 custom-scrollbar">
           <div>
-            <div className={`px-3 mb-4 text-[11px] font-bold ${sectionTitleColor} uppercase tracking-widest`}>
+            <div className={`px-3 mb-4 text-[14px] font-['Poppins'] font-extrabold ${sectionTitleColor} uppercase tracking-widest`}>
               {isNgo ? 'NGO PORTAL' : 'DONOR PORTAL'}
             </div>
             <nav className="space-y-1">
