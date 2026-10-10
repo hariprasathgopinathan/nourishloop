@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "nourishloop",
     "public": "frontend/dist",
     "ignore": [
       "firebase.json",

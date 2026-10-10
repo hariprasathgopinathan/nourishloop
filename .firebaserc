@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "surplus-food-a8149"
-  }
+  },
+  "targets": {
+    "surplus-food-a8149": {
+      "hosting": {
+        "nourishloop": [
+          "nourishloop"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
