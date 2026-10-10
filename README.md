@@ -1,58 +1,135 @@
-# Surplus Food Donation Network
+# NourishLoop — Surplus Food Donation Network
 
-A full-stack web application that connects food donors — restaurants, hotels, grocery stores, bakeries, and other food businesses — with NGOs and shelters that can collect and distribute surplus food to those in need.
-
----
+**Keep Good Food in the Loop.**
 
 ## Problem Statement
 
 Every day, enormous quantities of perfectly edible food go to waste at restaurants, hotels, bakeries, and grocery stores. At the same time, millions of people served by NGOs and shelters struggle with food insecurity. The core problem is a **disconnect**: donors have surplus food but no efficient way to reach organizations that can distribute it, and NGOs have no streamlined way to discover and claim available food before it expires.
 
-**Surplus Food Donation Network** bridges this gap by providing a real-time platform where donors can list surplus food and nearby NGOs can discover, claim, and pick it up — reducing food waste and feeding communities.
+**NourishLoop** bridges this gap by providing a real-time platform where donors can list surplus food and nearby NGOs can discover, claim, and pick it up — reducing food waste and feeding communities.
 
 ---
 
-## Planned Technology Stack
+## Features
 
-| Layer              | Technology                                      |
-| ------------------ | ----------------------------------------------- |
-| **Frontend**       | React, Vite, JavaScript, Tailwind CSS           |
-| **State/Data**     | TanStack Query, Zustand (when needed)           |
-| **Backend**        | Node.js, Express.js, JavaScript                 |
-| **Database**       | MongoDB, Mongoose, MongoDB Atlas                |
-| **Authentication** | Firebase Authentication, Firebase Admin SDK      |
-| **Realtime**       | Socket.IO                                       |
-| **Location**       | Open-Source OSM Stack (MapLibre GL JS)          |
-| **Deployment**     | Vercel (frontend), Render (backend), Atlas (DB) |
-| **Version Control**| Git, GitHub                                     |
-
----
-
-## Current Development Stage
-
-**Step 1 — Project Foundation & Documentation** ✅
-
-The project is currently in the planning and documentation phase. No application source code, dependencies, or infrastructure has been set up yet.
+- Firebase Authentication and role-based Donor/NGO profiles
+- Donation posting and donor donation management
+- Nearby donation discovery and NGO claims
+- Donation lifecycle and pickup tracking
+- MapLibre GL JS and OpenStreetMap-based maps
+- Authorized pickup routing through the existing routing service
+- Socket.IO notifications
+- Existing donor/NGO dashboards and impact views
+- Responsive landing page and authenticated portal interfaces
+- Profile, settings, and support views
 
 ---
 
-## Planned Development Milestones
+## Technology Stack
 
-| Step | Milestone                                      | Status      |
-| ---- | ---------------------------------------------- | ----------- |
-| 1    | Project foundation & documentation             | ✅ Complete |
-| 2    | Backend setup (Express, JavaScript, structure)  | ⬜ Planned  |
-| 3    | Database setup (MongoDB Atlas, Mongoose models) | ⬜ Planned  |
-| 4    | Authentication (Firebase Auth integration)      | ⬜ Planned  |
-| 5    | Core API — Donation CRUD & claiming             | ⬜ Planned  |
-| 6    | Frontend setup (React, Vite, Tailwind)          | ⬜ Planned  |
-| 7    | Frontend pages — Auth, Dashboard, Donations     | ⬜ Planned  |
-| 8    | Realtime notifications (Socket.IO)              | ⬜ Planned  |
-| 9    | Location & maps (MapLibre OSM)                | ⬜ Planned  |
-| 10   | Testing, polish & deployment                    | ⬜ Planned  |
+| Layer | Technology |
+| --- | --- |
+| **Frontend** | React, Vite, JavaScript, Tailwind CSS |
+| **Backend** | Node.js, Express.js, JavaScript |
+| **Database** | MongoDB Atlas and Mongoose |
+| **Authentication** | Firebase Authentication and Firebase Admin SDK |
+| **Real-time notifications** | Socket.IO |
+| **Maps** | MapLibre GL JS and OpenStreetMap |
+| **Routing** | Existing backend routing integration |
+| **Frontend hosting** | Firebase Hosting |
+| **Backend hosting** | Render |
+| **Version Control** | Git and GitHub |
 
 ---
 
-## License
+## Production Deployment
 
-This project is under development. License to be determined.
+- **Frontend (Firebase Hosting):** https://nourishloop.web.app
+- **Backend Health Check (Render):** https://nourishloop-api.onrender.com/api/health
+- **Database:** MongoDB Atlas
+
+*Note: The frontend is deployed to Firebase Hosting, the backend runs on Render, and application data is securely stored in MongoDB Atlas. The core application is fully deployed and operational. Final end-to-end production verification is pending.*
+
+---
+
+## Development Milestones
+
+| Milestone | Status |
+| --- | --- |
+| Project foundation and documentation | ✅ Complete |
+| Backend and database integration | ✅ Complete |
+| Authentication and user profiles | ✅ Complete |
+| Donation workflows and claim lifecycle | ✅ Complete |
+| Maps, nearby discovery, and pickup routing | ✅ Complete |
+| Real-time notifications and security | ✅ Complete |
+| Frontend UI/UX implementation | ✅ Complete |
+| Firebase Hosting and Render deployment | ✅ Complete |
+| Final end-to-end production verification | ⬜ Pending |
+
+---
+
+## Architecture & Request Flow
+
+The frontend React application communicates with the Node/Express backend via a REST API for standard operations (donations, profiles) and via Socket.IO for real-time notifications. The backend verifies Firebase ID tokens through the Firebase Admin SDK, interacts with MongoDB, and proxies mapping and routing requests securely.
+
+## Repository Structure
+
+- `/frontend`: React + Vite SPA
+- `/backend`: Node + Express API
+- `/docs`: Additional project documentation
+
+---
+
+## Local Setup
+
+1. Clone the repository.
+2. **Backend:** 
+   ```bash
+   cd backend
+   npm install
+   npm run dev
+   ```
+3. **Frontend:** 
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+### Environment Variables
+
+You must supply the following environment variables in `.env` files. **Do NOT commit local environment files to version control.**
+
+**Backend (`backend/.env`):**
+- `PORT`
+- `MONGODB_URI`
+- `FRONTEND_ORIGIN`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+- `OSRM_BASE_URL`
+
+**Frontend (`frontend/.env`):**
+- `VITE_API_BASE_URL`
+- `VITE_API_URL`
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+---
+
+## Testing
+
+- **Backend:** `cd backend && npm test`
+- **Frontend Linting:** `cd frontend && npm run lint`
+
+---
+
+## Security Notes
+
+- API endpoints are protected using Firebase ID tokens and verified via Firebase Admin SDK.
+- Secret keys and database URIs must be injected via environment variables in production.
+- Firebase Hosting is configured to handle Single Page Application (SPA) routing securely.
