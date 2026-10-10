@@ -3,7 +3,8 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  updatePassword as firebaseUpdatePassword
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -34,6 +35,15 @@ export const logoutUser = async () => {
   if (!auth) return;
   try {
     await signOut(auth);
+  } catch (error) {
+    throw handleAuthError(error);
+  }
+};
+
+export const updateUserPassword = async (newPassword) => {
+  if (!auth.currentUser) throw new Error("No user currently logged in.");
+  try {
+    await firebaseUpdatePassword(auth.currentUser, newPassword);
   } catch (error) {
     throw handleAuthError(error);
   }

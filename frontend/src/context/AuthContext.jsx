@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { subscribeToAuthState, loginUser, registerUser, logoutUser } from '../services/auth';
+import { subscribeToAuthState, loginUser, registerUser, logoutUser, updateUserPassword } from '../services/auth';
 import { getMe } from '../services/api';
 import { Loader2 } from 'lucide-react';
 
@@ -69,6 +69,10 @@ export const AuthProvider = ({ children }) => {
     return await logoutUser();
   };
 
+  const changePassword = async (newPassword) => {
+    return await updateUserPassword(newPassword);
+  };
+
   const value = {
     user,
     appProfile,
@@ -78,6 +82,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    changePassword,
     fetchProfile
   };
 

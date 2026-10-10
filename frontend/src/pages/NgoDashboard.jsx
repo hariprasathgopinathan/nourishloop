@@ -15,6 +15,9 @@ import { useAuth } from '../context/AuthContext';
 import LocationPicker from '../components/map/LocationPicker';
 import Button from '../components/ui/Button';
 import NotificationsList from '../components/notifications/NotificationsList';
+import ProfileView from '../components/profile/ProfileView';
+import SettingsView from '../components/settings/SettingsView';
+import SupportView from '../components/support/SupportView';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -38,7 +41,9 @@ export default function NgoDashboard({ onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [radiusKm, setRadiusKm] = useState(10);
+  const [radiusKm, setRadiusKm] = useState(() => {
+    return parseInt(localStorage.getItem('defaultSearchRadius') || '10', 10);
+  });
   const [locationUpdating, setLocationUpdating] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
 
@@ -69,7 +74,16 @@ export default function NgoDashboard({ onLogout }) {
 
     const handleUpdate = () => fetchAvailableDonations();
     window.addEventListener('donation-updated', handleUpdate);
-    return () => window.removeEventListener('donation-updated', handleUpdate);
+    
+    const handleRadiusChange = () => {
+      setRadiusKm(parseInt(localStorage.getItem('defaultSearchRadius') || '10', 10));
+    };
+    window.addEventListener('radius-changed', handleRadiusChange);
+    
+    return () => {
+      window.removeEventListener('donation-updated', handleUpdate);
+      window.removeEventListener('radius-changed', handleRadiusChange);
+    };
   }, [fetchAvailableDonations]);
 
   const handleUpdateLocation = async () => {
@@ -184,11 +198,11 @@ export default function NgoDashboard({ onLogout }) {
       case 'notifications':
         return <div className="pt-6"><NotificationsList /></div>;
       case 'profile':
-        return <div className="pt-12"><EmptyState icon={User} title="NGO Profile" description="Manage organization details." /></div>;
+        return <ProfileView />;
       case 'settings':
-        return <div className="pt-12"><EmptyState icon={Settings} title="Settings" description="Application settings." /></div>;
+        return <SettingsView />;
       case 'support':
-        return <div className="pt-12"><EmptyState icon={HelpCircle} title="Help & Support" description="Get assistance." /></div>;
+        return <SupportView />;
       case 'overview':
       default:
         const activeClaims = mockClaims.filter(c => c.status === 'CLAIMED' || c.status === 'READY_FOR_PICKUP');

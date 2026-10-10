@@ -12,6 +12,9 @@ import NotificationsList from '../components/notifications/NotificationsList';
 import DonorImpact from '../components/impact/DonorImpact';
 import { useAuth } from '../context/AuthContext';
 import Toast from '../components/ui/Toast';
+import ProfileView from '../components/profile/ProfileView';
+import SettingsView from '../components/settings/SettingsView';
+import SupportView from '../components/support/SupportView';
 
 const mainNav = [
   { label: 'Overview', icon: LayoutDashboard, id: 'overview' },
@@ -97,11 +100,11 @@ export default function DonorDashboard({ onLogout }) {
       case 'notifications':
         return <div className="pt-6"><NotificationsList /></div>;
       case 'profile':
-        return <div className="pt-12"><EmptyState icon={User} title="Profile" description="Manage your account settings and preferences." /></div>;
+        return <ProfileView />;
       case 'settings':
-        return <div className="pt-12"><EmptyState icon={Settings} title="Settings" description="Application settings will appear here." /></div>;
+        return <SettingsView />;
       case 'support':
-        return <div className="pt-12"><EmptyState icon={HelpCircle} title="Help & Support" description="Get assistance." /></div>;
+        return <SupportView />;
       case 'overview':
       default:
         return <Overview

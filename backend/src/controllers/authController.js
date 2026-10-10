@@ -21,7 +21,11 @@ const getCurrentUser = async (req, res) => {
           firebaseUid: user.firebaseUid,
           name: user.name,
           email: user.email,
+          phone: user.phone,
           role: user.role,
+          organizationName: user.organizationName,
+          address: user.address,
+          pincode: user.pincode,
           latitude: user.latitude,
           longitude: user.longitude
         }
